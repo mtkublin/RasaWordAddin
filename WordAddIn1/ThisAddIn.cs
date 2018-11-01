@@ -1,20 +1,14 @@
-﻿using System;
+﻿using Microsoft.Office.Tools;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-using Word = Microsoft.Office.Interop.Word;
-using Office = Microsoft.Office.Core;
-using Microsoft.Office.Tools;
-using XL.Office.Helpers;
 using System.Windows.Forms;
+using XL.Office.Helpers;
+using Word = Microsoft.Office.Interop.Word;
 
 namespace WordAddIn1
 {
     public partial class ThisAddIn
     {
-        private PaneControl TaskPaneControl;
-        private CustomTaskPane AppTaskPane;
         private Dictionary<KeyState, KeyHandlerDelegate> KeyHandlers;
         
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
@@ -45,7 +39,9 @@ namespace WordAddIn1
                     {
                         if(!repeated)
                         {
-                            AppTaskPane.Visible = !AppTaskPane.Visible;
+                            var activeWindow = Application.ActiveWindow;
+                            var taskPane = WindowTaskPanes[activeWindow];
+                            taskPane.Visible = !taskPane.Visible;
                         }
                         return STOP;
                     }
@@ -58,16 +54,48 @@ namespace WordAddIn1
 
         private void Addin_Setup(Word.Document Doc)
         {
-            TaskPaneControl = new PaneControl();
-            AppTaskPane = CustomTaskPanes.Add(TaskPaneControl, "Annotation Task Pane");
-            AppTaskPane.Visible = true;
+            var taskPane = CustomTaskPanes.Add(new PaneControl(), "Annotation Task Pane (setup)");
+            taskPane.Visible = true;
 
+            WindowTaskPanes = new Dictionary<Word.Window, CustomTaskPane>();
+            var activeWindow = Application.ActiveWindow;
+            WindowTaskPanes.Add(activeWindow, taskPane);
+
+            Application.ActiveDocument.ContentControlOnExit -= HighlightContentControl;
             Application.ActiveDocument.ContentControlOnExit += HighlightContentControl;
 
             if (Doc == null)
             {
-                Application.DocumentOpen += Addin_Setup;
+                Application.WindowActivate += Application_WindowActivate;
             }
+        }
+
+        private Dictionary<Word.Window, CustomTaskPane> WindowTaskPanes;
+
+        private void Application_WindowActivate(Word.Document Doc, Word.Window Wn)
+        {
+            Application.ActiveDocument.ContentControlOnExit -= HighlightContentControl;
+            Application.ActiveDocument.ContentControlOnExit += HighlightContentControl;
+
+            var activeWindow = Application.ActiveWindow;
+            if (!WindowTaskPanes.ContainsKey(activeWindow))
+            {
+                var taskPane = CustomTaskPanes.Add(new PaneControl(), "Annotation Task Pane (activate)");
+                taskPane.Visible = true;
+                WindowTaskPanes.Add(activeWindow, taskPane);
+            }
+
+            Dictionary<Word.Window, CustomTaskPane> tempTaskPains = new Dictionary<Word.Window, CustomTaskPane>();
+            foreach (Word.Window window in Application.Windows)
+            {
+                tempTaskPains.Add(window, WindowTaskPanes[window]);
+                WindowTaskPanes.Remove(window);
+            }
+            foreach (CustomTaskPane pane in WindowTaskPanes.Values)
+            {
+                CustomTaskPanes.Remove(pane);
+            }
+            WindowTaskPanes = tempTaskPains;
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)
