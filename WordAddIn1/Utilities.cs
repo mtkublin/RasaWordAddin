@@ -1,4 +1,5 @@
 ﻿using Word = Microsoft.Office.Interop.Word;
+
 namespace XL.Office.Helpers
 {
     class Utilities

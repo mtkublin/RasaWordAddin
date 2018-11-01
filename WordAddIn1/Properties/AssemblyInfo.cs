@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Resources;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -6,12 +7,12 @@ using System.Security;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("WordAddIn1")]
+[assembly: AssemblyTitle("Word Annotator")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Micro Focus")]
-[assembly: AssemblyProduct("WordAddIn1")]
-[assembly: AssemblyCopyright("Copyright © Micro Focus 2018")]
+[assembly: AssemblyCompany("XL")]
+[assembly: AssemblyProduct("Word Annotator")]
+[assembly: AssemblyCopyright("Copyright © XL 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -35,4 +36,5 @@ using System.Security;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: NeutralResourcesLanguage("en")]
 
