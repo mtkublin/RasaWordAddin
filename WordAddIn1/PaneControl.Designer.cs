@@ -28,18 +28,18 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Node5");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Node6");
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Intent A", new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode2});
-            System.Windows.Forms.TreeNode treeNode4 = new System.Windows.Forms.TreeNode("Intent B");
-            System.Windows.Forms.TreeNode treeNode5 = new System.Windows.Forms.TreeNode("Project I", new System.Windows.Forms.TreeNode[] {
-            treeNode3,
-            treeNode4});
-            System.Windows.Forms.TreeNode treeNode6 = new System.Windows.Forms.TreeNode("Node4");
-            System.Windows.Forms.TreeNode treeNode7 = new System.Windows.Forms.TreeNode("Project II", new System.Windows.Forms.TreeNode[] {
-            treeNode6});
+            System.Windows.Forms.TreeNode treeNode8 = new System.Windows.Forms.TreeNode("Node5");
+            System.Windows.Forms.TreeNode treeNode9 = new System.Windows.Forms.TreeNode("Node6");
+            System.Windows.Forms.TreeNode treeNode10 = new System.Windows.Forms.TreeNode("Intent A", new System.Windows.Forms.TreeNode[] {
+            treeNode8,
+            treeNode9});
+            System.Windows.Forms.TreeNode treeNode11 = new System.Windows.Forms.TreeNode("Intent B");
+            System.Windows.Forms.TreeNode treeNode12 = new System.Windows.Forms.TreeNode("Project I", new System.Windows.Forms.TreeNode[] {
+            treeNode10,
+            treeNode11});
+            System.Windows.Forms.TreeNode treeNode13 = new System.Windows.Forms.TreeNode("Node4");
+            System.Windows.Forms.TreeNode treeNode14 = new System.Windows.Forms.TreeNode("Project II", new System.Windows.Forms.TreeNode[] {
+            treeNode13});
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.toolStripLabel = new System.Windows.Forms.ToolStripTextBox();
@@ -56,30 +56,30 @@
             this.treeView1.LabelEdit = true;
             this.treeView1.Location = new System.Drawing.Point(0, 27);
             this.treeView1.Name = "treeView1";
-            treeNode1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
-            treeNode1.Name = "Node5";
-            treeNode1.Text = "Node5";
-            treeNode2.BackColor = System.Drawing.Color.Olive;
-            treeNode2.Name = "Node6";
-            treeNode2.Text = "Node6";
-            treeNode3.BackColor = System.Drawing.Color.Yellow;
-            treeNode3.Name = "IntentA";
-            treeNode3.Text = "Intent A";
-            treeNode4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(224)))), ((int)(((byte)(192)))));
-            treeNode4.Name = "IntentB";
-            treeNode4.Text = "Intent B";
-            treeNode5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            treeNode5.Name = "ProjectI";
-            treeNode5.Text = "Project I";
-            treeNode6.BackColor = System.Drawing.Color.Lime;
-            treeNode6.Name = "Node4";
-            treeNode6.Text = "Node4";
-            treeNode7.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
-            treeNode7.Name = "ProjectII";
-            treeNode7.Text = "Project II";
+            treeNode8.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            treeNode8.Name = "Node5";
+            treeNode8.Text = "Node5";
+            treeNode9.BackColor = System.Drawing.Color.Olive;
+            treeNode9.Name = "Node6";
+            treeNode9.Text = "Node6";
+            treeNode10.BackColor = System.Drawing.Color.Yellow;
+            treeNode10.Name = "IntentA";
+            treeNode10.Text = "Intent A";
+            treeNode11.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(224)))), ((int)(((byte)(192)))));
+            treeNode11.Name = "IntentB";
+            treeNode11.Text = "Intent B";
+            treeNode12.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            treeNode12.Name = "ProjectI";
+            treeNode12.Text = "Project I";
+            treeNode13.BackColor = System.Drawing.Color.Lime;
+            treeNode13.Name = "Node4";
+            treeNode13.Text = "Node4";
+            treeNode14.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(255)))), ((int)(((byte)(192)))));
+            treeNode14.Name = "ProjectII";
+            treeNode14.Text = "Project II";
             this.treeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode5,
-            treeNode7});
+            treeNode12,
+            treeNode14});
             this.treeView1.Size = new System.Drawing.Size(217, 270);
             this.treeView1.TabIndex = 0;
             this.treeView1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.treeView1_KeyPress);
@@ -87,8 +87,8 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripLabel,
-            this.toolStripNewTag});
+            this.toolStripNewTag,
+            this.toolStripLabel});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(217, 27);
@@ -97,16 +97,25 @@
             // 
             // toolStripLabel
             // 
+            this.toolStripLabel.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.toolStripLabel.AutoSize = false;
+            this.toolStripLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.toolStripLabel.Margin = new System.Windows.Forms.Padding(1, 0, 10, 0);
             this.toolStripLabel.Name = "toolStripLabel";
             this.toolStripLabel.ReadOnly = true;
-            this.toolStripLabel.Size = new System.Drawing.Size(100, 23);
+            this.toolStripLabel.Size = new System.Drawing.Size(60, 16);
             this.toolStripLabel.Text = "Add Tag:";
+            this.toolStripLabel.TextBoxTextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // toolStripNewTag
             // 
             this.toolStripNewTag.AcceptsReturn = true;
+            this.toolStripNewTag.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.toolStripNewTag.AutoSize = false;
+            this.toolStripNewTag.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.toolStripNewTag.Name = "toolStripNewTag";
-            this.toolStripNewTag.Size = new System.Drawing.Size(100, 23);
+            this.toolStripNewTag.Size = new System.Drawing.Size(120, 23);
+            this.toolStripNewTag.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.toolStripNewTag_KeyPress);
             // 
             // PaneControl
             // 

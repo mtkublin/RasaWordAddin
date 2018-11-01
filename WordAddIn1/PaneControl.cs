@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace WordAddIn1
 {
@@ -23,6 +15,15 @@ namespace WordAddIn1
             {
                 TreeView tree = (TreeView)sender;
                 tree.Nodes.Add("<new>");
+            }
+        }
+
+        private void toolStripNewTag_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == 13)
+            { 
+                treeView1.Nodes.Add(toolStripNewTag.Text);
+                toolStripNewTag.Text = string.Empty;
             }
         }
     }
