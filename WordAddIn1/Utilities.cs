@@ -15,5 +15,10 @@ namespace XL.Office.Helpers
             return (Word.WdColor)(red + 0x100 * green + 0x10000 * blue);
         }
 
+        public static void Notification(string message)
+        {
+            System.Console.WriteLine(message);
+        }
+
     }
 }

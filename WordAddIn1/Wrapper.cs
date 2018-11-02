@@ -9,19 +9,52 @@ namespace WordAddIn1
     {
         private void HighlightContentControl(Word.ContentControl control, ref bool cancel)
         {
-            control.Range.Font.Color = Utilities.RGBwdColor(128, 0, 0);
-            control.Range.Font.Shading.BackgroundPatternColor = Word.WdColor.wdColorLightYellow;
-            control.Range.HighlightColorIndex = Word.WdColorIndex.wdNoHighlight;
+            try
+            {
+                control.Range.Font.Shading.BackgroundPatternColor = Word.WdColor.wdColorLightYellow;
+                control.Range.HighlightColorIndex = Word.WdColorIndex.wdNoHighlight;
+            }
+            catch (Exception ex)
+            {
+                Utilities.Notification(ex.ToString());
+            }
         }
 
         public void WrapContent()
         {
+            var selection = Application.Selection;
+            //do not wrap if range is collapsed
+            if (selection.Start == selection.End) return;
+
+            //do not allow wrapping part of another control
+            int start = selection.Start;
+            int end = selection.End;
+            selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);
+            Word.ContentControl startParent = selection.ParentContentControl;
+            selection.SetRange(end, end);
+            Word.ContentControl endParent = selection.ParentContentControl;
+            selection.SetRange(start, end);
+
+            if (startParent != null && endParent == null || startParent == null && endParent != null) return;
+            if (startParent != null && endParent != null)
+            {
+                if (startParent.Range.Start != endParent.Range.Start || startParent.Range.End != endParent.Range.End) return;
+            }
+
+            //do not allow the same range is wrapped more than once
+            Word.ContentControl parent = selection.ParentContentControl;
+            if(parent != null)
+            { 
+                Word.Range range = parent.Range;
+                if (selection.Range.Start == range.Start && selection.Range.End == range.End) return;
+            }
+
+            //wrap the content range 
             var activeDocument = Application.ActiveDocument;
             var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
             var next = DateTime.Now.Ticks.ToString();
             var control = extendedDocument.Controls.AddRichTextContentControl(string.Format("richText{0}", next));
             control.PlaceholderText = "This cannot be empty";
-            control.Range.Font.Color = (Word.WdColor)128;
             control.Range.Font.Shading.BackgroundPatternColor = Word.WdColor.wdColorLightYellow;
             control.Range.HighlightColorIndex = Word.WdColorIndex.wdNoHighlight;
         }
@@ -29,16 +62,19 @@ namespace WordAddIn1
         public void UnwrapContent()
         {
             var selection = Application.Selection;
+            Word.ContentControl parent = selection.ParentContentControl;
+            if (parent != null)
+            {
+                parent.Range.Font.Shading.BackgroundPatternColorIndex = Word.WdColorIndex.wdNoHighlight;
+                parent.Delete(false);
+            }
             if (selection.ContentControls.Count > 0)
             {
                 foreach (Word.ContentControl control in selection.ContentControls)
                 {
+                    control.Range.Font.Shading.BackgroundPatternColorIndex = Word.WdColorIndex.wdNoHighlight;
                     control.Delete(false);
                 }
-            }
-            if (selection.ParentContentControl != null)
-            {
-                selection.ParentContentControl.Delete(false);
             }
         }
     }
