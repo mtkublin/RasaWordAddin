@@ -1,4 +1,5 @@
 ﻿using System.Windows.Forms;
+using XL.Office.Helpers;
 
 namespace WordAddIn1
 {
@@ -24,6 +25,31 @@ namespace WordAddIn1
             { 
                 treeView1.Nodes.Add(toolStripNewTag.Text);
                 toolStripNewTag.Text = string.Empty;
+            }
+        }
+
+        private void treeView1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control)
+            {
+                switch(e.KeyCode)
+                {
+                    case Keys.Right:
+                        Utilities.Notification("Right");
+                        break;
+                    case Keys.Left:
+                        Utilities.Notification("Left");
+                        break;
+                    case Keys.Up:
+                        Utilities.Notification("Up");
+                        break;
+                    case Keys.Down:
+                        Utilities.Notification("Down");
+                        break;
+                    default:
+                        Utilities.Notification("Other");
+                        break;
+                }
             }
         }
     }

@@ -1,7 +1,50 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="WordAddIn1.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Projects" Type="System.Xml.XmlDocument" Scope="Application">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;Projects&gt;
+  &lt;Project Name="Recipies"&gt;
+    &lt;Intentions&gt;
+      &lt;Intention Name="Genaral Info" Tag="gen"&gt;
+        &lt;Entities&gt;
+          &lt;Entity Tag="gen-author" Name="Author" /&gt;
+          &lt;Entity Tag="gen-occasion" Name="Occasion" /&gt;
+          &lt;Entity Tag="gen-subject" Name="Subject" /&gt;
+        &lt;/Entities&gt;
+      &lt;/Intention&gt;
+      &lt;Intention Name="Ingredient" Tag="ing"&gt;
+        &lt;Entities&gt;
+          &lt;Entity Tag="ing-name" Name="Name" /&gt;
+          &lt;Entity Tag="ing-quantity" Name="Quantity" /&gt;
+          &lt;Entity Tag="ing-form" Name="Form" /&gt;
+        &lt;/Entities&gt;
+      &lt;/Intention&gt;
+    &lt;/Intentions&gt;
+  &lt;/Project&gt;
+  &lt;Project Name="Support"&gt;
+    &lt;Intentions&gt;
+      &lt;Intention Name="Header" Tag="gen"&gt;
+        &lt;Entities&gt;
+          &lt;Entity Tag="gen-author" Name="Author" /&gt;
+          &lt;Entity Tag="gen-sent" Name="Sent Date" /&gt;
+          &lt;Entity Tag="gen-subject" Name="Subject" /&gt;
+        &lt;/Entities&gt;
+      &lt;/Intention&gt;
+      &lt;Intention Name="Product" Tag="ing"&gt;
+        &lt;Entities&gt;
+          &lt;Entity Tag="ing-name" Name="Product Name" /&gt;
+          &lt;Entity Tag="ing-quantity" Name="Version" /&gt;
+          &lt;Entity Tag="ing-form" Name="Operating System" /&gt;
+        &lt;/Entities&gt;
+      &lt;/Intention&gt;
+    &lt;/Intentions&gt;
+  &lt;/Project&gt;
+&lt;/Projects&gt;</Value>
+    </Setting>
+    <Setting Name="Recent" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Recipies</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

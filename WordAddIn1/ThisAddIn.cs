@@ -1,18 +1,34 @@
 ﻿using Microsoft.Office.Tools;
-using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Collections.Generic;
 using XL.Office.Helpers;
 using Word = Microsoft.Office.Interop.Word;
+using System.Xml;
+using System.Xml.Linq;
+using System.Linq;
+using System.Drawing; 
 
 namespace WordAddIn1
 {
     public partial class ThisAddIn
     {
+        private static XElement XmlDocument;
+        private Dictionary<string, Color> TagColors;
         private Dictionary<KeyState, KeyHandlerDelegate> KeyHandlers;
+        private Dictionary<Word.Window, CustomTaskPane> WindowTaskPanes;
         
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
-        {        
+        {
+            WindowTaskPanes = new Dictionary<Word.Window, CustomTaskPane>();
+            XmlDocument = XElement.Load(new XmlNodeReader(Properties.Settings.Default.Projects));
+            TagColors = new Dictionary<string, Color>();
+
+            KeyboardShortcuts();
+            Application.WindowActivate += ActivateDocumentWindow;
+        }
+
+        private void KeyboardShortcuts()
+        {
             var ctrlW = new KeyState(Keys.W, ctrl: true);
             var ctrlshiftW = new KeyState(Keys.W, ctrl: true, shift: true);
             var ctrlshiftT = new KeyState(Keys.T, ctrl: true, shift: true);
@@ -48,40 +64,97 @@ namespace WordAddIn1
                 }
             };
             InterceptKeys.SetHooks(KeyHandlers);
-
-            Addin_Setup(null);
         }
 
-        private void Addin_Setup(Word.Document Doc)
+        private static TreeNode[] GetTreeNodes()
         {
-            var taskPane = CustomTaskPanes.Add(new PaneControl(), "Annotation Task Pane (setup)");
-            taskPane.Visible = true;
+            string recentProjectName = Properties.Settings.Default.Recent;
+            IEnumerable<XElement> projects = from item in XmlDocument.Descendants("Project") select item;
 
-            WindowTaskPanes = new Dictionary<Word.Window, CustomTaskPane>();
-            var activeWindow = Application.ActiveWindow;
-            WindowTaskPanes.Add(activeWindow, taskPane);
+            int intentCount = (from item in XmlDocument.Descendants("Intention") select item).Count();
+            int entityCount = (from item in XmlDocument.Descendants("Entity") select item).Count();
+            Color projectColor = Color.Blue;
+            Color intentColor = Color.Yellow;
+            Color entityColor = Color.YellowGreen;
+            IEnumerator<Color> intentColors = Utilities.Gradient(intentColor, entityColor, intentCount);
+            IEnumerator<Color> entColors = Utilities.Gradient(entityColor, projectColor, entityCount);
 
-            Application.ActiveDocument.ContentControlOnExit -= HighlightContentControl;
-            Application.ActiveDocument.ContentControlOnExit += HighlightContentControl;
+            TreeNode[] projectNodes = new TreeNode[projects.Count()];
+            int index = 0;
 
-            if (Doc == null)
-            {
-                Application.WindowActivate += Application_WindowActivate;
+            foreach (XElement project in projects)
+            { 
+                string projectName = (string)project.Attribute("Name");
+                TreeNode projectNode = new TreeNode(projectName);
+                IEnumerable <XElement> intentions = from item in project.Descendants("Intention") select item;
+                foreach(XElement intention in intentions)
+                {
+                    string intentionName = (string)intention.Attribute("Name");
+                    string intentionTag = (string)intention.Attribute("Tag");
+                    if (intentColors.MoveNext())
+                    {
+                        intentColor = intentColors.Current;
+                    }
+                    TreeNode intentionNode = new TreeNode(intentionName)
+                    {
+                        ForeColor = Utilities.Contrast(intentColor),
+                        BackColor = intentColor,
+                        Tag = intentionTag
+                    };
+
+                    IEnumerable<XElement> entities = from item in intention.Descendants("Entity") select item;
+                    foreach (XElement entity in entities)
+                    {
+                        string entityName = (string)entity.Attribute("Name");
+                        string entityTag = (string)entity.Attribute("Tag");
+                        if (entColors.MoveNext())
+                        {
+                            entityColor = entColors.Current;
+                        }
+                        TreeNode entityNode = new TreeNode(entityName)
+                        {
+                            ForeColor = Utilities.Contrast(entityColor),
+                            BackColor = entityColor,
+                            Tag = entityTag
+                        };
+                        intentionNode.Nodes.Add(entityNode);
+                    }
+
+                    projectNode.Nodes.Add(intentionNode);
+                }
+
+                if (projectName == recentProjectName)
+                {
+                    projectNode.ExpandAll();
+                    projectNode.ForeColor = Utilities.Contrast(projectColor);
+                    projectNode.BackColor = projectColor;
+                }
+                else
+                {
+                    projectNode.Collapse();
+                    projectNode.ForeColor = Color.Gray;
+                    projectNode.BackColor = Color.LightGray;
+                }
+
+                projectNodes[index++] = projectNode;
             }
+
+            return projectNodes;
         }
 
-        private Dictionary<Word.Window, CustomTaskPane> WindowTaskPanes;
-
-        private void Application_WindowActivate(Word.Document Doc, Word.Window Wn)
+        private void ActivateDocumentWindow(Word.Document Doc, Word.Window activeWindow)
         {
-            Application.ActiveDocument.ContentControlOnExit -= HighlightContentControl;
-            Application.ActiveDocument.ContentControlOnExit += HighlightContentControl;
+            Doc.ContentControlOnExit -= HighlightContentControl;
+            Doc.ContentControlOnExit += HighlightContentControl;
 
-            var activeWindow = Application.ActiveWindow;
             if (!WindowTaskPanes.ContainsKey(activeWindow))
             {
-                var taskPane = CustomTaskPanes.Add(new PaneControl(), "Annotation Task Pane (activate)");
+                var paneControl = new PaneControl();
+                paneControl.treeView1.Nodes.AddRange(GetTreeNodes());
+                paneControl.treeView1.AfterSelect += TreeView1_AfterSelect;
+                var taskPane = CustomTaskPanes.Add(paneControl, "Annotation Task Pane (activate)");
                 taskPane.Visible = true;
+
                 WindowTaskPanes.Add(activeWindow, taskPane);
             }
 
@@ -96,6 +169,11 @@ namespace WordAddIn1
                 CustomTaskPanes.Remove(pane);
             }
             WindowTaskPanes = tempTaskPains;
+        }
+
+        private void TreeView1_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            WrapContent();
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)

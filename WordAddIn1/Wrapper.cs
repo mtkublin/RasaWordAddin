@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using XL.Office.Helpers;
 using Word = Microsoft.Office.Interop.Word;
+using System.Drawing; 
 
 namespace WordAddIn1
 {
@@ -9,6 +10,7 @@ namespace WordAddIn1
     {
         private void HighlightContentControl(Word.ContentControl control, ref bool cancel)
         {
+            string tag = control.Tag;
             try
             {
                 control.Range.Font.Shading.BackgroundPatternColor = Word.WdColor.wdColorLightYellow;
@@ -22,6 +24,14 @@ namespace WordAddIn1
 
         public void WrapContent()
         {
+            var activeWindow = Application.ActiveWindow;
+            PaneControl activePane = WindowTaskPanes[activeWindow].Control as PaneControl;
+            var activeNode = activePane.treeView1.SelectedNode;
+            Word.WdColor backColor = Utilities.RGBwdColor(activeNode.BackColor);
+            Word.WdColor foreColor = Utilities.RGBwdColor(activeNode.ForeColor);
+            string tag = activeNode.Tag as string;
+            string name = activeNode.Name;
+
             var selection = Application.Selection;
             //do not wrap if range is collapsed
             if (selection.Start == selection.End) return;
@@ -55,8 +65,12 @@ namespace WordAddIn1
             var next = DateTime.Now.Ticks.ToString();
             var control = extendedDocument.Controls.AddRichTextContentControl(string.Format("richText{0}", next));
             control.PlaceholderText = "This cannot be empty";
-            control.Range.Font.Shading.BackgroundPatternColor = Word.WdColor.wdColorLightYellow;
+            control.Range.Font.Color = foreColor; 
+            control.Range.Font.Shading.ForegroundPatternColor = backColor; 
+            control.Range.Font.Shading.Texture = Word.WdTextureIndex.wdTextureSolid;
             control.Range.HighlightColorIndex = Word.WdColorIndex.wdNoHighlight;
+            control.Tag = tag;
+            control.Title = tag;
         }
 
         public void UnwrapContent()
