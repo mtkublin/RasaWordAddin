@@ -12,15 +12,45 @@ namespace WordAddIn1
 {
     public partial class ThisAddIn
     {
-        private static XElement XmlDocument;
+        private XElement XmlDocument;
         private Dictionary<string, Color> TagColors;
         private Dictionary<KeyState, KeyHandlerDelegate> KeyHandlers;
         private Dictionary<Word.Window, CustomTaskPane> WindowTaskPanes;
-        
+
+        private string CurrentProject;
+        private string CurrentTag;
+        private string CurrentName;
+
+        private Word.WdColor CurrentBackColor()
+        {
+            Color color = TagColors[CurrentTag];
+            return Utilities.RGBwdColor(color);
+        }
+
+        private Word.WdColor CurrentForeColor()
+        {
+            Color color = TagColors[CurrentTag];
+            return Utilities.RGBwdColor(Utilities.Contrast(color));
+        }
+
+        private Word.WdColor TagBackColor(string tag)
+        {
+            Color color = TagColors[tag];
+            return Utilities.RGBwdColor(color);
+        }
+
+        private Word.WdColor TagForeColor(string tag)
+        {
+            Color color = TagColors[tag];
+            return Utilities.RGBwdColor(Utilities.Contrast(color));
+        }
+
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
             WindowTaskPanes = new Dictionary<Word.Window, CustomTaskPane>();
             XmlDocument = XElement.Load(new XmlNodeReader(Properties.Settings.Default.Projects));
+            CurrentProject = Properties.Settings.Default.RecentProject;
+            CurrentTag = Properties.Settings.Default.RecentTag;
             TagColors = new Dictionary<string, Color>();
 
             KeyboardShortcuts();
@@ -66,9 +96,8 @@ namespace WordAddIn1
             InterceptKeys.SetHooks(KeyHandlers);
         }
 
-        private static TreeNode[] GetTreeNodes()
+        private TreeNode[] GetTreeNodes()
         {
-            string recentProjectName = Properties.Settings.Default.Recent;
             IEnumerable<XElement> projects = from item in XmlDocument.Descendants("Project") select item;
 
             int intentCount = (from item in XmlDocument.Descendants("Intention") select item).Count();
@@ -89,17 +118,21 @@ namespace WordAddIn1
                 IEnumerable <XElement> intentions = from item in project.Descendants("Intention") select item;
                 foreach(XElement intention in intentions)
                 {
-                    string intentionName = (string)intention.Attribute("Name");
-                    string intentionTag = (string)intention.Attribute("Tag");
+                    string intentName = (string)intention.Attribute("Name");
+                    string intentTag = (string)intention.Attribute("Tag");
                     if (intentColors.MoveNext())
                     {
                         intentColor = intentColors.Current;
                     }
-                    TreeNode intentionNode = new TreeNode(intentionName)
+                    if (!TagColors.ContainsKey(intentTag))
+                    { 
+                        TagColors.Add(intentTag, intentColor);
+                    }
+                    TreeNode intentionNode = new TreeNode(intentName)
                     {
                         ForeColor = Utilities.Contrast(intentColor),
                         BackColor = intentColor,
-                        Tag = intentionTag
+                        Tag = intentTag
                     };
 
                     IEnumerable<XElement> entities = from item in intention.Descendants("Entity") select item;
@@ -110,6 +143,10 @@ namespace WordAddIn1
                         if (entColors.MoveNext())
                         {
                             entityColor = entColors.Current;
+                        }
+                        if (!TagColors.ContainsKey(entityTag))
+                        {
+                            TagColors.Add(entityTag, entityColor);
                         }
                         TreeNode entityNode = new TreeNode(entityName)
                         {
@@ -123,7 +160,7 @@ namespace WordAddIn1
                     projectNode.Nodes.Add(intentionNode);
                 }
 
-                if (projectName == recentProjectName)
+                if (projectName == CurrentProject)
                 {
                     projectNode.ExpandAll();
                     projectNode.ForeColor = Utilities.Contrast(projectColor);
@@ -144,8 +181,8 @@ namespace WordAddIn1
 
         private void ActivateDocumentWindow(Word.Document Doc, Word.Window activeWindow)
         {
-            Doc.ContentControlOnExit -= HighlightContentControl;
-            Doc.ContentControlOnExit += HighlightContentControl;
+            Doc.ContentControlOnExit -= HighlightControlHierarchy;
+            Doc.ContentControlOnExit += HighlightControlHierarchy;
 
             if (!WindowTaskPanes.ContainsKey(activeWindow))
             {
@@ -173,6 +210,8 @@ namespace WordAddIn1
 
         private void TreeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            CurrentTag = e.Node.Tag as string;
+            CurrentName = e.Node.Name;
             WrapContent();
         }
 

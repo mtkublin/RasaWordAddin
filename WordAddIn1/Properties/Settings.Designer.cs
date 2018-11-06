@@ -73,12 +73,24 @@ namespace WordAddIn1.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Recipies")]
-        public string Recent {
+        public string RecentProject {
             get {
-                return ((string)(this["Recent"]));
+                return ((string)(this["RecentProject"]));
             }
             set {
-                this["Recent"] = value;
+                this["RecentProject"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("gen-author")]
+        public string RecentTag {
+            get {
+                return ((string)(this["RecentTag"]));
+            }
+            set {
+                this["RecentTag"] = value;
             }
         }
     }

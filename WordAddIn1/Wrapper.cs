@@ -8,13 +8,16 @@ namespace WordAddIn1
 {
     public partial class ThisAddIn
     {
-        private void HighlightContentControl(Word.ContentControl control, ref bool cancel)
+        private void HighlightControlHierarchy(Word.ContentControl control, ref bool cancel)
         {
-            string tag = control.Tag;
             try
             {
-                control.Range.Font.Shading.BackgroundPatternColor = Word.WdColor.wdColorLightYellow;
-                control.Range.HighlightColorIndex = Word.WdColorIndex.wdNoHighlight;
+                var parent = control.Range.ParentContentControl;
+                HighlightContentControl(parent.Tag, parent.Range);
+                foreach (Word.ContentControl child in control.Range.ContentControls)
+                {
+                    HighlightContentControl(child.Tag, child.Range);
+                }
             }
             catch (Exception ex)
             {
@@ -22,15 +25,21 @@ namespace WordAddIn1
             }
         }
 
+        private void HighlightContentControl(string tag, Word.Range range)
+        {
+            //do not wrap if tag is empty or null
+            if (string.IsNullOrEmpty(tag)) return;
+
+            range.Font.Color = TagForeColor(tag);
+            range.Font.Shading.ForegroundPatternColor = TagBackColor(tag);
+            range.Font.Shading.Texture = Word.WdTextureIndex.wdTextureSolid;
+            range.HighlightColorIndex = Word.WdColorIndex.wdNoHighlight;
+        }
+
         public void WrapContent()
         {
-            var activeWindow = Application.ActiveWindow;
-            PaneControl activePane = WindowTaskPanes[activeWindow].Control as PaneControl;
-            var activeNode = activePane.treeView1.SelectedNode;
-            Word.WdColor backColor = Utilities.RGBwdColor(activeNode.BackColor);
-            Word.WdColor foreColor = Utilities.RGBwdColor(activeNode.ForeColor);
-            string tag = activeNode.Tag as string;
-            string name = activeNode.Name;
+            //do not wrap if current tag is empty or null
+            if (string.IsNullOrEmpty(CurrentTag)) return;
 
             var selection = Application.Selection;
             //do not wrap if range is collapsed
@@ -64,13 +73,13 @@ namespace WordAddIn1
             var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
             var next = DateTime.Now.Ticks.ToString();
             var control = extendedDocument.Controls.AddRichTextContentControl(string.Format("richText{0}", next));
-            control.PlaceholderText = "This cannot be empty";
-            control.Range.Font.Color = foreColor; 
-            control.Range.Font.Shading.ForegroundPatternColor = backColor; 
+            control.PlaceholderText = CurrentName;
+            control.Tag = CurrentTag;
+            control.Title = CurrentTag;
+            control.Range.Font.Color = CurrentForeColor(); 
+            control.Range.Font.Shading.ForegroundPatternColor = CurrentBackColor(); 
             control.Range.Font.Shading.Texture = Word.WdTextureIndex.wdTextureSolid;
             control.Range.HighlightColorIndex = Word.WdColorIndex.wdNoHighlight;
-            control.Tag = tag;
-            control.Title = tag;
         }
 
         public void UnwrapContent()

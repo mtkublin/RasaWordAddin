@@ -43,8 +43,11 @@
   &lt;/Project&gt;
 &lt;/Projects&gt;</Value>
     </Setting>
-    <Setting Name="Recent" Type="System.String" Scope="User">
+    <Setting Name="RecentProject" Type="System.String" Scope="User">
       <Value Profile="(Default)">Recipies</Value>
+    </Setting>
+    <Setting Name="RecentTag" Type="System.String" Scope="User">
+      <Value Profile="(Default)">gen-author</Value>
     </Setting>
   </Settings>
 </SettingsFile>
