@@ -17,21 +17,11 @@ namespace WordAddIn1
         private Dictionary<KeyState, KeyHandlerDelegate> KeyHandlers;
         private Dictionary<Word.Window, CustomTaskPane> WindowTaskPanes;
 
-        private string CurrentProject;
+        private string CurrentProject;        
         private string CurrentTag;
         private string CurrentName;
-
-        private Word.WdColor CurrentBackColor()
-        {
-            Color color = TagColors[CurrentTag];
-            return Utilities.RGBwdColor(color);
-        }
-
-        private Word.WdColor CurrentForeColor()
-        {
-            Color color = TagColors[CurrentTag];
-            return Utilities.RGBwdColor(Utilities.Contrast(color));
-        }
+        private TreeNode CurrentNode;
+        private string CurrentPath;
 
         private Word.WdColor TagBackColor(string tag)
         {
@@ -55,6 +45,7 @@ namespace WordAddIn1
 
             KeyboardShortcuts();
             Application.WindowActivate += ActivateDocumentWindow;
+            Application.WindowDeactivate += DeactivateDocumentWindow;
         }
 
         private void KeyboardShortcuts()
@@ -181,12 +172,14 @@ namespace WordAddIn1
 
         private void ActivateDocumentWindow(Word.Document Doc, Word.Window activeWindow)
         {
-            Doc.ContentControlOnExit -= HighlightControlHierarchy;
-            Doc.ContentControlOnExit += HighlightControlHierarchy;
-
-            if (!WindowTaskPanes.ContainsKey(activeWindow))
+            PaneControl paneControl;
+            if (WindowTaskPanes.ContainsKey(activeWindow))
             {
-                var paneControl = new PaneControl();
+                paneControl = WindowTaskPanes[activeWindow].Control as PaneControl;
+            }
+            else
+            {
+                paneControl = new PaneControl();
                 paneControl.treeView1.Nodes.AddRange(GetTreeNodes());
                 paneControl.treeView1.AfterSelect += TreeView1_AfterSelect;
                 var taskPane = CustomTaskPanes.Add(paneControl, "Annotation Task Pane (activate)");
@@ -195,12 +188,23 @@ namespace WordAddIn1
                 WindowTaskPanes.Add(activeWindow, taskPane);
             }
 
+            //select current tree node
+            if (!string.IsNullOrEmpty(CurrentPath))
+            {
+                var path = CurrentPath.Split('\\').ToList();
+                TreeNodeCollection nodeCollection = paneControl.treeView1.Nodes;
+                CurrentNode = searchPath(nodeCollection, path, 0);
+                SetTreeNodeColors();
+            }
+
+            //refresh list of active task panes
             Dictionary<Word.Window, CustomTaskPane> tempTaskPains = new Dictionary<Word.Window, CustomTaskPane>();
             foreach (Word.Window window in Application.Windows)
             {
                 tempTaskPains.Add(window, WindowTaskPanes[window]);
                 WindowTaskPanes.Remove(window);
             }
+            //clear orphan task panes
             foreach (CustomTaskPane pane in WindowTaskPanes.Values)
             {
                 CustomTaskPanes.Remove(pane);
@@ -208,11 +212,62 @@ namespace WordAddIn1
             WindowTaskPanes = tempTaskPains;
         }
 
+        private static TreeNode searchPath(TreeNodeCollection nodes, List<string> path, int depth)
+        {
+            string key = path[depth++];
+            foreach (TreeNode node in nodes)
+            {
+                if (node.Text == key)
+                {
+                    if (depth >= path.Count)
+                    {
+                        return node;
+                    }
+                    else
+                        return searchPath(node.Nodes, path, depth);
+
+                }
+            }
+            return null;
+        }
+
+        private void DeactivateDocumentWindow(Word.Document Doc, Word.Window Wn)
+        {
+            RestoreTreeNodeColors();
+            CurrentNode = null;
+        }
+
+        private void RestoreTreeNodeColors()
+        {
+            if (CurrentNode == null || CurrentTag == null) return;
+
+            CurrentNode.BackColor = TagColors[CurrentTag];
+            CurrentNode.ForeColor = Utilities.Contrast(TagColors[CurrentTag]);
+        }
+
+        private void SetTreeNodeColors()
+        {
+            if (CurrentNode == null) return;
+
+            CurrentNode.BackColor = Color.DarkRed;
+            CurrentNode.ForeColor = Color.White;
+        }
+
         private void TreeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            //don't handle automatic selection 
+            if (e.Node == null || e.Node.Tag == null || e.Action == TreeViewAction.Unknown) return;
+
+            RestoreTreeNodeColors();
+            CurrentNode = e.Node;
             CurrentTag = e.Node.Tag as string;
-            CurrentName = e.Node.Name;
+            CurrentName = e.Node.Text;
+            CurrentPath = e.Node.FullPath;
             WrapContent();
+
+            //enable repeated use of the node for many subsequent ranges
+            (sender as TreeView).SelectedNode = null;
+            SetTreeNodeColors();
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e)

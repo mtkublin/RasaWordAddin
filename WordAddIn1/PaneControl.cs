@@ -19,15 +19,6 @@ namespace WordAddIn1
             }
         }
 
-        private void toolStripNewTag_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == 13)
-            { 
-                treeView1.Nodes.Add(toolStripNewTag.Text);
-                toolStripNewTag.Text = string.Empty;
-            }
-        }
-
         private void treeView1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control)

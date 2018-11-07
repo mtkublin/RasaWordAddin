@@ -8,20 +8,16 @@ namespace WordAddIn1
 {
     public partial class ThisAddIn
     {
-        private void HighlightControlHierarchy(Word.ContentControl control, ref bool cancel)
+        private void HighlightControlHierarchy(Word.Range range)
         {
-            try
+            var parent = range.ParentContentControl;
+            if (parent != null)
             {
-                var parent = control.Range.ParentContentControl;
                 HighlightContentControl(parent.Tag, parent.Range);
-                foreach (Word.ContentControl child in control.Range.ContentControls)
-                {
-                    HighlightContentControl(child.Tag, child.Range);
-                }
             }
-            catch (Exception ex)
+            foreach (Word.ContentControl child in range.ContentControls)
             {
-                Utilities.Notification(ex.ToString());
+                HighlightContentControl(child.Tag, child.Range);
             }
         }
 
@@ -30,10 +26,18 @@ namespace WordAddIn1
             //do not wrap if tag is empty or null
             if (string.IsNullOrEmpty(tag)) return;
 
-            range.Font.Color = TagForeColor(tag);
-            range.Font.Shading.ForegroundPatternColor = TagBackColor(tag);
-            range.Font.Shading.Texture = Word.WdTextureIndex.wdTextureSolid;
-            range.HighlightColorIndex = Word.WdColorIndex.wdNoHighlight;
+            Utilities.Notification(tag);
+            try
+            {
+                range.Font.Color = TagForeColor(tag);
+                range.Font.Shading.ForegroundPatternColor = TagBackColor(tag);
+                range.Font.Shading.Texture = Word.WdTextureIndex.wdTextureSolid;
+                range.HighlightColorIndex = Word.WdColorIndex.wdNoHighlight;
+            }
+            catch (Exception ex)
+            {
+                Utilities.Notification(ex.ToString());
+            }
         }
 
         public void WrapContent()
@@ -45,6 +49,7 @@ namespace WordAddIn1
             //do not wrap if range is collapsed
             if (selection.Start == selection.End) return;
 
+            //TODO identify where new content control cannot be created
             //do not allow wrapping part of another control
             int start = selection.Start;
             int end = selection.End;
@@ -60,45 +65,89 @@ namespace WordAddIn1
                 if (startParent.Range.Start != endParent.Range.Start || startParent.Range.End != endParent.Range.End) return;
             }
 
-            //do not allow the same range is wrapped more than once
-            Word.ContentControl parent = selection.ParentContentControl;
-            if(parent != null)
-            { 
-                Word.Range range = parent.Range;
-                if (selection.Range.Start == range.Start && selection.Range.End == range.End) return;
-            }
-
-            //wrap the content range 
             var activeDocument = Application.ActiveDocument;
             var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
             var next = DateTime.Now.Ticks.ToString();
-            var control = extendedDocument.Controls.AddRichTextContentControl(string.Format("richText{0}", next));
-            control.PlaceholderText = CurrentName;
-            control.Tag = CurrentTag;
-            control.Title = CurrentTag;
-            control.Range.Font.Color = CurrentForeColor(); 
-            control.Range.Font.Shading.ForegroundPatternColor = CurrentBackColor(); 
-            control.Range.Font.Shading.Texture = Word.WdTextureIndex.wdTextureSolid;
-            control.Range.HighlightColorIndex = Word.WdColorIndex.wdNoHighlight;
+
+            try
+            {
+                Application.UndoRecord.StartCustomRecord($"Tag Selection ({CurrentTag})");
+                Word.ContentControl parent = selection.ParentContentControl;
+                //change tag, if entire content control selected
+                if (parent != null && selection.Range.Start == parent.Range.Start && selection.Range.End == parent.Range.End)
+                {
+                    parent.Tag = CurrentTag;
+                    parent.Title = CurrentName;
+                    HighlightControlHierarchy(parent.Range);
+                }
+                //wrap the content range 
+                else
+                { 
+                    var control = extendedDocument.Controls.AddRichTextContentControl(string.Format("richText{0}", next));
+                    control.PlaceholderText = "...";
+                    control.Tag = CurrentTag;
+                    control.Title = CurrentName;
+                    HighlightControlHierarchy(control.Range);
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.Notification(ex.Message);
+            }
+            finally
+            {
+                Application.UndoRecord.EndCustomRecord();
+            }
         }
 
         public void UnwrapContent()
         {
             var selection = Application.Selection;
-            Word.ContentControl parent = selection.ParentContentControl;
+            Word.Range originalRange = selection.Range;
+            Word.ContentControl control = selection.ParentContentControl;
+            Word.ContentControl parent = control.ParentContentControl;
+            var remainingControls = control.Range.ContentControls;
+
+            Application.UndoRecord.StartCustomRecord("Remove Tag");
+            if (control != null)
+            {
+                //clear content control formatting
+                control.Range.Select();
+                Application.Selection.ClearFormatting();
+                originalRange.Select();
+
+                //remove content control
+                control.Delete(false);
+            }
             if (parent != null)
             {
-                parent.Range.Font.Shading.BackgroundPatternColorIndex = Word.WdColorIndex.wdNoHighlight;
-                parent.Delete(false);
+                HighlightControlHierarchy(parent.Range);
             }
-            if (selection.ContentControls.Count > 0)
+            if (remainingControls != null && remainingControls.Count > 0)
             {
-                foreach (Word.ContentControl control in selection.ContentControls)
+                foreach (Word.ContentControl survivor in remainingControls)
                 {
-                    control.Range.Font.Shading.BackgroundPatternColorIndex = Word.WdColorIndex.wdNoHighlight;
-                    control.Delete(false);
+                    if(survivor != null)
+                    {
+                        HighlightControlHierarchy(survivor.Range);
+                    }
                 }
             }
+            Application.UndoRecord.EndCustomRecord();
+
+            //UNDONE remove all content controls in entire selection
+            //if (selection.ContentControls.Count > 0)
+            //{
+            //    foreach (Word.ContentControl child in selection.ContentControls)
+            //    {                    
+            //        var range = child.Range;
+            //        range.Font.Color = Word.WdColor.wdColorBlack;
+            //        range.Font.Shading.ForegroundPatternColor = Word.WdColor.wdColorWhite;
+            //        range.Font.Shading.Texture = Word.WdTextureIndex.wdTextureNone;
+            //        range.HighlightColorIndex = Word.WdColorIndex.wdNoHighlight;
+            //        child.Delete(false);
+            //    }
+            //}
         }
     }
 }
