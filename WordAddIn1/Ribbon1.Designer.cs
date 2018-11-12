@@ -38,6 +38,8 @@
             this.group1 = this.Factory.CreateRibbonGroup();
             this.ContentControlButton = this.Factory.CreateRibbonButton();
             this.UnwrapRangeButton = this.Factory.CreateRibbonButton();
+            this.ExportTXTbtn = this.Factory.CreateRibbonButton();
+            this.WrapFromTestBtn = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.group1.SuspendLayout();
             this.SuspendLayout();
@@ -53,6 +55,8 @@
             // 
             this.group1.Items.Add(this.ContentControlButton);
             this.group1.Items.Add(this.UnwrapRangeButton);
+            this.group1.Items.Add(this.ExportTXTbtn);
+            this.group1.Items.Add(this.WrapFromTestBtn);
             this.group1.Label = "group1";
             this.group1.Name = "group1";
             // 
@@ -69,6 +73,18 @@
             this.UnwrapRangeButton.Label = "Unwrap Range";
             this.UnwrapRangeButton.Name = "UnwrapRangeButton";
             this.UnwrapRangeButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.UnwrapRangeButton_Click);
+            // 
+            // ExportTXTbtn
+            // 
+            this.ExportTXTbtn.Label = "Export Train Data";
+            this.ExportTXTbtn.Name = "ExportTXTbtn";
+            this.ExportTXTbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ExportTXTbtn_Click);
+            // 
+            // WrapFromTestBtn
+            // 
+            this.WrapFromTestBtn.Label = "Wrap Content from test";
+            this.WrapFromTestBtn.Name = "WrapFromTestBtn";
+            this.WrapFromTestBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.WrapFromTestBtn_Click);
             // 
             // Ribbon1
             // 
@@ -90,6 +106,8 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup group1;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton ContentControlButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton UnwrapRangeButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton ExportTXTbtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton WrapFromTestBtn;
     }
 
     partial class ThisRibbonCollection

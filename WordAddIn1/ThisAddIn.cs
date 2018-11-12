@@ -18,8 +18,8 @@ namespace WordAddIn1
         private Dictionary<Word.Window, CustomTaskPane> WindowTaskPanes;
 
         private string CurrentProject;        
-        private string CurrentTag;
-        private string CurrentName;
+        public string CurrentTag;
+        public string CurrentName;
         private TreeNode CurrentNode;
         private string CurrentPath;
 

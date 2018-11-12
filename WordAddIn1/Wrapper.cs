@@ -1,8 +1,10 @@
 ﻿using System;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using XL.Office.Helpers;
 using Word = Microsoft.Office.Interop.Word;
-using System.Drawing; 
+using Microsoft.Office.Interop.Word;
 
 namespace WordAddIn1
 {
@@ -97,6 +99,95 @@ namespace WordAddIn1
             finally
             {
                 Application.UndoRecord.EndCustomRecord();
+            }
+        }
+
+        public class Intent
+        {
+            public string name { get; set; }
+            public double confidence { get; set; }
+        }
+
+        public class SingleEnt
+        {
+            public int start { get; set; }
+            public int end { get; set; }
+            public string value { get; set; }
+            public string entity { get; set; }
+            public float confidence { get; set; }
+            public string extractor { get; set; }
+        }
+
+        public class IntentRanking
+        {
+            public string name { get; set; }
+            public double confidence { get; set; }
+        }
+
+        public class SentenceObject
+        {
+            public Intent intent { get; set; }
+            public List<SingleEnt> entities { get; set; }
+            public List<IntentRanking> intent_ranking { get; set; }
+            public string text { get; set; }
+        }
+
+        public void WrapContentFromJSON(string JSONresult)
+        {
+            List<SentenceObject> SentObjList = JsonConvert.DeserializeObject<List<SentenceObject>>(JSONresult);
+            SentObjList.Reverse();
+            if (string.IsNullOrEmpty(JSONresult)) return;
+
+            var activeDocument = Application.ActiveDocument;
+            var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
+
+            Application.UndoRecord.StartCustomRecord($"Tag Selection ({CurrentTag})");
+
+            int sentEnd = 0;
+            foreach (Range sentence in Application.ActiveDocument.Sentences)
+            {
+                sentEnd += sentence.Text.Length;
+            }
+            sentEnd -= 1;
+
+            foreach (SentenceObject sent in SentObjList)
+            {
+                int sentStart = sentEnd - sent.text.Length;
+                Range intRange = Application.ActiveDocument.Range(sentStart, sentEnd);
+
+                string intTag = sent.intent.name;
+                WrapItem(extendedDocument, intTag, intRange);
+                
+                List<SingleEnt> EntList = sent.entities;
+                EntList.Reverse();
+                foreach (SingleEnt ent in EntList)
+                {
+                    int entStart = sentStart + ent.start + 1;
+                    int entEnd = sentStart + ent.end + 1;
+                    Range entRange = Application.ActiveDocument.Range(entStart, entEnd);
+
+                    string entTag = ent.entity;
+                    WrapItem(extendedDocument, entTag, entRange);
+                }
+                sentEnd = sentStart - 1;
+            }
+            Application.UndoRecord.EndCustomRecord();
+        }
+
+        public void WrapItem(Microsoft.Office.Tools.Word.Document extendedDocument, string tag, Range range)
+        {
+            try
+            {
+                var next = DateTime.Now.Ticks.ToString();
+                var control = extendedDocument.Controls.AddRichTextContentControl(range, string.Format("richText{0}", next));
+                control.PlaceholderText = "...";
+                control.Tag = tag;
+                control.Title = tag;
+                HighlightControlHierarchy(control.Range);
+            }
+            catch (Exception ex)
+            {
+                Utilities.Notification(ex.Message);
             }
         }
 

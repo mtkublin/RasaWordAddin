@@ -1,7 +1,5 @@
-﻿using System;
+﻿using System.IO;
 using Microsoft.Office.Tools.Ribbon;
-using Microsoft.Office.Interop.Word;
-
 
 namespace WordAddIn1
 {
@@ -20,6 +18,17 @@ namespace WordAddIn1
         private void UnwrapRangeButton_Click(object sender, RibbonControlEventArgs e)
         {
             Globals.ThisAddIn.UnwrapContent();
+        }
+
+        private void ExportTXTbtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            Globals.ThisAddIn.ExportTrainData();
+        }
+
+        private void WrapFromTestBtn_Click(object sender, RibbonControlEventArgs e)
+        {
+            string JSONresult = File.ReadAllText(@"C:\Users\Mikołaj\WORD_ADDIN_PROJECT\wordaddin1\Docs\test_result_1.json");
+            Globals.ThisAddIn.WrapContentFromJSON(JSONresult);
         }
     }
 }
