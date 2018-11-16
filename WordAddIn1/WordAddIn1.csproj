@@ -170,6 +170,9 @@
     <Reference Include="Python.Runtime, Version=2.3.0.0, Culture=neutral, processorArchitecture=x86">
       <HintPath>..\packages\pythonnet_py35_dotnet.2.3.0\lib\net40\x86\Python.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="RestSharp, Version=106.5.4.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.106.5.4\lib\net452\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="stdole, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
@@ -177,6 +180,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -211,7 +215,6 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="TrainDataExport.cs" />
     <Compile Include="Keyboard.cs" />
     <Compile Include="PaneControl.cs">

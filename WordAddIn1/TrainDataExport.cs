@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Office.Interop.Word;
 using Newtonsoft.Json;
+using RestSharp;
 
 namespace WordAddIn1
 {
@@ -20,17 +21,32 @@ namespace WordAddIn1
                 if (intLevelIndicator is '1')
                 {
                     GatherTrainData(intTag, intent.Range, examps);
-
-                    TrainData tData = new TrainData(examps);
-                    string outputJSON = "{\"rasa_nlu_data\":" + JsonConvert.SerializeObject(tData) + "}";
-
-                    string mydocpath = @"C:\Users\Mikołaj\Documents\Word_rasa_addin";
-                    using (StreamWriter outputFile = new StreamWriter(Path.Combine(mydocpath, "TrainData.json")))
-                    {
-                        outputFile.WriteLine(outputJSON);
-                    }
                 }
             }
+
+            TrainData tData = new TrainData(examps);
+            RasaNLUdata rasaData = new RasaNLUdata(tData);
+            FinalDataObject DataObjectForApi = new FinalDataObject(rasaData);
+            var jsonObject = JsonConvert.SerializeObject(DataObjectForApi);
+        
+
+            var client = new RestClient("http://127.0.0.1:5000");
+            var request = new RestRequest("api/traindata", Method.POST);
+            request.AddParameter("application/json; charset=utf-8", jsonObject, ParameterType.RequestBody);
+            request.RequestFormat = DataFormat.Json;
+            IRestResponse response = client.Execute(request);
+            var content = response.Content;
+            Console.WriteLine(content);
+
+            /* THIS SAVES TRAIN DATA TO FILE - RIGHT NOW UNNECESSARY 
+            
+            string outputJSON = jsonObject;
+            string mydocpath = @"C:\Users\Mikołaj\Documents\Word_rasa_addin";
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(mydocpath, "TrainData.json")))
+            {
+                outputFile.WriteLine(outputJSON);
+            }
+            */
         }
 
         private void GatherTrainData(string intTag, Range sent, List<Examp> examps)
@@ -100,6 +116,26 @@ namespace WordAddIn1
             public TrainData(List<Examp> examps)
             {
                 common_examples = examps;
+            }
+        }
+
+        private class RasaNLUdata
+        {
+            public TrainData rasa_nlu_data { get; set; }
+
+            public RasaNLUdata(TrainData DataToPass)
+            {
+                rasa_nlu_data = DataToPass;
+            }
+        }
+
+        private class FinalDataObject
+        {
+            public RasaNLUdata DATA { get; set; }
+
+            public FinalDataObject(RasaNLUdata DataToPass)
+            {
+                DATA = DataToPass;
             }
         }
     }
