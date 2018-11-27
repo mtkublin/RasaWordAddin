@@ -112,10 +112,16 @@ namespace WordAddIn1
         private class TrainData
         {
             public List<Examp> common_examples { get; set; }
+            public List<object> regex_features { get; set; }
+            public List<object> lookup_tables { get; set; }
+            public List<object> entity_synonyms { get; set; }
 
             public TrainData(List<Examp> examps)
             {
                 common_examples = examps;
+                regex_features = new List<object>();
+                lookup_tables = new List<object>();
+                entity_synonyms = new List<object>();
             }
         }
 

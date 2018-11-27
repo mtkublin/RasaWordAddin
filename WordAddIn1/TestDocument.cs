@@ -14,12 +14,10 @@ namespace WordAddIn1
         public void TestDoc()
         {
             List<String> SentsToExport = new List<String>();
-            //string TextToExport = "";
             foreach (Range sent in Globals.ThisAddIn.Application.ActiveDocument.Sentences)
             {
                 SentsToExport.Add(sent.Text);
             }
-            //TextToExportObject textToExportObject = new TextToExportObject(TextToExport);
             TextToExportObject textToExportObject = new TextToExportObject(SentsToExport);
             FinalTestDataExportObject finalExportData = new FinalTestDataExportObject(textToExportObject);
             var jsonTestObject = JsonConvert.SerializeObject(finalExportData);
