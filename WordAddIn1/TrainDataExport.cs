@@ -30,7 +30,7 @@ namespace WordAddIn1
             var jsonObject = JsonConvert.SerializeObject(DataObjectForApi);
         
 
-            var client = new RestClient("http://127.0.0.1:5000");
+            var client = new RestClient("http://127.0.0.1:6000");
             var request = new RestRequest("api/traindata", Method.POST);
             request.AddParameter("application/json; charset=utf-8", jsonObject, ParameterType.RequestBody);
             request.RequestFormat = DataFormat.Json;
@@ -38,7 +38,7 @@ namespace WordAddIn1
             var content = response.Content;
             Console.WriteLine(content);
 
-            /* THIS SAVES TRAIN DATA TO FILE - RIGHT NOW UNNECESSARY 
+            /* //THIS SAVES TRAIN DATA TO FILE - RIGHT NOW UNNECESSARY 
             
             string outputJSON = jsonObject;
             string mydocpath = @"C:\Users\Mikołaj\Documents\Word_rasa_addin";

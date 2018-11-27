@@ -27,8 +27,7 @@ namespace WordAddIn1
 
         private void WrapFromTestBtn_Click(object sender, RibbonControlEventArgs e)
         {
-            string JSONresult = File.ReadAllText(@"C:\Users\Mikołaj\WORD_ADDIN_PROJECT\wordaddin1\Docs\test_result_1.json");
-            Globals.ThisAddIn.WrapContentFromJSON(JSONresult);
+            Globals.ThisAddIn.TestDoc();
         }
     }
 }

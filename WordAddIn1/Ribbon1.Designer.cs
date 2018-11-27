@@ -82,7 +82,7 @@
             // 
             // WrapFromTestBtn
             // 
-            this.WrapFromTestBtn.Label = "Wrap Content from test";
+            this.WrapFromTestBtn.Label = "Test this document";
             this.WrapFromTestBtn.Name = "WrapFromTestBtn";
             this.WrapFromTestBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.WrapFromTestBtn_Click);
             // 

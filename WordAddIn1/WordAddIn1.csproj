@@ -215,6 +215,7 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="TestDocument.cs" />
     <Compile Include="TrainDataExport.cs" />
     <Compile Include="Keyboard.cs" />
     <Compile Include="PaneControl.cs">
