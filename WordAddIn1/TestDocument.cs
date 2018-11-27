@@ -87,7 +87,7 @@ namespace WordAddIn1
                     string entTag = ent.entity;
                     WrapItem(extendedDocument, entTag, entRange);
                 }
-                sentEnd = sentStart;
+                sentEnd = sentStart - 1;
             }
             Application.UndoRecord.EndCustomRecord();
         }
