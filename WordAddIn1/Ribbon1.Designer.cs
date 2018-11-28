@@ -39,7 +39,13 @@
             this.ContentControlButton = this.Factory.CreateRibbonButton();
             this.UnwrapRangeButton = this.Factory.CreateRibbonButton();
             this.ExportTXTbtn = this.Factory.CreateRibbonButton();
+            this.TestProjectDropDown = this.Factory.CreateRibbonDropDown();
+            this.TestModelDropDown = this.Factory.CreateRibbonDropDown();
             this.WrapFromTestBtn = this.Factory.CreateRibbonButton();
+            this.ProjectDropDown = this.Factory.CreateRibbonDropDown();
+            this.ModelBox = this.Factory.CreateRibbonEditBox();
+            this.separator1 = this.Factory.CreateRibbonSeparator();
+            this.separator2 = this.Factory.CreateRibbonSeparator();
             this.tab1.SuspendLayout();
             this.group1.SuspendLayout();
             this.SuspendLayout();
@@ -55,7 +61,13 @@
             // 
             this.group1.Items.Add(this.ContentControlButton);
             this.group1.Items.Add(this.UnwrapRangeButton);
+            this.group1.Items.Add(this.separator1);
+            this.group1.Items.Add(this.ProjectDropDown);
+            this.group1.Items.Add(this.ModelBox);
             this.group1.Items.Add(this.ExportTXTbtn);
+            this.group1.Items.Add(this.separator2);
+            this.group1.Items.Add(this.TestProjectDropDown);
+            this.group1.Items.Add(this.TestModelDropDown);
             this.group1.Items.Add(this.WrapFromTestBtn);
             this.group1.Label = "group1";
             this.group1.Name = "group1";
@@ -74,15 +86,47 @@
             this.UnwrapRangeButton.Name = "UnwrapRangeButton";
             this.UnwrapRangeButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.UnwrapRangeButton_Click);
             // 
+            // separator1
+            // 
+            this.separator1.Name = "separator1";
+            // 
+            // ProjectDropDown
+            // 
+            this.ProjectDropDown.Label = "Project";
+            this.ProjectDropDown.Name = "ProjectDropDown";
+            this.ProjectDropDown.SelectionChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ProjectDropDown_Select);
+            // 
+            // ModelBox
+            // 
+            this.ModelBox.Label = "Model";
+            this.ModelBox.Name = "ModelBox";
+            this.ModelBox.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ModelBox_TextChanged);
+            // 
             // ExportTXTbtn
             // 
-            this.ExportTXTbtn.Label = "Export Train Data";
+            this.ExportTXTbtn.Label = "EXPORT AND TRAIN";
             this.ExportTXTbtn.Name = "ExportTXTbtn";
             this.ExportTXTbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ExportTXTbtn_Click);
             // 
+            // separator2
+            // 
+            this.separator2.Name = "separator2";
+            // 
+            // TestProjectDropDown
+            // 
+            this.TestProjectDropDown.Label = "Test Project";
+            this.TestProjectDropDown.Name = "TestProjectDropDown";
+            this.TestProjectDropDown.SelectionChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.TestProjectDropDown_Select);
+            // 
+            // TestModelDropDown
+            // 
+            this.TestModelDropDown.Label = "Test Model";
+            this.TestModelDropDown.Name = "TestModelDropDown";
+            this.TestModelDropDown.SelectionChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ModelDropDown_Select);
+            // 
             // WrapFromTestBtn
             // 
-            this.WrapFromTestBtn.Label = "Test this document";
+            this.WrapFromTestBtn.Label = "TEST THIS DOC";
             this.WrapFromTestBtn.Name = "WrapFromTestBtn";
             this.WrapFromTestBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.WrapFromTestBtn_Click);
             // 
@@ -108,6 +152,12 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonButton UnwrapRangeButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton ExportTXTbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton WrapFromTestBtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonDropDown TestModelDropDown;
+        internal Microsoft.Office.Tools.Ribbon.RibbonDropDown TestProjectDropDown;
+        internal Microsoft.Office.Tools.Ribbon.RibbonSeparator separator1;
+        internal Microsoft.Office.Tools.Ribbon.RibbonDropDown ProjectDropDown;
+        internal Microsoft.Office.Tools.Ribbon.RibbonEditBox ModelBox;
+        internal Microsoft.Office.Tools.Ribbon.RibbonSeparator separator2;
     }
 
     partial class ThisRibbonCollection
