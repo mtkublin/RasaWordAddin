@@ -16,8 +16,30 @@ namespace WordAddIn1
             string ModelDir = ModelDirDialog.SelectedPath;
 
             ProjectComboBox.Items.Clear();
+            ProjectComboBox.Text = "";
             TestProjectDropDown.Items.Clear();
             ModelComboBox.Items.Clear();
+            ModelComboBox.Text = "";
+            TestModelDropDown.Items.Clear();
+
+            GetProjectItemsFromDir(ModelDir, ProjectComboBox, TestProjectDropDown);
+
+            if (TestProjectDropDown.SelectedItem != null)
+            {
+                string NewModelDir = ModelDir + "\\" + TestProjectDropDown.SelectedItem.Label;
+                GetModelItemsFromDirDD(NewModelDir, TestModelDropDown);
+            }
+        }
+
+        public void ChangeToLocalStorage(System.Windows.Forms.FolderBrowserDialog ModelDirDialog, RibbonLabel ModelDirLabel, RibbonComboBox ProjectComboBox, RibbonDropDown TestProjectDropDown, RibbonComboBox ModelComboBox, RibbonDropDown TestModelDropDown)
+        {
+            string ModelDir = ModelDirDialog.SelectedPath;
+
+            ProjectComboBox.Items.Clear();
+            ProjectComboBox.Text = "";
+            TestProjectDropDown.Items.Clear();
+            ModelComboBox.Items.Clear();
+            ModelComboBox.Text = "";
             TestModelDropDown.Items.Clear();
 
             GetProjectItemsFromDir(ModelDir, ProjectComboBox, TestProjectDropDown);

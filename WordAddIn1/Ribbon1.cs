@@ -30,11 +30,13 @@ namespace WordAddIn1
             this.AzureStorageButton.Checked = true;
             this.LocalStorageButton.Checked = false;
             this.SetDirButton.Enabled = false;
-            this.ModelDirLabel.Label = "";
+            this.ModelDirLabel.Enabled = false;
 
             this.ProjectComboBox.Items.Clear();
+            this.ProjectComboBox.Text = "";
             this.TestProjectDropDown.Items.Clear();
             this.ModelComboBox.Items.Clear();
+            this.ModelComboBox.Text = "";
             this.TestModelDropDown.Items.Clear();
 
             var client = new RestClient("http://127.0.0.1:6000");
@@ -47,14 +49,22 @@ namespace WordAddIn1
             this.AzureStorageButton.Checked = false;
             this.LocalStorageButton.Checked = true;
             this.SetDirButton.Enabled = true;
+            this.ModelDirLabel.Enabled = true;
 
-            Globals.ThisAddIn.ChooseModelDir(this.ModelDirDialog, this.ModelDirLabel, this.ProjectComboBox, this.TestProjectDropDown, this.ModelComboBox, this.TestModelDropDown);
+            if (this.ModelDirLabel.Label == "")
+            {
+                Globals.ThisAddIn.ChooseModelDir(this.ModelDirDialog, this.ModelDirLabel, this.ProjectComboBox, this.TestProjectDropDown, this.ModelComboBox, this.TestModelDropDown);
 
-            var client = new RestClient("http://127.0.0.1:6000");
-            string ProjectName = this.TestProjectDropDown.SelectedItem.Label;
-            string ModelName = this.TestModelDropDown.SelectedItem.Label;
-            string ModelPath = this.ModelDirDialog.SelectedPath + "\\" + ProjectName + "\\" + ModelName;
-            Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, ModelPath);
+                var client = new RestClient("http://127.0.0.1:6000");
+                string ProjectName = this.TestProjectDropDown.SelectedItem.Label;
+                string ModelName = this.TestModelDropDown.SelectedItem.Label;
+                string ModelPath = this.ModelDirDialog.SelectedPath + "\\" + ProjectName + "\\" + ModelName;
+                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, ModelPath);
+            }
+            else
+            {
+                Globals.ThisAddIn.ChangeToLocalStorage(this.ModelDirDialog, this.ModelDirLabel, this.ProjectComboBox, this.TestProjectDropDown, this.ModelComboBox, this.TestModelDropDown);
+            }
         }
 
         private void SetDirButton_Click(object sender, RibbonControlEventArgs e)
@@ -64,6 +74,7 @@ namespace WordAddIn1
 
         private void ProjectComboBox_TextChanged(object sender, RibbonControlEventArgs e)
         {
+            this.ModelComboBox.Text = "";
             Globals.ThisAddIn.AddItemToProjectComboBox(this.ProjectComboBox, this.ModelComboBox);
             string ProjectName = ProjectComboBox.Text;
 

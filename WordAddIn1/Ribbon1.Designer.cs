@@ -39,12 +39,6 @@
             this.group1 = this.Factory.CreateRibbonGroup();
             this.ContentControlButton = this.Factory.CreateRibbonButton();
             this.UnwrapRangeButton = this.Factory.CreateRibbonButton();
-            this.separator3 = this.Factory.CreateRibbonSeparator();
-            this.label1 = this.Factory.CreateRibbonLabel();
-            this.LocalStorageButton = this.Factory.CreateRibbonToggleButton();
-            this.AzureStorageButton = this.Factory.CreateRibbonToggleButton();
-            this.SetDirButton = this.Factory.CreateRibbonButton();
-            this.ModelDirLabel = this.Factory.CreateRibbonLabel();
             this.separator1 = this.Factory.CreateRibbonSeparator();
             this.ProjectComboBox = this.Factory.CreateRibbonComboBox();
             this.ModelComboBox = this.Factory.CreateRibbonComboBox();
@@ -53,8 +47,14 @@
             this.TestProjectDropDown = this.Factory.CreateRibbonDropDown();
             this.TestModelDropDown = this.Factory.CreateRibbonDropDown();
             this.WrapFromTestBtn = this.Factory.CreateRibbonButton();
+            this.separator3 = this.Factory.CreateRibbonSeparator();
+            this.label1 = this.Factory.CreateRibbonLabel();
             this.buttonGroup2 = this.Factory.CreateRibbonButtonGroup();
+            this.LocalStorageButton = this.Factory.CreateRibbonToggleButton();
+            this.AzureStorageButton = this.Factory.CreateRibbonToggleButton();
             this.box2 = this.Factory.CreateRibbonBox();
+            this.SetDirButton = this.Factory.CreateRibbonButton();
+            this.ModelDirLabel = this.Factory.CreateRibbonLabel();
             this.tab1.SuspendLayout();
             this.group1.SuspendLayout();
             this.buttonGroup2.SuspendLayout();
@@ -104,38 +104,6 @@
             this.UnwrapRangeButton.Name = "UnwrapRangeButton";
             this.UnwrapRangeButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.UnwrapRangeButton_Click);
             // 
-            // separator3
-            // 
-            this.separator3.Name = "separator3";
-            // 
-            // label1
-            // 
-            this.label1.Label = "Where to store model?";
-            this.label1.Name = "label1";
-            // 
-            // LocalStorageButton
-            // 
-            this.LocalStorageButton.Label = "Locally";
-            this.LocalStorageButton.Name = "LocalStorageButton";
-            this.LocalStorageButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.LocalStorageButton_Click);
-            // 
-            // AzureStorageButton
-            // 
-            this.AzureStorageButton.Label = "Azure";
-            this.AzureStorageButton.Name = "AzureStorageButton";
-            this.AzureStorageButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.AzureStorageButton_Click);
-            // 
-            // SetDirButton
-            // 
-            this.SetDirButton.Label = "Directory:";
-            this.SetDirButton.Name = "SetDirButton";
-            this.SetDirButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.SetDirButton_Click);
-            // 
-            // ModelDirLabel
-            // 
-            this.ModelDirLabel.Label = "";
-            this.ModelDirLabel.Name = "ModelDirLabel";
-            // 
             // separator1
             // 
             this.separator1.Name = "separator1";
@@ -143,13 +111,14 @@
             // ProjectComboBox
             // 
             this.ProjectComboBox.Label = "Project";
+            this.ProjectComboBox.MaxLength = 20;
             this.ProjectComboBox.Name = "ProjectComboBox";
-            this.ProjectComboBox.Text = null;
             this.ProjectComboBox.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ProjectComboBox_TextChanged);
             // 
             // ModelComboBox
             // 
             this.ModelComboBox.Label = "Model";
+            this.ModelComboBox.MaxLength = 20;
             this.ModelComboBox.Name = "ModelComboBox";
             this.ModelComboBox.Text = null;
             this.ModelComboBox.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ModelComboBox_TextChanged);
@@ -182,17 +151,49 @@
             this.WrapFromTestBtn.Name = "WrapFromTestBtn";
             this.WrapFromTestBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.WrapFromTestBtn_Click);
             // 
+            // separator3
+            // 
+            this.separator3.Name = "separator3";
+            // 
+            // label1
+            // 
+            this.label1.Label = "Where to store model?";
+            this.label1.Name = "label1";
+            // 
             // buttonGroup2
             // 
             this.buttonGroup2.Items.Add(this.LocalStorageButton);
             this.buttonGroup2.Items.Add(this.AzureStorageButton);
             this.buttonGroup2.Name = "buttonGroup2";
             // 
+            // LocalStorageButton
+            // 
+            this.LocalStorageButton.Label = "Locally";
+            this.LocalStorageButton.Name = "LocalStorageButton";
+            this.LocalStorageButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.LocalStorageButton_Click);
+            // 
+            // AzureStorageButton
+            // 
+            this.AzureStorageButton.Label = "Azure";
+            this.AzureStorageButton.Name = "AzureStorageButton";
+            this.AzureStorageButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.AzureStorageButton_Click);
+            // 
             // box2
             // 
             this.box2.Items.Add(this.SetDirButton);
             this.box2.Items.Add(this.ModelDirLabel);
             this.box2.Name = "box2";
+            // 
+            // SetDirButton
+            // 
+            this.SetDirButton.Label = "Directory:";
+            this.SetDirButton.Name = "SetDirButton";
+            this.SetDirButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.SetDirButton_Click);
+            // 
+            // ModelDirLabel
+            // 
+            this.ModelDirLabel.Label = "";
+            this.ModelDirLabel.Name = "ModelDirLabel";
             // 
             // Ribbon1
             // 
