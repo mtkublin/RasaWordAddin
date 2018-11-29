@@ -11,10 +11,13 @@ namespace WordAddIn1
             this.TestProjectDropDown.Enabled = false;
             this.WrapFromTestBtn.Enabled = false;
             this.ExportTXTbtn.Enabled = false;
+            this.AzureStorageButton.Checked = true;
+            this.LocalStorageButton.Checked = false;
+            this.SetDirButton.Enabled = false;
 
             var client = new RestClient("http://127.0.0.1:6000");
             Globals.ThisAddIn.TESTGetProjsList(client, this.TestProjectDropDown, this.TestModelDropDown);
-            Globals.ThisAddIn.GetProjsList(client, this.ProjectDropDown);
+            Globals.ThisAddIn.GetProjsList(client, this.ProjectComboBox);
 
             this.TestModelDropDown.Enabled = true;
             this.TestProjectDropDown.Enabled = true;
@@ -22,17 +25,63 @@ namespace WordAddIn1
             this.ExportTXTbtn.Enabled = true;
         }
 
-        private void ProjectDropDown_Select(object sender, RibbonControlEventArgs e)
+        private void AzureStorageButton_Click(object sender, RibbonControlEventArgs e)
         {
+            this.AzureStorageButton.Checked = true;
+            this.LocalStorageButton.Checked = false;
+            this.SetDirButton.Enabled = false;
+            this.ModelDirLabel.Label = "";
 
+            this.ProjectComboBox.Items.Clear();
+            this.TestProjectDropDown.Items.Clear();
+            this.ModelComboBox.Items.Clear();
+            this.TestModelDropDown.Items.Clear();
+
+            var client = new RestClient("http://127.0.0.1:6000");
+            Globals.ThisAddIn.TESTGetProjsList(client, this.TestProjectDropDown, this.TestModelDropDown);
+            Globals.ThisAddIn.GetProjsList(client, this.ProjectComboBox);
         }
 
-        private void ModelBox_TextChanged(object sender, RibbonControlEventArgs e)
+        private void LocalStorageButton_Click(object sender, RibbonControlEventArgs e)
         {
-            string ModelToCreateName = this.ModelBox.Text;
-            string ProjectName = this.TestProjectDropDown.SelectedItem.Label;
+            this.AzureStorageButton.Checked = false;
+            this.LocalStorageButton.Checked = true;
+            this.SetDirButton.Enabled = true;
+
+            Globals.ThisAddIn.ChooseModelDir(this.ModelDirDialog, this.ModelDirLabel, this.ProjectComboBox, this.TestProjectDropDown, this.ModelComboBox, this.TestModelDropDown);
+
             var client = new RestClient("http://127.0.0.1:6000");
-            Globals.ThisAddIn.GetModelsList(client, ProjectName, ModelToCreateName);
+            string ProjectName = this.TestProjectDropDown.SelectedItem.Label;
+            string ModelName = this.TestModelDropDown.SelectedItem.Label;
+            string ModelPath = this.ModelDirDialog.SelectedPath + "\\" + ProjectName + "\\" + ModelName;
+            Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, ModelPath);
+        }
+
+        private void SetDirButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            Globals.ThisAddIn.ChooseModelDir(this.ModelDirDialog, this.ModelDirLabel, this.ProjectComboBox, this.TestProjectDropDown, this.ModelComboBox, this.TestModelDropDown);
+        }
+
+        private void ProjectComboBox_TextChanged(object sender, RibbonControlEventArgs e)
+        {
+            Globals.ThisAddIn.AddItemToProjectComboBox(this.ProjectComboBox, this.ModelComboBox);
+            string ProjectName = ProjectComboBox.Text;
+
+            if (this.AzureStorageButton.Checked == true)
+            {
+                var client = new RestClient("http://127.0.0.1:6000");
+                Globals.ThisAddIn.GetModelsList(client, ProjectName, this.ModelComboBox);
+            }
+            else if (this.LocalStorageButton.Checked == true)
+            {
+                Globals.ThisAddIn.GetModelItemsFromDirCB(this.ModelDirDialog.SelectedPath + "\\" + ProjectName, ModelComboBox);
+            }
+        }
+
+        private void ModelComboBox_TextChanged(object sender, RibbonControlEventArgs e)
+        {
+            string ModelToCreateName = this.ModelComboBox.Text;
+            Globals.ThisAddIn.AddItemToModelComboBox(this.ModelComboBox);
         }
 
         private void TestProjectDropDown_Select(object sender, RibbonControlEventArgs e)
@@ -41,9 +90,21 @@ namespace WordAddIn1
             this.WrapFromTestBtn.Enabled = false;
             this.ExportTXTbtn.Enabled = false;
 
-            var client = new RestClient("http://127.0.0.1:6000");
             string ProjectName = this.TestProjectDropDown.SelectedItem.Label;
-            Globals.ThisAddIn.TESTGetModelsList(client, ProjectName, this.TestModelDropDown);
+
+            if (this.AzureStorageButton.Checked == true)
+            {
+                var client = new RestClient("http://127.0.0.1:6000");
+                Globals.ThisAddIn.TESTGetModelsList(client, ProjectName, this.TestModelDropDown);
+            }
+            else if (this.LocalStorageButton.Checked == true)
+            {
+                Globals.ThisAddIn.GetModelItemsFromDirDD(this.ModelDirDialog.SelectedPath + "\\" + ProjectName, TestModelDropDown);
+                var client = new RestClient("http://127.0.0.1:6000");
+                string ModelName = this.TestModelDropDown.SelectedItem.Label;
+                string ModelPath = this.ModelDirDialog.SelectedPath + "\\" + ProjectName + "\\" + ModelName;
+                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, ModelPath);
+            }
 
             this.TestModelDropDown.Enabled = true;
             this.WrapFromTestBtn.Enabled = true;
@@ -56,10 +117,20 @@ namespace WordAddIn1
             this.TestProjectDropDown.Enabled = false;
             this.ExportTXTbtn.Enabled = false;
 
-            var client = new RestClient("http://127.0.0.1:6000");
             string ProjectName = this.TestProjectDropDown.SelectedItem.Label;
             string ModelName = this.TestModelDropDown.SelectedItem.Label;
-            Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName);
+
+            var client = new RestClient("http://127.0.0.1:6000");
+
+            if (this.AzureStorageButton.Checked == true)
+            {
+                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName);
+            }
+            else if (this.LocalStorageButton.Checked == true)
+            {
+                string ModelPath = this.ModelDirDialog.SelectedPath + "\\" + ProjectName + "\\" + ModelName;
+                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, ModelPath);
+            }
 
             this.WrapFromTestBtn.Enabled = true;
             this.TestProjectDropDown.Enabled = true;
@@ -78,7 +149,15 @@ namespace WordAddIn1
 
         private void ExportTXTbtn_Click(object sender, RibbonControlEventArgs e)
         {
-            Globals.ThisAddIn.ExportTrainData();
+            if(this.AzureStorageButton.Checked)
+            {
+                Globals.ThisAddIn.ExportTrainData();
+            }
+            else
+            {
+                string ModelPath = this.ModelDirDialog.SelectedPath;
+                Globals.ThisAddIn.ExportTrainData(ModelPath);
+            }
         }
 
         private void WrapFromTestBtn_Click(object sender, RibbonControlEventArgs e)

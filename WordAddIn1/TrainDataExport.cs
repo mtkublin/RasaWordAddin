@@ -9,7 +9,9 @@ namespace WordAddIn1
 {
     public partial class ThisAddIn
     {
-        public void ExportTrainData()
+        private RasaNLUdata rasaData { get; set; }
+
+        public void ExportTrainData(string ModelPath = null)
         {
             var examps = new List<Examp> { };
 
@@ -25,14 +27,23 @@ namespace WordAddIn1
             }
 
             TrainData tData = new TrainData(examps);
-            RasaNLUdata rasaData = new RasaNLUdata(tData);
+
+            RasaNLUdata rasaData = new RasaNLUdata(tData, ModelPath);
+            
+
             FinalDataObject DataObjectForApi = new FinalDataObject(rasaData);
             var jsonObject = JsonConvert.SerializeObject(DataObjectForApi);
-        
+
+            string TrainProjectName = Globals.Ribbons.Ribbon1.ProjectComboBox.Text;
+            string TrainModelName = Globals.Ribbons.Ribbon1.ModelComboBox.Text;
 
             var client = new RestClient("http://127.0.0.1:6000");
-            var request = new RestRequest("api/traindata", Method.POST);
+            var request = new RestRequest("api/traindata/{project}/{model}", Method.POST);
             request.AddParameter("application/json; charset=utf-8", jsonObject, ParameterType.RequestBody);
+            request.AddParameter("project", TrainProjectName, ParameterType.UrlSegment);
+            request.AddUrlSegment("project", TrainProjectName);
+            request.AddParameter("model", TrainModelName, ParameterType.UrlSegment);
+            request.AddUrlSegment("model", TrainModelName);
             request.RequestFormat = DataFormat.Json;
             IRestResponse response = client.Execute(request);
             var content = response.Content;
@@ -128,10 +139,15 @@ namespace WordAddIn1
         private class RasaNLUdata
         {
             public TrainData rasa_nlu_data { get; set; }
+            public string ModelPath { get; set; }
 
-            public RasaNLUdata(TrainData DataToPass)
+            public RasaNLUdata(TrainData DataToPass, string Mpath = null)
             {
                 rasa_nlu_data = DataToPass;
+                if (Mpath != null)
+                {
+                    ModelPath = Mpath;
+                }
             }
         }
 
