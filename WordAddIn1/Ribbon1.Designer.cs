@@ -111,15 +111,16 @@
             // ProjectComboBox
             // 
             this.ProjectComboBox.Label = "Project";
-            this.ProjectComboBox.MaxLength = 20;
             this.ProjectComboBox.Name = "ProjectComboBox";
+            this.ProjectComboBox.SizeString = "200";
+            this.ProjectComboBox.Text = null;
             this.ProjectComboBox.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ProjectComboBox_TextChanged);
             // 
             // ModelComboBox
             // 
             this.ModelComboBox.Label = "Model";
-            this.ModelComboBox.MaxLength = 20;
             this.ModelComboBox.Name = "ModelComboBox";
+            this.ModelComboBox.SizeString = "200";
             this.ModelComboBox.Text = null;
             this.ModelComboBox.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ModelComboBox_TextChanged);
             // 
@@ -137,12 +138,14 @@
             // 
             this.TestProjectDropDown.Label = "Test Project";
             this.TestProjectDropDown.Name = "TestProjectDropDown";
+            this.TestProjectDropDown.SizeString = "200";
             this.TestProjectDropDown.SelectionChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.TestProjectDropDown_Select);
             // 
             // TestModelDropDown
             // 
             this.TestModelDropDown.Label = "Test Model";
             this.TestModelDropDown.Name = "TestModelDropDown";
+            this.TestModelDropDown.SizeString = "200";
             this.TestModelDropDown.SelectionChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ModelDropDown_Select);
             // 
             // WrapFromTestBtn
