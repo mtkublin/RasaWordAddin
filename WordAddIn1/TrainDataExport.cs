@@ -11,7 +11,7 @@ namespace WordAddIn1
     {
         private RasaNLUdata rasaData { get; set; }
 
-        public void ExportTrainData(string ModelPath = null)
+        public void ExportTrainData(RestClient client, string TrainProjectName, string TrainModelName, string ModelPath = null)
         {
             var examps = new List<Examp> { };
 
@@ -34,10 +34,6 @@ namespace WordAddIn1
             FinalDataObject DataObjectForApi = new FinalDataObject(rasaData);
             var jsonObject = JsonConvert.SerializeObject(DataObjectForApi);
 
-            string TrainProjectName = Globals.Ribbons.Ribbon1.ProjectComboBox.Text;
-            string TrainModelName = Globals.Ribbons.Ribbon1.ModelComboBox.Text;
-
-            var client = new RestClient("http://127.0.0.1:6000");
             var request = new RestRequest("api/traindata/{project}/{model}", Method.POST);
             request.AddParameter("application/json; charset=utf-8", jsonObject, ParameterType.RequestBody);
             request.AddParameter("project", TrainProjectName, ParameterType.UrlSegment);

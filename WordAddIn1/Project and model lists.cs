@@ -8,50 +8,26 @@ namespace WordAddIn1
 {
     public partial class ThisAddIn
     {
-        public void ChooseModelDir(System.Windows.Forms.FolderBrowserDialog ModelDirDialog, RibbonLabel ModelDirLabel, RibbonComboBox ProjectComboBox, RibbonDropDown TestProjectDropDown, RibbonComboBox ModelComboBox, RibbonDropDown TestModelDropDown)
+        public void ChooseModelDir(System.Windows.Forms.FolderBrowserDialog ModelDirDialog, RibbonLabel ModelDirLabel, RibbonComboBox ProjectComboBox, RibbonDropDown TestModelDropDown)
         {
             ModelDirDialog.ShowDialog();
             ModelDirLabel.Label = ModelDirDialog.SelectedPath;
 
-            string ModelDir = ModelDirDialog.SelectedPath;
-
-            ProjectComboBox.Items.Clear();
-            ProjectComboBox.Text = "";
-            TestProjectDropDown.Items.Clear();
-            ModelComboBox.Items.Clear();
-            ModelComboBox.Text = "";
-            TestModelDropDown.Items.Clear();
-
-            GetProjectItemsFromDir(ModelDir, ProjectComboBox, TestProjectDropDown);
-
-            if (TestProjectDropDown.SelectedItem != null)
-            {
-                string NewModelDir = ModelDir + "\\" + TestProjectDropDown.SelectedItem.Label;
-                GetModelItemsFromDirDD(NewModelDir, TestModelDropDown);
-            }
+            ChangeToLocalStorage(ModelDirDialog, ProjectComboBox, TestModelDropDown);
         }
 
-        public void ChangeToLocalStorage(System.Windows.Forms.FolderBrowserDialog ModelDirDialog, RibbonLabel ModelDirLabel, RibbonComboBox ProjectComboBox, RibbonDropDown TestProjectDropDown, RibbonComboBox ModelComboBox, RibbonDropDown TestModelDropDown)
+        public void ChangeToLocalStorage(System.Windows.Forms.FolderBrowserDialog ModelDirDialog, RibbonComboBox ProjectComboBox, RibbonDropDown TestModelDropDown)
         {
             string ModelDir = ModelDirDialog.SelectedPath;
 
             ProjectComboBox.Items.Clear();
             ProjectComboBox.Text = "";
-            TestProjectDropDown.Items.Clear();
-            ModelComboBox.Items.Clear();
-            ModelComboBox.Text = "";
             TestModelDropDown.Items.Clear();
 
-            GetProjectItemsFromDir(ModelDir, ProjectComboBox, TestProjectDropDown);
-
-            if (TestProjectDropDown.SelectedItem != null)
-            {
-                string NewModelDir = ModelDir + "\\" + TestProjectDropDown.SelectedItem.Label;
-                GetModelItemsFromDirDD(NewModelDir, TestModelDropDown);
-            }
+            GetProjectItemsFromDir(ModelDir, ProjectComboBox);
         }
 
-        public void GetProjectItemsFromDir(string ModelDir, RibbonComboBox ProjectComboBox, RibbonDropDown TestProjectDropDown)
+        public void GetProjectItemsFromDir(string ModelDir, RibbonComboBox ProjectComboBox)
         {
             string[] ProjFoldList = Directory.GetDirectories(ModelDir);
             foreach (string Pfold in ProjFoldList)
@@ -61,10 +37,6 @@ namespace WordAddIn1
                 RibbonDropDownItem folder = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
                 folder.Label = ItemLabel;
                 ProjectComboBox.Items.Add(folder);
-
-                RibbonDropDownItem NEWfolder = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
-                NEWfolder.Label = ItemLabel;
-                TestProjectDropDown.Items.Add(NEWfolder);
             }
         }
 
@@ -84,32 +56,10 @@ namespace WordAddIn1
                     NEWfolder.Label = ItemLabel;
                     TestModelDropDown.Items.Add(NEWfolder);
                 }
-            }      
-        }
-
-        public void GetModelItemsFromDirCB(string NewModelDir, RibbonComboBox TestModelDropDown)
-        {
-            if(NewModelDir != null)
-            {
-                TestModelDropDown.Items.Clear();
-
-                if(Directory.Exists(NewModelDir))
-                {
-                    string[] ModelFoldList = Directory.GetDirectories(NewModelDir);
-
-                    foreach (string Mfold in ModelFoldList)
-                    {
-                        string ItemLabel = Mfold.Substring(NewModelDir.Length + 1, Mfold.Length - NewModelDir.Length - 1);
-
-                        RibbonDropDownItem NEWfolder = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
-                        NEWfolder.Label = ItemLabel;
-                        TestModelDropDown.Items.Add(NEWfolder);
-                    }
-                }
             }
         }
 
-        public void AddItemToProjectComboBox(RibbonComboBox ProjectComboBox, RibbonComboBox ModelComboBox)
+        public void AddItemToProjectComboBox(RibbonButton ExportTXTbtn, RibbonButton WrapFromTestBtn, RestClient client, System.Windows.Forms.FolderBrowserDialog ModelDirDialog, RibbonComboBox ProjectComboBox, RibbonDropDown TestModelDropDown, RibbonToggleButton AzureStorageButton, RibbonToggleButton LocalStorageButton)
         {
             List<string> ProjectsList = new List<string>();
             foreach (RibbonDropDownItem item in ProjectComboBox.Items)
@@ -119,44 +69,38 @@ namespace WordAddIn1
             }
 
             string ProjectName = ProjectComboBox.Text;
-            if (ProjectsList.Contains(ProjectName) == true)
-            {
-                ProjectComboBox.Text.Remove(0, ProjectComboBox.Text.Length);
-            }
-            else
+            if (ProjectsList.Contains(ProjectName) != true)
             {
                 RibbonDropDownItem NEWitem = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
                 NEWitem.Label = ProjectName;
                 ProjectComboBox.Items.Add(NEWitem);
+                TestModelDropDown.Items.Clear();
 
-                ModelComboBox.Items.Clear();
-                ModelComboBox.Text.Remove(0, ModelComboBox.Text.Length);
-            }
-        }
-
-        public void AddItemToModelComboBox(RibbonComboBox ModelComboBox)
-        {
-            List<string> ProjectsList = new List<string>();
-            foreach (RibbonDropDownItem item in ModelComboBox.Items)
-            {
-                string ExistingProjName = item.ToString();
-                ProjectsList.Add(ExistingProjName);
-            }
-
-            string ProjectName = ModelComboBox.Text;
-            if (ProjectsList.Contains(ProjectName) == true)
-            {
-                ModelComboBox.Text.Remove(0, ModelComboBox.Text.Length);
+                TestModelDropDown.Enabled = false;
+                WrapFromTestBtn.Enabled = false;
+                ExportTXTbtn.Enabled = true;
             }
             else
             {
-                RibbonDropDownItem NEWitem = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
-                NEWitem.Label = ProjectName;
-                ModelComboBox.Items.Add(NEWitem);
+                if (AzureStorageButton.Checked == true)
+                {
+                    Globals.ThisAddIn.TESTGetModelsList(client, ProjectName, TestModelDropDown);
+                }
+                else if (LocalStorageButton.Checked == true)
+                {
+                    Globals.ThisAddIn.GetModelItemsFromDirDD(ModelDirDialog.SelectedPath + "\\" + ProjectName, TestModelDropDown);
+                    string ModelName = TestModelDropDown.SelectedItem.Label;
+                    string ModelPath = ModelDirDialog.SelectedPath + "\\" + ProjectName + "\\" + ModelName;
+                    Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, ModelPath);
+                }
+
+                TestModelDropDown.Enabled = true;
+                WrapFromTestBtn.Enabled = true;
+                ExportTXTbtn.Enabled = true;
             }
         }
 
-        public void GetProjsList(RestClient client, RibbonComboBox ProjectComboBox)
+        public void GetProjsListAzure(RestClient client, RibbonComboBox ProjectComboBox)
         {
             var Request = new RestRequest("api/projects", Method.GET);
             IRestResponse Response = client.Execute(Request);
@@ -169,45 +113,6 @@ namespace WordAddIn1
                 RibbonDropDownItem item = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
                 item.Label = itemName;
                 ProjectComboBox.Items.Add(item);
-            }
-        }
-
-        public void TESTGetProjsList(RestClient client, RibbonDropDown TestProjectDropDown, RibbonDropDown TestModelDropDown)
-        {
-            var Request = new RestRequest("api/projects", Method.GET);
-            IRestResponse Response = client.Execute(Request);
-            string JSONresultDoc = Response.Content.ToString();
-
-            List<string> ProjList = JsonConvert.DeserializeObject<List<string>>(JSONresultDoc);
-
-            foreach (string itemName in ProjList)
-            {
-                RibbonDropDownItem item = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
-                item.Label = itemName;
-                TestProjectDropDown.Items.Add(item);
-            }
-
-            string ProjectName = TestProjectDropDown.SelectedItem.Label;
-            Globals.ThisAddIn.TESTGetModelsList(client, ProjectName, TestModelDropDown);
-        }
-
-        public void GetModelsList(RestClient client, string ProjectName, RibbonComboBox ModelComboBox)
-        {
-            var newRequest = new RestRequest("api/models/{project}", Method.GET);
-            newRequest.AddParameter("project", ProjectName, ParameterType.UrlSegment);
-            newRequest.AddUrlSegment("project", ProjectName);
-            IRestResponse newResponse = client.Execute(newRequest);
-            string newJSONresultDoc = newResponse.Content.ToString();
-
-            List<string> ModelList = JsonConvert.DeserializeObject<List<string>>(newJSONresultDoc);
-
-            ModelComboBox.Items.Clear();
-
-            foreach (string itemName in ModelList)
-            {
-                RibbonDropDownItem item = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
-                item.Label = itemName;
-                ModelComboBox.Items.Add(item);
             }
         }
 

@@ -63,10 +63,6 @@ namespace WordAddIn1
             foreach (SentenceObject sent in SentObjList)
             {
                 int sentStart = sentEnd - sent.text.Length + 1;
-                //if (sentStart < 0)
-                //{
-                //    sentStart = 0;
-                //}
 
                 Range intRange = Application.ActiveDocument.Range(sentStart, sentEnd);
 
