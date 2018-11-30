@@ -8,10 +8,10 @@ namespace WordAddIn1
 {
     public partial class ThisAddIn
     {
-        public void ChooseModelDir(System.Windows.Forms.FolderBrowserDialog ModelDirDialog, RibbonLabel ModelDirLabel, RibbonComboBox ProjectComboBox, RibbonDropDown TestModelDropDown)
+        public void ChooseModelDir(System.Windows.Forms.FolderBrowserDialog ModelDirDialog, RibbonEditBox ModelDirBox, RibbonComboBox ProjectComboBox, RibbonDropDown TestModelDropDown)
         {
             ModelDirDialog.ShowDialog();
-            ModelDirLabel.Label = ModelDirDialog.SelectedPath;
+            ModelDirBox.Text = ModelDirDialog.SelectedPath;
             string ModelDir = ModelDirDialog.SelectedPath;
 
             if (Directory.Exists(ModelDir + "\\MODELS") == false)
@@ -111,6 +111,11 @@ namespace WordAddIn1
                 {
                     TestModelDropDown.Enabled = true;
                     WrapFromTestBtn.Enabled = true;
+                }
+                else
+                {
+                    TestModelDropDown.Enabled = false;
+                    WrapFromTestBtn.Enabled = false;
                 }
                 ExportTXTbtn.Enabled = true;
             }

@@ -91,31 +91,38 @@ namespace WordAddIn1
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Ribbon1));
             this.ModelDirDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.tab1 = this.Factory.CreateRibbonTab();
-            this.group1 = this.Factory.CreateRibbonGroup();
+            this.group2 = this.Factory.CreateRibbonGroup();
             this.ContentControlButton = this.Factory.CreateRibbonButton();
             this.UnwrapRangeButton = this.Factory.CreateRibbonButton();
-            this.separator1 = this.Factory.CreateRibbonSeparator();
-            this.ProjectComboBox = this.Factory.CreateRibbonComboBox();
+            this.group3 = this.Factory.CreateRibbonGroup();
             this.box1 = this.Factory.CreateRibbonBox();
+            this.button1 = this.Factory.CreateRibbonButton();
             this.WrapFromTestBtn = this.Factory.CreateRibbonButton();
-            this.TestModelDropDown = this.Factory.CreateRibbonDropDown();
-            this.box3 = this.Factory.CreateRibbonBox();
             this.ExportTXTbtn = this.Factory.CreateRibbonButton();
-            this.separator3 = this.Factory.CreateRibbonSeparator();
-            this.buttonGroup2 = this.Factory.CreateRibbonButtonGroup();
+            this.box4 = this.Factory.CreateRibbonBox();
+            this.ProjectComboBox = this.Factory.CreateRibbonComboBox();
+            this.TestModelDropDown = this.Factory.CreateRibbonDropDown();
+            this.group1 = this.Factory.CreateRibbonGroup();
+            this.box3 = this.Factory.CreateRibbonBox();
+            this.box5 = this.Factory.CreateRibbonBox();
             this.LocalStorageButton = this.Factory.CreateRibbonToggleButton();
             this.AzureStorageButton = this.Factory.CreateRibbonToggleButton();
-            this.box2 = this.Factory.CreateRibbonBox();
+            this.box6 = this.Factory.CreateRibbonBox();
             this.SetDirButton = this.Factory.CreateRibbonButton();
-            this.ModelDirLabel = this.Factory.CreateRibbonLabel();
+            this.ModelDirBox = this.Factory.CreateRibbonEditBox();
+            this.ProjectDropDown = this.Factory.CreateRibbonDropDown();
             this.tab1.SuspendLayout();
-            this.group1.SuspendLayout();
+            this.group2.SuspendLayout();
+            this.group3.SuspendLayout();
             this.box1.SuspendLayout();
+            this.box4.SuspendLayout();
+            this.group1.SuspendLayout();
             this.box3.SuspendLayout();
-            this.buttonGroup2.SuspendLayout();
-            this.box2.SuspendLayout();
+            this.box5.SuspendLayout();
+            this.box6.SuspendLayout();
             this.SuspendLayout();
             // 
             // ModelDirDialog
@@ -125,118 +132,164 @@ namespace WordAddIn1
             // tab1
             // 
             this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
+            this.tab1.Groups.Add(this.group2);
+            this.tab1.Groups.Add(this.group3);
             this.tab1.Groups.Add(this.group1);
             this.tab1.Label = "RasaNLU addin";
             this.tab1.Name = "tab1";
             // 
-            // group1
+            // group2
             // 
-            this.group1.Items.Add(this.ContentControlButton);
-            this.group1.Items.Add(this.UnwrapRangeButton);
-            this.group1.Items.Add(this.separator1);
-            this.group1.Items.Add(this.ProjectComboBox);
-            this.group1.Items.Add(this.box1);
-            this.group1.Items.Add(this.box3);
-            this.group1.Items.Add(this.separator3);
-            this.group1.Items.Add(this.buttonGroup2);
-            this.group1.Items.Add(this.box2);
-            this.group1.Name = "group1";
+            this.group2.Items.Add(this.ContentControlButton);
+            this.group2.Items.Add(this.UnwrapRangeButton);
+            this.group2.Label = "Wrapper";
+            this.group2.Name = "group2";
             // 
             // ContentControlButton
             // 
+            this.ContentControlButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.ContentControlButton.Image = ((System.Drawing.Image)(resources.GetObject("ContentControlButton.Image")));
             this.ContentControlButton.KeyTip = "W";
             this.ContentControlButton.Label = "Wrap Content";
             this.ContentControlButton.Name = "ContentControlButton";
+            this.ContentControlButton.ShowImage = true;
             this.ContentControlButton.Tag = "controlTag";
             this.ContentControlButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ContentControlButton_Click);
             // 
             // UnwrapRangeButton
             // 
+            this.UnwrapRangeButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.UnwrapRangeButton.Image = ((System.Drawing.Image)(resources.GetObject("UnwrapRangeButton.Image")));
             this.UnwrapRangeButton.Label = "Unwrap Range";
             this.UnwrapRangeButton.Name = "UnwrapRangeButton";
+            this.UnwrapRangeButton.ShowImage = true;
             this.UnwrapRangeButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.UnwrapRangeButton_Click);
             // 
-            // separator1
+            // group3
             // 
-            this.separator1.Name = "separator1";
+            this.group3.Items.Add(this.box1);
+            this.group3.Items.Add(this.box4);
+            this.group3.Label = "Test/Train";
+            this.group3.Name = "group3";
+            // 
+            // box1
+            // 
+            this.box1.BoxStyle = Microsoft.Office.Tools.Ribbon.RibbonBoxStyle.Vertical;
+            this.box1.Items.Add(this.button1);
+            this.box1.Items.Add(this.WrapFromTestBtn);
+            this.box1.Items.Add(this.ExportTXTbtn);
+            this.box1.Name = "box1";
+            // 
+            // button1
+            // 
+            this.button1.Image = ((System.Drawing.Image)(resources.GetObject("button1.Image")));
+            this.button1.Label = "Project (Add)";
+            this.button1.Name = "button1";
+            this.button1.ShowImage = true;
+            // 
+            // WrapFromTestBtn
+            // 
+            this.WrapFromTestBtn.Image = ((System.Drawing.Image)(resources.GetObject("WrapFromTestBtn.Image")));
+            this.WrapFromTestBtn.Label = "Test with";
+            this.WrapFromTestBtn.Name = "WrapFromTestBtn";
+            this.WrapFromTestBtn.ShowImage = true;
+            this.WrapFromTestBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.WrapFromTestBtn_Click);
+            // 
+            // ExportTXTbtn
+            // 
+            this.ExportTXTbtn.Image = ((System.Drawing.Image)(resources.GetObject("ExportTXTbtn.Image")));
+            this.ExportTXTbtn.Label = "Train";
+            this.ExportTXTbtn.Name = "ExportTXTbtn";
+            this.ExportTXTbtn.ShowImage = true;
+            this.ExportTXTbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ExportTXTbtn_Click);
+            // 
+            // box4
+            // 
+            this.box4.BoxStyle = Microsoft.Office.Tools.Ribbon.RibbonBoxStyle.Vertical;
+            this.box4.Items.Add(this.ProjectComboBox);
+            this.box4.Items.Add(this.TestModelDropDown);
+            this.box4.Items.Add(this.ProjectDropDown);
+            this.box4.Name = "box4";
             // 
             // ProjectComboBox
             // 
-            this.ProjectComboBox.Label = "Project";
+            this.ProjectComboBox.Label = " ";
             this.ProjectComboBox.MaxLength = 21;
             this.ProjectComboBox.Name = "ProjectComboBox";
             this.ProjectComboBox.SizeString = "model_20181017-154908aa";
             this.ProjectComboBox.Text = null;
             this.ProjectComboBox.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ProjectComboBox_TextChanged);
             // 
-            // box1
-            // 
-            this.box1.Items.Add(this.WrapFromTestBtn);
-            this.box1.Items.Add(this.TestModelDropDown);
-            this.box1.Name = "box1";
-            // 
-            // WrapFromTestBtn
-            // 
-            this.WrapFromTestBtn.Label = "TEST THIS DOC WITH";
-            this.WrapFromTestBtn.Name = "WrapFromTestBtn";
-            this.WrapFromTestBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.WrapFromTestBtn_Click);
-            // 
             // TestModelDropDown
             // 
             this.TestModelDropDown.Label = " ";
             this.TestModelDropDown.Name = "TestModelDropDown";
+            this.TestModelDropDown.ShowItemImage = false;
             this.TestModelDropDown.SizeString = "model_20181017-154908aa";
             this.TestModelDropDown.SelectionChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ModelDropDown_Select);
             // 
+            // group1
+            // 
+            this.group1.Items.Add(this.box3);
+            this.group1.Label = "Storage";
+            this.group1.Name = "group1";
+            // 
             // box3
             // 
-            this.box3.Items.Add(this.ExportTXTbtn);
+            this.box3.BoxStyle = Microsoft.Office.Tools.Ribbon.RibbonBoxStyle.Vertical;
+            this.box3.Items.Add(this.box5);
+            this.box3.Items.Add(this.box6);
+            this.box3.Items.Add(this.ModelDirBox);
             this.box3.Name = "box3";
             // 
-            // ExportTXTbtn
+            // box5
             // 
-            this.ExportTXTbtn.Label = "TRAIN MODEL";
-            this.ExportTXTbtn.Name = "ExportTXTbtn";
-            this.ExportTXTbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ExportTXTbtn_Click);
-            // 
-            // separator3
-            // 
-            this.separator3.Name = "separator3";
-            // 
-            // buttonGroup2
-            // 
-            this.buttonGroup2.Items.Add(this.LocalStorageButton);
-            this.buttonGroup2.Items.Add(this.AzureStorageButton);
-            this.buttonGroup2.Name = "buttonGroup2";
+            this.box5.Items.Add(this.LocalStorageButton);
+            this.box5.Items.Add(this.AzureStorageButton);
+            this.box5.Name = "box5";
             // 
             // LocalStorageButton
             // 
+            this.LocalStorageButton.Image = ((System.Drawing.Image)(resources.GetObject("LocalStorageButton.Image")));
             this.LocalStorageButton.Label = "Local";
             this.LocalStorageButton.Name = "LocalStorageButton";
+            this.LocalStorageButton.ShowImage = true;
             this.LocalStorageButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.LocalStorageButton_Click);
             // 
             // AzureStorageButton
             // 
+            this.AzureStorageButton.Image = ((System.Drawing.Image)(resources.GetObject("AzureStorageButton.Image")));
             this.AzureStorageButton.Label = "Azure";
             this.AzureStorageButton.Name = "AzureStorageButton";
+            this.AzureStorageButton.ShowImage = true;
             this.AzureStorageButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.AzureStorageButton_Click);
             // 
-            // box2
+            // box6
             // 
-            this.box2.Items.Add(this.SetDirButton);
-            this.box2.Items.Add(this.ModelDirLabel);
-            this.box2.Name = "box2";
+            this.box6.Items.Add(this.SetDirButton);
+            this.box6.Name = "box6";
             // 
             // SetDirButton
             // 
-            this.SetDirButton.Label = "Directory:";
+            this.SetDirButton.Image = ((System.Drawing.Image)(resources.GetObject("SetDirButton.Image")));
+            this.SetDirButton.Label = "Directory (click to change):";
             this.SetDirButton.Name = "SetDirButton";
+            this.SetDirButton.ShowImage = true;
             this.SetDirButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.SetDirButton_Click);
             // 
-            // ModelDirLabel
+            // ModelDirBox
             // 
-            this.ModelDirLabel.Label = "";
-            this.ModelDirLabel.Name = "ModelDirLabel";
+            this.ModelDirBox.Enabled = false;
+            this.ModelDirBox.Label = " ";
+            this.ModelDirBox.Name = "ModelDirBox";
+            this.ModelDirBox.SizeString = "C:\\Users\\Mikołaj\\0.NEW_RASA_DATA_FOLD";
+            this.ModelDirBox.SuperTip = this.ModelDirBox.Text;
+            this.ModelDirBox.Text = null;
+            // 
+            // ProjectDropDown
+            // 
+            this.ProjectDropDown.Label = "dropDown1";
+            this.ProjectDropDown.Name = "ProjectDropDown";
             // 
             // Ribbon1
             // 
@@ -246,16 +299,22 @@ namespace WordAddIn1
             this.Load += new Microsoft.Office.Tools.Ribbon.RibbonUIEventHandler(this.Ribbon1_Load);
             this.tab1.ResumeLayout(false);
             this.tab1.PerformLayout();
-            this.group1.ResumeLayout(false);
-            this.group1.PerformLayout();
+            this.group2.ResumeLayout(false);
+            this.group2.PerformLayout();
+            this.group3.ResumeLayout(false);
+            this.group3.PerformLayout();
             this.box1.ResumeLayout(false);
             this.box1.PerformLayout();
+            this.box4.ResumeLayout(false);
+            this.box4.PerformLayout();
+            this.group1.ResumeLayout(false);
+            this.group1.PerformLayout();
             this.box3.ResumeLayout(false);
             this.box3.PerformLayout();
-            this.buttonGroup2.ResumeLayout(false);
-            this.buttonGroup2.PerformLayout();
-            this.box2.ResumeLayout(false);
-            this.box2.PerformLayout();
+            this.box5.ResumeLayout(false);
+            this.box5.PerformLayout();
+            this.box6.ResumeLayout(false);
+            this.box6.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -263,24 +322,27 @@ namespace WordAddIn1
         #endregion
 
         internal Microsoft.Office.Tools.Ribbon.RibbonTab tab1;
-        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group1;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton ContentControlButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton UnwrapRangeButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton ExportTXTbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton WrapFromTestBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonDropDown TestModelDropDown;
-        internal Microsoft.Office.Tools.Ribbon.RibbonSeparator separator1;
         internal Microsoft.Office.Tools.Ribbon.RibbonComboBox ProjectComboBox;
-        internal Microsoft.Office.Tools.Ribbon.RibbonSeparator separator3;
+        private System.Windows.Forms.FolderBrowserDialog ModelDirDialog;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group2;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group3;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group1;
         internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton LocalStorageButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton AzureStorageButton;
-        private System.Windows.Forms.FolderBrowserDialog ModelDirDialog;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton SetDirButton;
-        internal Microsoft.Office.Tools.Ribbon.RibbonLabel ModelDirLabel;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButtonGroup buttonGroup2;
-        internal Microsoft.Office.Tools.Ribbon.RibbonBox box2;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton button1;
+        internal Microsoft.Office.Tools.Ribbon.RibbonBox box4;
+        internal Microsoft.Office.Tools.Ribbon.RibbonEditBox ModelDirBox;
         internal Microsoft.Office.Tools.Ribbon.RibbonBox box1;
         internal Microsoft.Office.Tools.Ribbon.RibbonBox box3;
+        internal Microsoft.Office.Tools.Ribbon.RibbonBox box5;
+        internal Microsoft.Office.Tools.Ribbon.RibbonBox box6;
+        internal Microsoft.Office.Tools.Ribbon.RibbonDropDown ProjectDropDown;
     }
 
     partial class ThisRibbonCollection

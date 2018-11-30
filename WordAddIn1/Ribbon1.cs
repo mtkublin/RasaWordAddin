@@ -16,7 +16,7 @@ namespace WordAddIn1
             this.TestModelDropDown.Enabled = false;
             this.ExportTXTbtn.Enabled = false;
             this.WrapFromTestBtn.Enabled = false;
-            this.box2.Visible = false;
+            this.box6.Visible = false;
 
             var client = new RestClient("http://127.0.0.1:6000");
             Globals.ThisAddIn.GetProjsListAzure(client, this.ProjectComboBox);
@@ -74,26 +74,25 @@ namespace WordAddIn1
             string ModelName = Prompt.ShowDialog("Model name:", "");
             bool ForceUpdate = false;
 
-            List<string> ModelsList = new List<string>();
-            foreach (RibbonDropDownItem item in TestModelDropDown.Items)
+            if (this.TestModelDropDown.Items.Count != 0)
             {
-                string ExistingModelName = item.ToString();
-                ModelsList.Add(ExistingModelName);
-            }
+                List<string> ModelsList = new List<string>();
+                foreach (RibbonDropDownItem item in this.TestModelDropDown.Items)
+                {
+                    string ExistingModelName = item.ToString();
+                    ModelsList.Add(ExistingModelName);
+                }
 
-            if (ModelsList.Contains(ModelName))
-            {
                 while (ModelsList.Contains(ModelName))
                 {
                     ModelName = Prompt.NewShowDialog(ModelName);
                 }
 
-            }
-
-            if (ModelName.Substring(ModelName.Length - 12) == "-ToOverwrite")
-            {
-                ModelName = ModelName.Substring(0, ModelName.Length - 12);
-                ForceUpdate = true;
+                if (ModelName.Substring(ModelName.Length - 12) == "-ToOverwrite")
+                {
+                    ModelName = ModelName.Substring(0, ModelName.Length - 12);
+                    ForceUpdate = true;
+                }
             }
 
             string ProjectName = this.ProjectComboBox.Text;
@@ -111,10 +110,16 @@ namespace WordAddIn1
                 Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, ForceUpdate, ModelPath + "\\MODELS\\" + ProjectName + "\\" + ModelName);
             }
 
-            RibbonDropDownItem newModel = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
-            newModel.Label = ModelName;
-            this.TestModelDropDown.Items.Add(newModel);
-            this.TestModelDropDown.SelectedItem = newModel;
+            if (ModelName != "")
+            {
+                RibbonDropDownItem newModel = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
+                newModel.Label = ModelName;
+                this.TestModelDropDown.Items.Add(newModel);
+                this.TestModelDropDown.SelectedItem = newModel;
+
+                TestModelDropDown.Enabled = true;
+                WrapFromTestBtn.Enabled = true;
+            }
         }
 
         private void AzureStorageButton_Click(object sender, RibbonControlEventArgs e)
@@ -124,7 +129,7 @@ namespace WordAddIn1
             this.TestModelDropDown.Enabled = false;
             this.ExportTXTbtn.Enabled = false;
             this.WrapFromTestBtn.Enabled = false;
-            this.box2.Visible = false;
+            this.box6.Visible = false;
 
             this.ProjectComboBox.Items.Clear();
             this.ProjectComboBox.Text = "";
@@ -141,12 +146,12 @@ namespace WordAddIn1
             this.TestModelDropDown.Enabled = false;
             this.ExportTXTbtn.Enabled = false;
             this.WrapFromTestBtn.Enabled = false;
-            this.box2.Visible = true;
+            this.box6.Visible = true;
             var client = new RestClient("http://127.0.0.1:6000");
 
-            if (this.ModelDirLabel.Label == "")
+            if (this.ModelDirBox.Text == "")
             {
-                Globals.ThisAddIn.ChooseModelDir(this.ModelDirDialog, this.ModelDirLabel, this.ProjectComboBox, this.TestModelDropDown);
+                Globals.ThisAddIn.ChooseModelDir(this.ModelDirDialog, this.ModelDirBox, this.ProjectComboBox, this.TestModelDropDown);
             }
             else
             {
@@ -158,7 +163,7 @@ namespace WordAddIn1
         {
             this.WrapFromTestBtn.Enabled = false;
             this.TestModelDropDown.Enabled = false;
-            Globals.ThisAddIn.ChooseModelDir(this.ModelDirDialog, this.ModelDirLabel, this.ProjectComboBox, this.TestModelDropDown);
+            Globals.ThisAddIn.ChooseModelDir(this.ModelDirDialog, this.ModelDirBox, this.ProjectComboBox, this.TestModelDropDown);
         }
     }
 }
