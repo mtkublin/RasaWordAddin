@@ -1,4 +1,5 @@
 ﻿using Microsoft.Office.Tools.Ribbon;
+using System.Collections.Generic;
 using RestSharp;
 
 namespace WordAddIn1
@@ -54,8 +55,8 @@ namespace WordAddIn1
             }
             else if (this.LocalStorageButton.Checked == true)
             {
-                string ModelPath = this.ModelDirDialog.SelectedPath + "\\" + ProjectName + "\\" + ModelName;
-                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, ModelPath);
+                string ModelPath = this.ModelDirDialog.SelectedPath + "\\MODELS\\" + ProjectName + "\\" + ModelName;
+                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, false, ModelPath);
             }
 
             this.WrapFromTestBtn.Enabled = true;
@@ -71,19 +72,43 @@ namespace WordAddIn1
         private void ExportTXTbtn_Click(object sender, RibbonControlEventArgs e)
         {
             string ModelName = Prompt.ShowDialog("Model name:", "");
+            bool ForceUpdate = false;
+
+            List<string> ModelsList = new List<string>();
+            foreach (RibbonDropDownItem item in TestModelDropDown.Items)
+            {
+                string ExistingModelName = item.ToString();
+                ModelsList.Add(ExistingModelName);
+            }
+
+            if (ModelsList.Contains(ModelName))
+            {
+                while (ModelsList.Contains(ModelName))
+                {
+                    ModelName = Prompt.NewShowDialog(ModelName);
+                }
+
+            }
+
+            if (ModelName.Substring(ModelName.Length - 12) == "-ToOverwrite")
+            {
+                ModelName = ModelName.Substring(0, ModelName.Length - 12);
+                ForceUpdate = true;
+            }
+
             string ProjectName = this.ProjectComboBox.Text;
             var client = new RestClient("http://127.0.0.1:6000");
 
             if (this.AzureStorageButton.Checked)
             {
                 Globals.ThisAddIn.ExportTrainData(client, ProjectName, ModelName);
-                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName);
+                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, ForceUpdate);
             }
             else
             {
                 string ModelPath = this.ModelDirDialog.SelectedPath;
                 Globals.ThisAddIn.ExportTrainData(client, ProjectName, ModelName, ModelPath);
-                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, ModelPath);
+                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, ForceUpdate, ModelPath + "\\MODELS\\" + ProjectName + "\\" + ModelName);
             }
 
             RibbonDropDownItem newModel = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
@@ -125,12 +150,14 @@ namespace WordAddIn1
             }
             else
             {
-                Globals.ThisAddIn.ChangeToLocalStorage(this.ModelDirDialog, this.ProjectComboBox, this.TestModelDropDown);
+                Globals.ThisAddIn.ChangeToLocalStorage(this.ModelDirDialog.SelectedPath, this.ProjectComboBox, this.TestModelDropDown);
             }
         }
 
         private void SetDirButton_Click(object sender, RibbonControlEventArgs e)
         {
+            this.WrapFromTestBtn.Enabled = false;
+            this.TestModelDropDown.Enabled = false;
             Globals.ThisAddIn.ChooseModelDir(this.ModelDirDialog, this.ModelDirLabel, this.ProjectComboBox, this.TestModelDropDown);
         }
     }

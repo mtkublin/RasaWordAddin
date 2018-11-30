@@ -39,15 +39,15 @@ namespace WordAddIn1
             {
                 Form prompt = new Form()
                 {
-                    Width = 500,
-                    Height = 150,
+                    Width = 300,
+                    Height = 140,
                     FormBorderStyle = FormBorderStyle.FixedDialog,
                     Text = caption,
                     StartPosition = FormStartPosition.CenterScreen
                 };
-                Label textLabel = new Label() { Left = 25, Top = 20, Text = text };
-                TextBox textBox = new TextBox() { Left = 25, Top = 50, Width = 425 };
-                Button confirmation = new Button() { Text = "TRAIN!", Left = 350, Width = 100, Top = 80, DialogResult = DialogResult.OK };
+                Label textLabel = new Label() { Left = 25, Top = 15, Text = text };
+                TextBox textBox = new TextBox() { Left = 25, Top = 40, Width = 225 };
+                Button confirmation = new Button() { Text = "TRAIN!", Left = 175, Width = 75, Top = 70, DialogResult = DialogResult.OK };
                 confirmation.Click += (sender, e) => { prompt.Close(); };
                 prompt.Controls.Add(textBox);
                 prompt.Controls.Add(confirmation);
@@ -55,6 +55,31 @@ namespace WordAddIn1
                 prompt.AcceptButton = confirmation;
 
                 return prompt.ShowDialog() == DialogResult.OK ? textBox.Text : "";
+            }
+
+            public static string NewShowDialog(string TakenModelName)
+            {
+                Form prompt = new Form()
+                {
+                    Width = 235,
+                    Height = 140,
+                    FormBorderStyle = FormBorderStyle.FixedDialog,
+                    Text = "",
+                    StartPosition = FormStartPosition.CenterScreen
+                };
+                Label textLabel = new Label() { Left = 25, Top = 15, Width = 200, Text = "This model name is already taken." };
+                Label textLabel2 = new Label() { Left = 25, Top = 40, Width = 200, Text = "Do you want to overwrite it?" };
+                Button NOTconfirmation = new Button() { Text = "NO", Left = 25, Width = 75, Top = 65, DialogResult = DialogResult.OK };
+                Button confirmation = new Button() { Text = "YES", Left = 110, Width = 75, Top = 65, DialogResult = DialogResult.OK };
+                confirmation.Click += (sender, e) => {TakenModelName += "-ToOverwrite"; prompt.Close(); };
+                NOTconfirmation.Click += (sender, e) => { TakenModelName = Prompt.ShowDialog("Model name:", ""); prompt.Close(); };
+                prompt.Controls.Add(confirmation);
+                prompt.Controls.Add(NOTconfirmation);
+                prompt.Controls.Add(textLabel);
+                prompt.Controls.Add(textLabel2);
+                prompt.AcceptButton = confirmation;
+
+                return prompt.ShowDialog() == DialogResult.OK ? TakenModelName : "";
             }
         }
 

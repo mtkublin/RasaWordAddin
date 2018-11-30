@@ -29,7 +29,6 @@ namespace WordAddIn1
             TrainData tData = new TrainData(examps);
 
             RasaNLUdata rasaData = new RasaNLUdata(tData, ModelPath);
-            
 
             FinalDataObject DataObjectForApi = new FinalDataObject(rasaData);
             var jsonObject = JsonConvert.SerializeObject(DataObjectForApi);

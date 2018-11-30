@@ -12,14 +12,22 @@ namespace WordAddIn1
         {
             ModelDirDialog.ShowDialog();
             ModelDirLabel.Label = ModelDirDialog.SelectedPath;
-
-            ChangeToLocalStorage(ModelDirDialog, ProjectComboBox, TestModelDropDown);
-        }
-
-        public void ChangeToLocalStorage(System.Windows.Forms.FolderBrowserDialog ModelDirDialog, RibbonComboBox ProjectComboBox, RibbonDropDown TestModelDropDown)
-        {
             string ModelDir = ModelDirDialog.SelectedPath;
 
+            if (Directory.Exists(ModelDir + "\\MODELS") == false)
+            {
+                Directory.CreateDirectory(ModelDir + "\\MODELS");
+            }
+            if (Directory.Exists(ModelDir + "\\TRAIN_DATA") == false)
+            {
+                Directory.CreateDirectory(ModelDir + "\\TRAIN_DATA");
+            }
+
+            ChangeToLocalStorage(ModelDir, ProjectComboBox, TestModelDropDown);
+        }
+
+        public void ChangeToLocalStorage(string ModelDir, RibbonComboBox ProjectComboBox, RibbonDropDown TestModelDropDown)
+        {
             ProjectComboBox.Items.Clear();
             ProjectComboBox.Text = "";
             TestModelDropDown.Items.Clear();
@@ -29,10 +37,10 @@ namespace WordAddIn1
 
         public void GetProjectItemsFromDir(string ModelDir, RibbonComboBox ProjectComboBox)
         {
-            string[] ProjFoldList = Directory.GetDirectories(ModelDir);
+            string[] ProjFoldList = Directory.GetDirectories(ModelDir + "\\MODELS");
             foreach (string Pfold in ProjFoldList)
             {
-                string ItemLabel = Pfold.Substring(ModelDir.Length + 1, Pfold.Length - ModelDir.Length - 1);
+                string ItemLabel = Pfold.Substring(ModelDir.Length + 8, Pfold.Length - ModelDir.Length - 8);
 
                 RibbonDropDownItem folder = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
                 folder.Label = ItemLabel;
@@ -79,6 +87,8 @@ namespace WordAddIn1
                 TestModelDropDown.Enabled = false;
                 WrapFromTestBtn.Enabled = false;
                 ExportTXTbtn.Enabled = true;
+
+                Directory.CreateDirectory(ModelDirDialog.SelectedPath + "\\MODELS\\" + ProjectName);
             }
             else
             {
@@ -88,14 +98,20 @@ namespace WordAddIn1
                 }
                 else if (LocalStorageButton.Checked == true)
                 {
-                    Globals.ThisAddIn.GetModelItemsFromDirDD(ModelDirDialog.SelectedPath + "\\" + ProjectName, TestModelDropDown);
-                    string ModelName = TestModelDropDown.SelectedItem.Label;
-                    string ModelPath = ModelDirDialog.SelectedPath + "\\" + ProjectName + "\\" + ModelName;
-                    Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, ModelPath);
+                    Globals.ThisAddIn.GetModelItemsFromDirDD(ModelDirDialog.SelectedPath + "\\MODELS\\" + ProjectName, TestModelDropDown);
+                    if (TestModelDropDown.Items.Count != 0)
+                    {
+                        string ModelName = TestModelDropDown.SelectedItem.Label;
+                        string ModelPath = ModelDirDialog.SelectedPath + "\\MODELS\\" + ProjectName + "\\" + ModelName;
+                        Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, false, ModelPath);
+                    }
                 }
 
-                TestModelDropDown.Enabled = true;
-                WrapFromTestBtn.Enabled = true;
+                if (TestModelDropDown.Items.Count != 0)
+                {
+                    TestModelDropDown.Enabled = true;
+                    WrapFromTestBtn.Enabled = true;
+                }
                 ExportTXTbtn.Enabled = true;
             }
         }
@@ -138,28 +154,32 @@ namespace WordAddIn1
             Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName);
         }
 
-        public void UpdateInterpreter(RestClient client, string ProjectName, string ModelName, string model_path = "")
+        public void UpdateInterpreter(RestClient client, string ProjectName, string ModelName, bool ForceUpdate = false, string model_path = "")
         {
             if(model_path != "")
             {
                 ModelPathDataObject DataObjectForApi = new ModelPathDataObject(model_path);
                 var jsonObject = JsonConvert.SerializeObject(DataObjectForApi);
 
-                var newRequest = new RestRequest("api/interpreter/local/{project}/{model}", Method.POST);
+                var newRequest = new RestRequest("api/interpreter/local/{project}/{model}/{force}", Method.POST);
                 newRequest.AddParameter("project", ProjectName, ParameterType.UrlSegment);
                 newRequest.AddUrlSegment("project", ProjectName);
                 newRequest.AddParameter("model", ModelName, ParameterType.UrlSegment);
                 newRequest.AddUrlSegment("model", ModelName);
+                newRequest.AddParameter("force", ForceUpdate.ToString(), ParameterType.UrlSegment);
+                newRequest.AddUrlSegment("force", ForceUpdate.ToString());
                 newRequest.AddParameter("application/json; charset=utf-8", jsonObject, ParameterType.RequestBody);
                 IRestResponse newResponse = client.Execute(newRequest);
             }
             else
             {
-                var newRequest = new RestRequest("api/interpreter/azure/{project}/{model}", Method.POST);
+                var newRequest = new RestRequest("api/interpreter/azure/{project}/{model}/{force}", Method.POST);
                 newRequest.AddParameter("project", ProjectName, ParameterType.UrlSegment);
                 newRequest.AddUrlSegment("project", ProjectName);
                 newRequest.AddParameter("model", ModelName, ParameterType.UrlSegment);
                 newRequest.AddUrlSegment("model", ModelName);
+                newRequest.AddParameter("force", ForceUpdate.ToString(), ParameterType.UrlSegment);
+                newRequest.AddUrlSegment("force", ForceUpdate.ToString());
                 IRestResponse newResponse = client.Execute(newRequest);
             }
         }
