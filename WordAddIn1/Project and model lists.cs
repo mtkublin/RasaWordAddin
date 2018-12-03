@@ -8,11 +8,11 @@ namespace WordAddIn1
 {
     public partial class ThisAddIn
     {
-        public void ChooseModelDir(System.Windows.Forms.FolderBrowserDialog ModelDirDialog, RibbonEditBox ModelDirBox, RibbonComboBox ProjectComboBox, RibbonDropDown TestModelDropDown)
+        public void ChooseModelDir(RestClient client, System.Windows.Forms.FolderBrowserDialog ModelDirDialog, RibbonEditBox ModelDirBox, RibbonDropDown ProjectDropDown, RibbonDropDown TestModelDropDown)
         {
             ModelDirDialog.ShowDialog();
-            ModelDirBox.Text = ModelDirDialog.SelectedPath;
             string ModelDir = ModelDirDialog.SelectedPath;
+            ModelDirBox.Text = ModelDir;
 
             if (Directory.Exists(ModelDir + "\\MODELS") == false)
             {
@@ -23,19 +23,29 @@ namespace WordAddIn1
                 Directory.CreateDirectory(ModelDir + "\\TRAIN_DATA");
             }
 
-            ChangeToLocalStorage(ModelDir, ProjectComboBox, TestModelDropDown);
+            ChangeToLocalStorage(client, ModelDir, ProjectDropDown, TestModelDropDown);
         }
 
-        public void ChangeToLocalStorage(string ModelDir, RibbonComboBox ProjectComboBox, RibbonDropDown TestModelDropDown)
+        public void ChangeToLocalStorage(RestClient client, string ModelDir, RibbonDropDown ProjectDropDown, RibbonDropDown TestModelDropDown)
         {
-            ProjectComboBox.Items.Clear();
-            ProjectComboBox.Text = "";
+            ProjectDropDown.Items.Clear();
+            ProjectDropDown.SelectedItem = null;
             TestModelDropDown.Items.Clear();
 
-            GetProjectItemsFromDir(ModelDir, ProjectComboBox);
+            GetProjectItemsFromDir(ModelDir, ProjectDropDown);
+
+            if (ProjectDropDown.SelectedItem != null)
+            {
+                GetModelItemsFromDirDD(ModelDir + "\\MODELS\\" + ProjectDropDown.SelectedItem.Label, TestModelDropDown);
+
+                if (TestModelDropDown.Items.Count != 0 )
+                {
+                    UpdateInterpreter(client, ProjectDropDown.SelectedItem.Label, TestModelDropDown.SelectedItem.Label, false, ModelDir + "\\MODELS\\" + ProjectDropDown.SelectedItem.Label + "\\" + TestModelDropDown.SelectedItem.Label);
+                }
+            }
         }
 
-        public void GetProjectItemsFromDir(string ModelDir, RibbonComboBox ProjectComboBox)
+        public void GetProjectItemsFromDir(string ModelDir, RibbonDropDown ProjectDropDown)
         {
             string[] ProjFoldList = Directory.GetDirectories(ModelDir + "\\MODELS");
             foreach (string Pfold in ProjFoldList)
@@ -44,7 +54,7 @@ namespace WordAddIn1
 
                 RibbonDropDownItem folder = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
                 folder.Label = ItemLabel;
-                ProjectComboBox.Items.Add(folder);
+                ProjectDropDown.Items.Add(folder);
             }
         }
 
@@ -67,21 +77,21 @@ namespace WordAddIn1
             }
         }
 
-        public void AddItemToProjectComboBox(RibbonButton ExportTXTbtn, RibbonButton WrapFromTestBtn, RestClient client, System.Windows.Forms.FolderBrowserDialog ModelDirDialog, RibbonComboBox ProjectComboBox, RibbonDropDown TestModelDropDown, RibbonToggleButton AzureStorageButton, RibbonToggleButton LocalStorageButton)
+        public void AddItemToProjectDropDown(RibbonButton ExportTXTbtn, RibbonButton WrapFromTestBtn, RestClient client, System.Windows.Forms.FolderBrowserDialog ModelDirDialog, RibbonDropDown ProjectDropDown, RibbonDropDown TestModelDropDown, RibbonToggleButton AzureStorageButton, RibbonToggleButton LocalStorageButton)
         {
             List<string> ProjectsList = new List<string>();
-            foreach (RibbonDropDownItem item in ProjectComboBox.Items)
+            foreach (RibbonDropDownItem item in ProjectDropDown.Items)
             {
                 string ExistingProjName = item.ToString();
                 ProjectsList.Add(ExistingProjName);
             }
 
-            string ProjectName = ProjectComboBox.Text;
+            string ProjectName = ProjectDropDown.SelectedItem.Label;
             if (ProjectsList.Contains(ProjectName) != true)
             {
                 RibbonDropDownItem NEWitem = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
                 NEWitem.Label = ProjectName;
-                ProjectComboBox.Items.Add(NEWitem);
+                ProjectDropDown.Items.Add(NEWitem);
                 TestModelDropDown.Items.Clear();
 
                 TestModelDropDown.Enabled = false;
@@ -121,7 +131,7 @@ namespace WordAddIn1
             }
         }
 
-        public void GetProjsListAzure(RestClient client, RibbonComboBox ProjectComboBox)
+        public void GetProjsListAzure(RestClient client, RibbonDropDown ProjectDropDown)
         {
             var Request = new RestRequest("api/projects", Method.GET);
             IRestResponse Response = client.Execute(Request);
@@ -133,7 +143,7 @@ namespace WordAddIn1
             {
                 RibbonDropDownItem item = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
                 item.Label = itemName;
-                ProjectComboBox.Items.Add(item);
+                ProjectDropDown.Items.Add(item);
             }
         }
 
@@ -155,8 +165,17 @@ namespace WordAddIn1
                 TestModelDropDown.Items.Add(item);
             }
 
-            string ModelName = TestModelDropDown.SelectedItem.Label;
-            Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName);
+            if (TestModelDropDown.Items.Count != 0)
+            {
+                string ModelName = TestModelDropDown.SelectedItem.Label;
+                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName);
+            }
+
+            else
+            {
+                TestModelDropDown.Enabled = false;
+                Globals.Ribbons.Ribbon1.WrapFromTestBtn.Enabled = false;
+            }
         }
 
         public void UpdateInterpreter(RestClient client, string ProjectName, string ModelName, bool ForceUpdate = false, string model_path = "")

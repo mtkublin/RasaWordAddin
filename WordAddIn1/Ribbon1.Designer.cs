@@ -42,12 +42,12 @@ namespace WordAddIn1
                     Width = 300,
                     Height = 140,
                     FormBorderStyle = FormBorderStyle.FixedDialog,
-                    Text = caption,
+                    Text = "",
                     StartPosition = FormStartPosition.CenterScreen
                 };
                 Label textLabel = new Label() { Left = 25, Top = 15, Text = text };
                 TextBox textBox = new TextBox() { Left = 25, Top = 40, Width = 225 };
-                Button confirmation = new Button() { Text = "TRAIN!", Left = 175, Width = 75, Top = 70, DialogResult = DialogResult.OK };
+                Button confirmation = new Button() { Text = caption, Left = 175, Width = 75, Top = 70, DialogResult = DialogResult.OK };
                 confirmation.Click += (sender, e) => { prompt.Close(); };
                 prompt.Controls.Add(textBox);
                 prompt.Controls.Add(confirmation);
@@ -72,12 +72,32 @@ namespace WordAddIn1
                 Button NOTconfirmation = new Button() { Text = "NO", Left = 25, Width = 75, Top = 65, DialogResult = DialogResult.OK };
                 Button confirmation = new Button() { Text = "YES", Left = 110, Width = 75, Top = 65, DialogResult = DialogResult.OK };
                 confirmation.Click += (sender, e) => {TakenModelName += "-ToOverwrite"; prompt.Close(); };
-                NOTconfirmation.Click += (sender, e) => { TakenModelName = Prompt.ShowDialog("Model name:", ""); prompt.Close(); };
+                NOTconfirmation.Click += (sender, e) => { TakenModelName = Prompt.ShowDialog("Model name:", "TRAIN!"); prompt.Close(); };
                 prompt.Controls.Add(confirmation);
                 prompt.Controls.Add(NOTconfirmation);
                 prompt.Controls.Add(textLabel);
                 prompt.Controls.Add(textLabel2);
                 prompt.AcceptButton = confirmation;
+
+                return prompt.ShowDialog() == DialogResult.OK ? TakenModelName : "";
+            }
+
+            public static string NewProjectShowDialog(string TakenModelName)
+            {
+                Form prompt = new Form()
+                {
+                    Width = 235,
+                    Height = 115,
+                    FormBorderStyle = FormBorderStyle.FixedDialog,
+                    Text = "",
+                    StartPosition = FormStartPosition.CenterScreen
+                };
+                Label textLabel = new Label() { Left = 25, Top = 15, Width = 200, Text = "This project name is already taken." };
+                Button NOTconfirmation = new Button() { Text = "OK", Left = 70, Width = 70, Top = 40, DialogResult = DialogResult.OK };
+                NOTconfirmation.Click += (sender, e) => { TakenModelName = Prompt.ShowDialog("Model name:", "TRAIN!"); prompt.Close(); };
+                prompt.Controls.Add(NOTconfirmation);
+                prompt.Controls.Add(textLabel);
+                prompt.AcceptButton = NOTconfirmation;
 
                 return prompt.ShowDialog() == DialogResult.OK ? TakenModelName : "";
             }
@@ -99,21 +119,19 @@ namespace WordAddIn1
             this.UnwrapRangeButton = this.Factory.CreateRibbonButton();
             this.group3 = this.Factory.CreateRibbonGroup();
             this.box1 = this.Factory.CreateRibbonBox();
-            this.button1 = this.Factory.CreateRibbonButton();
+            this.ProjectAddButton = this.Factory.CreateRibbonButton();
             this.WrapFromTestBtn = this.Factory.CreateRibbonButton();
             this.ExportTXTbtn = this.Factory.CreateRibbonButton();
             this.box4 = this.Factory.CreateRibbonBox();
-            this.ProjectComboBox = this.Factory.CreateRibbonComboBox();
+            this.ProjectDropDown = this.Factory.CreateRibbonDropDown();
             this.TestModelDropDown = this.Factory.CreateRibbonDropDown();
             this.group1 = this.Factory.CreateRibbonGroup();
             this.box3 = this.Factory.CreateRibbonBox();
             this.box5 = this.Factory.CreateRibbonBox();
             this.LocalStorageButton = this.Factory.CreateRibbonToggleButton();
             this.AzureStorageButton = this.Factory.CreateRibbonToggleButton();
-            this.box6 = this.Factory.CreateRibbonBox();
             this.SetDirButton = this.Factory.CreateRibbonButton();
             this.ModelDirBox = this.Factory.CreateRibbonEditBox();
-            this.ProjectDropDown = this.Factory.CreateRibbonDropDown();
             this.tab1.SuspendLayout();
             this.group2.SuspendLayout();
             this.group3.SuspendLayout();
@@ -122,7 +140,6 @@ namespace WordAddIn1
             this.group1.SuspendLayout();
             this.box3.SuspendLayout();
             this.box5.SuspendLayout();
-            this.box6.SuspendLayout();
             this.SuspendLayout();
             // 
             // ModelDirDialog
@@ -175,17 +192,18 @@ namespace WordAddIn1
             // box1
             // 
             this.box1.BoxStyle = Microsoft.Office.Tools.Ribbon.RibbonBoxStyle.Vertical;
-            this.box1.Items.Add(this.button1);
+            this.box1.Items.Add(this.ProjectAddButton);
             this.box1.Items.Add(this.WrapFromTestBtn);
             this.box1.Items.Add(this.ExportTXTbtn);
             this.box1.Name = "box1";
             // 
-            // button1
+            // ProjectAddButton
             // 
-            this.button1.Image = ((System.Drawing.Image)(resources.GetObject("button1.Image")));
-            this.button1.Label = "Project (Add)";
-            this.button1.Name = "button1";
-            this.button1.ShowImage = true;
+            this.ProjectAddButton.Image = ((System.Drawing.Image)(resources.GetObject("ProjectAddButton.Image")));
+            this.ProjectAddButton.Label = "Project (Add)";
+            this.ProjectAddButton.Name = "ProjectAddButton";
+            this.ProjectAddButton.ShowImage = true;
+            this.ProjectAddButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ProjectAddButton_Click);
             // 
             // WrapFromTestBtn
             // 
@@ -206,19 +224,16 @@ namespace WordAddIn1
             // box4
             // 
             this.box4.BoxStyle = Microsoft.Office.Tools.Ribbon.RibbonBoxStyle.Vertical;
-            this.box4.Items.Add(this.ProjectComboBox);
-            this.box4.Items.Add(this.TestModelDropDown);
             this.box4.Items.Add(this.ProjectDropDown);
+            this.box4.Items.Add(this.TestModelDropDown);
             this.box4.Name = "box4";
             // 
-            // ProjectComboBox
+            // ProjectDropDown
             // 
-            this.ProjectComboBox.Label = " ";
-            this.ProjectComboBox.MaxLength = 21;
-            this.ProjectComboBox.Name = "ProjectComboBox";
-            this.ProjectComboBox.SizeString = "model_20181017-154908aa";
-            this.ProjectComboBox.Text = null;
-            this.ProjectComboBox.TextChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ProjectComboBox_TextChanged);
+            this.ProjectDropDown.Label = " ";
+            this.ProjectDropDown.Name = "ProjectDropDown";
+            this.ProjectDropDown.SizeString = "model_20181017-154908aa";
+            this.ProjectDropDown.SelectionChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ProjectDropDown_Select);
             // 
             // TestModelDropDown
             // 
@@ -238,7 +253,7 @@ namespace WordAddIn1
             // 
             this.box3.BoxStyle = Microsoft.Office.Tools.Ribbon.RibbonBoxStyle.Vertical;
             this.box3.Items.Add(this.box5);
-            this.box3.Items.Add(this.box6);
+            this.box3.Items.Add(this.SetDirButton);
             this.box3.Items.Add(this.ModelDirBox);
             this.box3.Name = "box3";
             // 
@@ -264,11 +279,6 @@ namespace WordAddIn1
             this.AzureStorageButton.ShowImage = true;
             this.AzureStorageButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.AzureStorageButton_Click);
             // 
-            // box6
-            // 
-            this.box6.Items.Add(this.SetDirButton);
-            this.box6.Name = "box6";
-            // 
             // SetDirButton
             // 
             this.SetDirButton.Image = ((System.Drawing.Image)(resources.GetObject("SetDirButton.Image")));
@@ -285,11 +295,6 @@ namespace WordAddIn1
             this.ModelDirBox.SizeString = "C:\\Users\\Mikołaj\\0.NEW_RASA_DATA_FOLD";
             this.ModelDirBox.SuperTip = this.ModelDirBox.Text;
             this.ModelDirBox.Text = null;
-            // 
-            // ProjectDropDown
-            // 
-            this.ProjectDropDown.Label = "dropDown1";
-            this.ProjectDropDown.Name = "ProjectDropDown";
             // 
             // Ribbon1
             // 
@@ -313,8 +318,6 @@ namespace WordAddIn1
             this.box3.PerformLayout();
             this.box5.ResumeLayout(false);
             this.box5.PerformLayout();
-            this.box6.ResumeLayout(false);
-            this.box6.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -327,7 +330,6 @@ namespace WordAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonButton ExportTXTbtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton WrapFromTestBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonDropDown TestModelDropDown;
-        internal Microsoft.Office.Tools.Ribbon.RibbonComboBox ProjectComboBox;
         private System.Windows.Forms.FolderBrowserDialog ModelDirDialog;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup group2;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup group3;
@@ -335,13 +337,12 @@ namespace WordAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton LocalStorageButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton AzureStorageButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton SetDirButton;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton button1;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton ProjectAddButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonBox box4;
         internal Microsoft.Office.Tools.Ribbon.RibbonEditBox ModelDirBox;
         internal Microsoft.Office.Tools.Ribbon.RibbonBox box1;
         internal Microsoft.Office.Tools.Ribbon.RibbonBox box3;
         internal Microsoft.Office.Tools.Ribbon.RibbonBox box5;
-        internal Microsoft.Office.Tools.Ribbon.RibbonBox box6;
         internal Microsoft.Office.Tools.Ribbon.RibbonDropDown ProjectDropDown;
     }
 
