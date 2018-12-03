@@ -24,11 +24,11 @@ namespace WordAddIn1
             {
                 Globals.ThisAddIn.TESTGetModelsList(client, this.ProjectDropDown.SelectedItem.Label, this.TestModelDropDown);
 
-                if (this.TestModelDropDown.Items.Count != 0)
-                {
-                    this.WrapFromTestBtn.Enabled = true;
-                    this.TestModelDropDown.Enabled = true;
-                }
+                //if (this.TestModelDropDown.Items.Count != 0)
+                //{
+                //    this.WrapFromTestBtn.Enabled = true;
+                //    this.TestModelDropDown.Enabled = true;
+                //}
             }
         }
 
@@ -99,9 +99,9 @@ namespace WordAddIn1
                 Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, false, ModelPath);
             }
 
-            this.WrapFromTestBtn.Enabled = true;
-            this.ProjectDropDown.Enabled = true;
-            this.ExportTXTbtn.Enabled = true;
+            //this.WrapFromTestBtn.Enabled = true;
+            //this.ProjectDropDown.Enabled = true;
+            //this.ExportTXTbtn.Enabled = true;
         }
         
         private void WrapFromTestBtn_Click(object sender, RibbonControlEventArgs e)
@@ -157,8 +157,8 @@ namespace WordAddIn1
                 this.TestModelDropDown.Items.Add(newModel);
                 this.TestModelDropDown.SelectedItem = newModel;
 
-                TestModelDropDown.Enabled = true;
-                WrapFromTestBtn.Enabled = true;
+                //TestModelDropDown.Enabled = true;
+                //WrapFromTestBtn.Enabled = true;
             }
         }
 
@@ -183,18 +183,18 @@ namespace WordAddIn1
             {
                 Globals.ThisAddIn.TESTGetModelsList(client, this.ProjectDropDown.SelectedItem.Label, this.TestModelDropDown);
 
-                if (this.TestModelDropDown.Items.Count != 0)
-                {
-                    this.WrapFromTestBtn.Enabled = true;
-                    this.TestModelDropDown.Enabled = true;
-                }
+                //if (this.TestModelDropDown.Items.Count != 0)
+                //{
+                //    this.WrapFromTestBtn.Enabled = true;
+                //    this.TestModelDropDown.Enabled = true;
+                //}
             }
 
-            if (this.TestModelDropDown.SelectedItem != null)
-            {
-                this.TestModelDropDown.Enabled = true;
-                this.WrapFromTestBtn.Enabled = true;
-            }
+            //if (this.TestModelDropDown.SelectedItem != null)
+            //{
+            //    this.TestModelDropDown.Enabled = true;
+            //    this.WrapFromTestBtn.Enabled = true;
+            //}
         }
 
         private void LocalStorageButton_Click(object sender, RibbonControlEventArgs e)
@@ -224,8 +224,8 @@ namespace WordAddIn1
 
             if (this.TestModelDropDown.SelectedItem != null)
             {
-                this.TestModelDropDown.Enabled = true;
-                this.WrapFromTestBtn.Enabled = true;
+                //this.TestModelDropDown.Enabled = true;
+                //this.WrapFromTestBtn.Enabled = true;
             }
         }
 
@@ -237,11 +237,11 @@ namespace WordAddIn1
             this.TestModelDropDown.Enabled = false;
             Globals.ThisAddIn.ChooseModelDir(client, this.ModelDirDialog, this.ModelDirBox, this.ProjectDropDown, this.TestModelDropDown);
 
-            if (this.TestModelDropDown.SelectedItem != null)
-            {
-                this.TestModelDropDown.Enabled = true;
-                this.WrapFromTestBtn.Enabled = true;
-            }
+            //if (this.TestModelDropDown.SelectedItem != null)
+            //{
+            //    this.TestModelDropDown.Enabled = true;
+            //    this.WrapFromTestBtn.Enabled = true;
+            //}
         }
     }
 }

@@ -180,32 +180,19 @@ namespace WordAddIn1
 
         public void UpdateInterpreter(RestClient client, string ProjectName, string ModelName, bool ForceUpdate = false, string model_path = "")
         {
-            if(model_path != "")
-            {
-                ModelPathDataObject DataObjectForApi = new ModelPathDataObject(model_path);
-                var jsonObject = JsonConvert.SerializeObject(DataObjectForApi);
+            var newRequest = new RestRequest("api/interpreter/{project}/{model}/{force}", Method.POST);
+            newRequest.AddParameter("project", ProjectName, ParameterType.UrlSegment);
+            newRequest.AddUrlSegment("project", ProjectName);
+            newRequest.AddParameter("model", ModelName, ParameterType.UrlSegment);
+            newRequest.AddUrlSegment("model", ModelName);
+            newRequest.AddParameter("force", ForceUpdate.ToString(), ParameterType.UrlSegment);
+            newRequest.AddUrlSegment("force", ForceUpdate.ToString());
 
-                var newRequest = new RestRequest("api/interpreter/local/{project}/{model}/{force}", Method.POST);
-                newRequest.AddParameter("project", ProjectName, ParameterType.UrlSegment);
-                newRequest.AddUrlSegment("project", ProjectName);
-                newRequest.AddParameter("model", ModelName, ParameterType.UrlSegment);
-                newRequest.AddUrlSegment("model", ModelName);
-                newRequest.AddParameter("force", ForceUpdate.ToString(), ParameterType.UrlSegment);
-                newRequest.AddUrlSegment("force", ForceUpdate.ToString());
-                newRequest.AddParameter("application/json; charset=utf-8", jsonObject, ParameterType.RequestBody);
-                IRestResponse newResponse = client.Execute(newRequest);
-            }
-            else
-            {
-                var newRequest = new RestRequest("api/interpreter/azure/{project}/{model}/{force}", Method.POST);
-                newRequest.AddParameter("project", ProjectName, ParameterType.UrlSegment);
-                newRequest.AddUrlSegment("project", ProjectName);
-                newRequest.AddParameter("model", ModelName, ParameterType.UrlSegment);
-                newRequest.AddUrlSegment("model", ModelName);
-                newRequest.AddParameter("force", ForceUpdate.ToString(), ParameterType.UrlSegment);
-                newRequest.AddUrlSegment("force", ForceUpdate.ToString());
-                IRestResponse newResponse = client.Execute(newRequest);
-            }
+            ModelPathDataObject DataObjectForApi = new ModelPathDataObject(model_path);
+            var jsonObject = JsonConvert.SerializeObject(DataObjectForApi);
+            newRequest.AddParameter("application/json; charset=utf-8", jsonObject, ParameterType.RequestBody);
+
+            IRestResponse newResponse = client.Execute(newRequest);
         }
 
         private class ModelPathDataObject
