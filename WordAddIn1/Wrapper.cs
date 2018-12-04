@@ -100,23 +100,6 @@ namespace WordAddIn1
             }
         }
 
-        public void WrapItem(Microsoft.Office.Tools.Word.Document extendedDocument, string tag, Range range)
-        {
-            try
-            {
-                var next = DateTime.Now.Ticks.ToString();
-                var control = extendedDocument.Controls.AddRichTextContentControl(range, string.Format("richText{0}", next));
-                control.PlaceholderText = "...";
-                control.Tag = tag;
-                control.Title = tag;
-                HighlightControlHierarchy(control.Range);
-            }
-            catch (Exception ex)
-            {
-                Utilities.Notification(ex.Message);
-            }
-        }
-
         public void UnwrapContent()
         {
             var selection = Application.Selection;

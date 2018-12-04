@@ -4,6 +4,8 @@ using System.Timers;
 using Newtonsoft.Json;
 using RestSharp;
 using Microsoft.Office.Tools.Ribbon;
+using System;
+using System.ComponentModel;
 
 namespace WordAddIn1
 {
@@ -118,17 +120,17 @@ namespace WordAddIn1
                     }
                 }
 
-                if (TestModelDropDown.Items.Count != 0)
-                {
-                    TestModelDropDown.Enabled = true;
-                    WrapFromTestBtn.Enabled = true;
-                }
-                else
-                {
-                    TestModelDropDown.Enabled = false;
-                    WrapFromTestBtn.Enabled = false;
-                }
-                ExportTXTbtn.Enabled = true;
+                //if (TestModelDropDown.Items.Count != 0)
+                //{
+                //    TestModelDropDown.Enabled = true;
+                //    WrapFromTestBtn.Enabled = true;
+                //}
+                //else
+                //{
+                //    TestModelDropDown.Enabled = false;
+                //    WrapFromTestBtn.Enabled = false;
+                //}
+                //ExportTXTbtn.Enabled = true;
             }
         }
 
@@ -186,6 +188,9 @@ namespace WordAddIn1
             Globals.Ribbons.Ribbon1.TestModelDropDown.Enabled = false;
             Globals.Ribbons.Ribbon1.WrapFromTestBtn.Enabled = false;
             Globals.Ribbons.Ribbon1.ExportTXTbtn.Enabled = false;
+            Globals.Ribbons.Ribbon1.LocalStorageButton.Enabled = false;
+            Globals.Ribbons.Ribbon1.AzureStorageButton.Enabled = false;
+            Globals.Ribbons.Ribbon1.SetDirButton.Enabled = false;
 
             var Request = new RestRequest("api/interpreter/{project}/{model}/{force}", Method.POST);
             Request.AddParameter("project", ProjectName, ParameterType.UrlSegment);
@@ -201,15 +206,15 @@ namespace WordAddIn1
 
             IRestResponse Response = client.Execute(Request);
 
-            ReqTimer = new Timer(5000);
-            ReqTimer.AutoReset = true;
-            ReqTimer.Elapsed += (sender, e) => OnTimedEvent(sender, e, ProjectName, ModelName, client);
-            ReqTimer.Enabled = true;
+            UpdateReqTimer = new Timer(3000);
+            UpdateReqTimer.AutoReset = true;
+            UpdateReqTimer.Elapsed += (sender, e) => UpdateOnTimedEvent(sender, e, ProjectName, ModelName, client);
+            UpdateReqTimer.Enabled = true;
         }
 
-        private static Timer ReqTimer;
+        private static Timer UpdateReqTimer;
 
-        private static void OnTimedEvent(object source, ElapsedEventArgs e, string ProjectName, string ModelName, RestClient client)
+        private static void UpdateOnTimedEvent(object source, ElapsedEventArgs e, string ProjectName, string ModelName, RestClient client)
         {
             var newRequest = new RestRequest("api/interpreter/isloaded/{project}/{model}", Method.GET);
             newRequest.AddParameter("project", ProjectName, ParameterType.UrlSegment);
@@ -227,9 +232,16 @@ namespace WordAddIn1
                 Globals.Ribbons.Ribbon1.TestModelDropDown.Enabled = true;
                 Globals.Ribbons.Ribbon1.WrapFromTestBtn.Enabled = true;
                 Globals.Ribbons.Ribbon1.ExportTXTbtn.Enabled = true;
+                Globals.Ribbons.Ribbon1.LocalStorageButton.Enabled = true;
+                Globals.Ribbons.Ribbon1.AzureStorageButton.Enabled = true;
 
-                ReqTimer.Stop();
-                ReqTimer.Dispose();
+                if (Globals.Ribbons.Ribbon1.LocalStorageButton.Checked == true)
+                {
+                    Globals.Ribbons.Ribbon1.SetDirButton.Enabled = true;
+                }
+
+                UpdateReqTimer.Stop();
+                UpdateReqTimer.Dispose();
             }
         }
 
@@ -242,6 +254,5 @@ namespace WordAddIn1
                 DATA = DataToPass;
             }
         }
-
     }
 }

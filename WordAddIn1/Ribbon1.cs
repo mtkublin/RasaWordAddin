@@ -110,7 +110,7 @@ namespace WordAddIn1
         private void ExportTXTbtn_Click(object sender, RibbonControlEventArgs e)
         {
             string ModelName = Prompt.ShowDialog("Model name:", "TRAIN!");
-            bool ForceUpdate = false;
+            //bool ForceUpdate = false;
 
             if (this.TestModelDropDown.Items.Count != 0)
             {
@@ -126,30 +126,30 @@ namespace WordAddIn1
                     ModelName = Prompt.NewShowDialog(ModelName);
                 }
 
-                if (ModelName.Substring(ModelName.Length - 12) == "-ToOverwrite")
-                {
-                    ModelName = ModelName.Substring(0, ModelName.Length - 12);
-                    ForceUpdate = true;
-                }
-            }
-
-            string ProjectName = this.ProjectDropDown.SelectedItem.Label;
-            var client = new RestClient("http://127.0.0.1:6000");
-
-            if (this.AzureStorageButton.Checked)
-            {
-                Globals.ThisAddIn.ExportTrainData(client, ProjectName, ModelName);
-                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, ForceUpdate);
-            }
-            else
-            {
-                string ModelPath = this.ModelDirDialog.SelectedPath;
-                Globals.ThisAddIn.ExportTrainData(client, ProjectName, ModelName, ModelPath);
-                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, ForceUpdate, ModelPath + "\\MODELS\\" + ProjectName + "\\" + ModelName);
+                //if (ModelName.Substring(ModelName.Length - 12) == "-ToOverwrite")
+                //{
+                //    ModelName = ModelName.Substring(0, ModelName.Length - 12);
+                //    ForceUpdate = true;
+                //}
             }
 
             if (ModelName != "")
             {
+                string ProjectName = this.ProjectDropDown.SelectedItem.Label;
+                var client = new RestClient("http://127.0.0.1:6000");
+
+                if (this.AzureStorageButton.Checked)
+                {
+                    Globals.ThisAddIn.ExportTrainData(client, ProjectName, ModelName);
+                    //Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, ForceUpdate);
+                }
+                else
+                {
+                    string ModelPath = this.ModelDirDialog.SelectedPath;
+                    Globals.ThisAddIn.ExportTrainData(client, ProjectName, ModelName, ModelPath);
+                    //Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, ForceUpdate, ModelPath + "\\MODELS\\" + ProjectName + "\\" + ModelName);
+                }
+
                 RibbonDropDownItem newModel = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
                 newModel.Label = ModelName;
                 this.TestModelDropDown.Items.Add(newModel);
@@ -202,7 +202,6 @@ namespace WordAddIn1
             //this.TestModelDropDown.Enabled = false;
             //this.WrapFromTestBtn.Enabled = false;
             this.SetDirButton.Enabled = true;
-            this.ModelDirBox.Enabled = true;
 
             this.ProjectDropDown.Items.Clear();
             this.ProjectDropDown.SelectedItem = null;

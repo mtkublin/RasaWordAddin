@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Timers;
 using System.Windows.Forms;
+using XL.Office.Helpers;
 using Microsoft.Office.Interop.Word;
 using Newtonsoft.Json;
 using RestSharp;
@@ -28,27 +30,54 @@ namespace WordAddIn1
             request.AddParameter("application/json; charset=utf-8", jsonTestObject, ParameterType.RequestBody);
             request.RequestFormat = DataFormat.Json;
             IRestResponse response = client.Execute(request);
-            string req_id_response = response.Content;
-            TestDataReqIDobject ReqIDobject = JsonConvert.DeserializeObject<TestDataReqIDobject>(req_id_response);
-            string reqID = ReqIDobject.req_id;
-
-
-            var newRequest = new RestRequest("api/testres/{id}", Method.GET);
-            newRequest.AddParameter("req_id", reqID, ParameterType.UrlSegment);
-            newRequest.AddUrlSegment("id", reqID);
-            IRestResponse newResponse = client.Execute(newRequest);
-            string JSONresultDoc = newResponse.Content.ToString();
+            string JSONresultDoc = response.Content.ToString();
 
             WrapFromJSON(JSONresultDoc);
+
+            //string req_id_response = response.Content;
+            //string reqID = JsonConvert.DeserializeObject<string>(req_id_response);
+
+            //var newRequest = new RestRequest("api/testres/{id}", Method.GET);
+            //newRequest.AddParameter("req_id", reqID, ParameterType.UrlSegment);
+            //newRequest.AddUrlSegment("id", reqID);
+
+            //IRestResponse newResponse = client.Execute(newRequest);
+
+            //Microsoft.Office.Tools.Word.Document extendedDocument = Globals.Factory.GetVstoObject(this.Application.ActiveDocument);
+
+            //TestReqTimer = new System.Timers.Timer(3000);
+            //TestReqTimer.AutoReset = true;
+            //TestReqTimer.Elapsed += (sender, e) => TestOnTimedEvent(sender, e, reqID, client, this.Application, extendedDocument);
+            //TestReqTimer.Enabled = true;
         }
 
-        public void WrapFromJSON(string JSONresult)
+        //private System.Timers.Timer TestReqTimer;
+
+        //private void TestOnTimedEvent(object source, ElapsedEventArgs e, string reqID, RestClient client, Microsoft.Office.Interop.Word.Application application, Microsoft.Office.Tools.Word.Document extendedDocument)
+        //{
+        //    var newRequest = new RestRequest("api/testres/{id}", Method.GET);
+        //    newRequest.AddParameter("req_id", reqID, ParameterType.UrlSegment);
+        //    newRequest.AddUrlSegment("id", reqID);
+
+        //    IRestResponse newResponse = client.Execute(newRequest);
+        //    string JSONresultDoc = newResponse.Content.ToString();
+        //    List<SentenceObject> SentObjList = JsonConvert.DeserializeObject<List<SentenceObject>>(JSONresultDoc);
+
+        //    if (SentObjList.Count != 0)
+        //    {
+        //        WrapFromJSON(JSONresultDoc, application, extendedDocument);
+        //        //TestReqTimer.Stop();
+        //        //TestReqTimer.Dispose();
+        //    }
+        //}
+
+        private void WrapFromJSON(string JSONresult)
         {
             List<SentenceObject> SentObjList = JsonConvert.DeserializeObject<List<SentenceObject>>(JSONresult);
             SentObjList.Reverse();
             if (string.IsNullOrEmpty(JSONresult)) return;
-
-            var activeDocument = Application.ActiveDocument;
+            
+            Document activeDocument = Application.ActiveDocument;
             var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
 
             Application.UndoRecord.StartCustomRecord($"Tag Selection ({CurrentTag})");
@@ -84,6 +113,25 @@ namespace WordAddIn1
                 sentEnd = sentStart - 1;
             }
             Application.UndoRecord.EndCustomRecord();
+            //TestReqTimer.Stop();
+            //TestReqTimer.Dispose();
+        }
+
+        private void WrapItem(Microsoft.Office.Tools.Word.Document extendedDocument, string tag, Range range)
+        {
+            try
+            {
+                var next = DateTime.Now.Ticks.ToString();
+                var control = extendedDocument.Controls.AddRichTextContentControl(range, string.Format("richText{0}", next));
+                control.PlaceholderText = "...";
+                control.Tag = tag;
+                control.Title = tag;
+                HighlightControlHierarchy(control.Range);
+            }
+            catch (Exception ex)
+            {
+                Utilities.Notification(ex.Message);
+            }
         }
 
         private class TextToExportObject

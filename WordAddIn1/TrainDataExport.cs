@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Timers;
 using Microsoft.Office.Interop.Word;
 using Newtonsoft.Json;
 using RestSharp;
@@ -13,6 +14,15 @@ namespace WordAddIn1
 
         public void ExportTrainData(RestClient client, string TrainProjectName, string TrainModelName, string ModelPath = null)
         {
+            Globals.Ribbons.Ribbon1.ProjectDropDown.Enabled = false;
+            Globals.Ribbons.Ribbon1.ProjectAddButton.Enabled = false;
+            Globals.Ribbons.Ribbon1.TestModelDropDown.Enabled = false;
+            Globals.Ribbons.Ribbon1.WrapFromTestBtn.Enabled = false;
+            Globals.Ribbons.Ribbon1.ExportTXTbtn.Enabled = false;
+            Globals.Ribbons.Ribbon1.LocalStorageButton.Enabled = false;
+            Globals.Ribbons.Ribbon1.AzureStorageButton.Enabled = false;
+            Globals.Ribbons.Ribbon1.SetDirButton.Enabled = false;
+
             var examps = new List<Examp> { };
 
             foreach (ContentControl intent in Globals.ThisAddIn.Application.ActiveDocument.ContentControls)
@@ -41,8 +51,12 @@ namespace WordAddIn1
             request.AddUrlSegment("model", TrainModelName);
             request.RequestFormat = DataFormat.Json;
             IRestResponse response = client.Execute(request);
-            var content = response.Content;
-            Console.WriteLine(content);
+            string reqID = JsonConvert.DeserializeObject<string>(response.Content.ToString());
+
+            TrainReqTimer = new Timer(3000);
+            TrainReqTimer.AutoReset = true;
+            TrainReqTimer.Elapsed += (sender, e) => TrainOnTimedEvent(sender, e, client, reqID);
+            TrainReqTimer.Enabled = true;
 
             /* //THIS SAVES TRAIN DATA TO FILE - RIGHT NOW UNNECESSARY 
             
@@ -53,6 +67,39 @@ namespace WordAddIn1
                 outputFile.WriteLine(outputJSON);
             }
             */
+        }
+
+        private static Timer TrainReqTimer;
+
+        private static void TrainOnTimedEvent(object source, ElapsedEventArgs e, RestClient client, string reqID)
+        {
+            var newRequest = new RestRequest("api/traindata/isfinished/{req_id}", Method.GET);
+            //var JSONobj = JsonConvert.SerializeObject("{\"DATA\": " + reqID + "}");
+            //newRequest.AddParameter("application/json; charset=utf-8", JSONobj, ParameterType.RequestBody);
+            newRequest.AddParameter("req_id", reqID, ParameterType.UrlSegment);
+            newRequest.AddUrlSegment("req_id", reqID);
+
+            IRestResponse newResponse = client.Execute(newRequest);
+            string IsFinished = JsonConvert.DeserializeObject<string>(newResponse.Content.ToString());
+
+            if (IsFinished == "True")
+            {
+                Globals.Ribbons.Ribbon1.ProjectDropDown.Enabled = true;
+                Globals.Ribbons.Ribbon1.ProjectAddButton.Enabled = true;
+                Globals.Ribbons.Ribbon1.TestModelDropDown.Enabled = true;
+                Globals.Ribbons.Ribbon1.WrapFromTestBtn.Enabled = true;
+                Globals.Ribbons.Ribbon1.ExportTXTbtn.Enabled = true;
+                Globals.Ribbons.Ribbon1.LocalStorageButton.Enabled = true;
+                Globals.Ribbons.Ribbon1.AzureStorageButton.Enabled = true;
+
+                if (Globals.Ribbons.Ribbon1.LocalStorageButton.Checked == true)
+                {
+                    Globals.Ribbons.Ribbon1.SetDirButton.Enabled = true;
+                }
+
+                TrainReqTimer.Stop();
+                TrainReqTimer.Dispose();
+            }
         }
 
         private void GatherTrainData(string intTag, Range sent, List<Examp> examps)

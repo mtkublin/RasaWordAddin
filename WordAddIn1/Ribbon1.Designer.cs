@@ -71,7 +71,8 @@ namespace WordAddIn1
                 Label textLabel2 = new Label() { Left = 25, Top = 40, Width = 200, Text = "Do you want to overwrite it?" };
                 Button NOTconfirmation = new Button() { Text = "NO", Left = 25, Width = 75, Top = 65, DialogResult = DialogResult.OK };
                 Button confirmation = new Button() { Text = "YES", Left = 110, Width = 75, Top = 65, DialogResult = DialogResult.OK };
-                confirmation.Click += (sender, e) => {TakenModelName += "-ToOverwrite"; prompt.Close(); };
+                //confirmation.Click += (sender, e) => {TakenModelName += "-ToOverwrite"; prompt.Close(); };
+                confirmation.Click += (sender, e) => { prompt.Close(); };
                 NOTconfirmation.Click += (sender, e) => { TakenModelName = Prompt.ShowDialog("Model name:", "TRAIN!"); prompt.Close(); };
                 prompt.Controls.Add(confirmation);
                 prompt.Controls.Add(NOTconfirmation);
@@ -114,10 +115,10 @@ namespace WordAddIn1
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Ribbon1));
             this.ModelDirDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.tab1 = this.Factory.CreateRibbonTab();
-            this.group2 = this.Factory.CreateRibbonGroup();
+            this.WrapperGroup = this.Factory.CreateRibbonGroup();
             this.ContentControlButton = this.Factory.CreateRibbonButton();
             this.UnwrapRangeButton = this.Factory.CreateRibbonButton();
-            this.group3 = this.Factory.CreateRibbonGroup();
+            this.TestTrainGroup = this.Factory.CreateRibbonGroup();
             this.box1 = this.Factory.CreateRibbonBox();
             this.ProjectAddButton = this.Factory.CreateRibbonButton();
             this.WrapFromTestBtn = this.Factory.CreateRibbonButton();
@@ -125,7 +126,7 @@ namespace WordAddIn1
             this.box4 = this.Factory.CreateRibbonBox();
             this.ProjectDropDown = this.Factory.CreateRibbonDropDown();
             this.TestModelDropDown = this.Factory.CreateRibbonDropDown();
-            this.group1 = this.Factory.CreateRibbonGroup();
+            this.StorageGroup = this.Factory.CreateRibbonGroup();
             this.box3 = this.Factory.CreateRibbonBox();
             this.box5 = this.Factory.CreateRibbonBox();
             this.LocalStorageButton = this.Factory.CreateRibbonToggleButton();
@@ -133,11 +134,11 @@ namespace WordAddIn1
             this.SetDirButton = this.Factory.CreateRibbonButton();
             this.ModelDirBox = this.Factory.CreateRibbonEditBox();
             this.tab1.SuspendLayout();
-            this.group2.SuspendLayout();
-            this.group3.SuspendLayout();
+            this.WrapperGroup.SuspendLayout();
+            this.TestTrainGroup.SuspendLayout();
             this.box1.SuspendLayout();
             this.box4.SuspendLayout();
-            this.group1.SuspendLayout();
+            this.StorageGroup.SuspendLayout();
             this.box3.SuspendLayout();
             this.box5.SuspendLayout();
             this.SuspendLayout();
@@ -149,18 +150,18 @@ namespace WordAddIn1
             // tab1
             // 
             this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
-            this.tab1.Groups.Add(this.group2);
-            this.tab1.Groups.Add(this.group3);
-            this.tab1.Groups.Add(this.group1);
+            this.tab1.Groups.Add(this.WrapperGroup);
+            this.tab1.Groups.Add(this.TestTrainGroup);
+            this.tab1.Groups.Add(this.StorageGroup);
             this.tab1.Label = "RasaNLU addin";
             this.tab1.Name = "tab1";
             // 
-            // group2
+            // WrapperGroup
             // 
-            this.group2.Items.Add(this.ContentControlButton);
-            this.group2.Items.Add(this.UnwrapRangeButton);
-            this.group2.Label = "Wrapper";
-            this.group2.Name = "group2";
+            this.WrapperGroup.Items.Add(this.ContentControlButton);
+            this.WrapperGroup.Items.Add(this.UnwrapRangeButton);
+            this.WrapperGroup.Label = "Wrapper";
+            this.WrapperGroup.Name = "WrapperGroup";
             // 
             // ContentControlButton
             // 
@@ -182,12 +183,12 @@ namespace WordAddIn1
             this.UnwrapRangeButton.ShowImage = true;
             this.UnwrapRangeButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.UnwrapRangeButton_Click);
             // 
-            // group3
+            // TestTrainGroup
             // 
-            this.group3.Items.Add(this.box1);
-            this.group3.Items.Add(this.box4);
-            this.group3.Label = "Test/Train";
-            this.group3.Name = "group3";
+            this.TestTrainGroup.Items.Add(this.box1);
+            this.TestTrainGroup.Items.Add(this.box4);
+            this.TestTrainGroup.Label = "Test/Train";
+            this.TestTrainGroup.Name = "TestTrainGroup";
             // 
             // box1
             // 
@@ -243,11 +244,11 @@ namespace WordAddIn1
             this.TestModelDropDown.SizeString = "model_20181017-154908aa";
             this.TestModelDropDown.SelectionChanged += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ModelDropDown_Select);
             // 
-            // group1
+            // StorageGroup
             // 
-            this.group1.Items.Add(this.box3);
-            this.group1.Label = "Storage";
-            this.group1.Name = "group1";
+            this.StorageGroup.Items.Add(this.box3);
+            this.StorageGroup.Label = "Storage";
+            this.StorageGroup.Name = "StorageGroup";
             // 
             // box3
             // 
@@ -304,16 +305,16 @@ namespace WordAddIn1
             this.Load += new Microsoft.Office.Tools.Ribbon.RibbonUIEventHandler(this.Ribbon1_Load);
             this.tab1.ResumeLayout(false);
             this.tab1.PerformLayout();
-            this.group2.ResumeLayout(false);
-            this.group2.PerformLayout();
-            this.group3.ResumeLayout(false);
-            this.group3.PerformLayout();
+            this.WrapperGroup.ResumeLayout(false);
+            this.WrapperGroup.PerformLayout();
+            this.TestTrainGroup.ResumeLayout(false);
+            this.TestTrainGroup.PerformLayout();
             this.box1.ResumeLayout(false);
             this.box1.PerformLayout();
             this.box4.ResumeLayout(false);
             this.box4.PerformLayout();
-            this.group1.ResumeLayout(false);
-            this.group1.PerformLayout();
+            this.StorageGroup.ResumeLayout(false);
+            this.StorageGroup.PerformLayout();
             this.box3.ResumeLayout(false);
             this.box3.PerformLayout();
             this.box5.ResumeLayout(false);
@@ -331,9 +332,9 @@ namespace WordAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonButton WrapFromTestBtn;
         internal Microsoft.Office.Tools.Ribbon.RibbonDropDown TestModelDropDown;
         private System.Windows.Forms.FolderBrowserDialog ModelDirDialog;
-        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group2;
-        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group3;
-        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group1;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup WrapperGroup;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup TestTrainGroup;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup StorageGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton LocalStorageButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonToggleButton AzureStorageButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton SetDirButton;
