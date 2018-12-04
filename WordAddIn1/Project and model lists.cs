@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Timers;
 using Newtonsoft.Json;
 using RestSharp;
 using Microsoft.Office.Tools.Ribbon;
@@ -180,19 +181,56 @@ namespace WordAddIn1
 
         public void UpdateInterpreter(RestClient client, string ProjectName, string ModelName, bool ForceUpdate = false, string model_path = "")
         {
-            var newRequest = new RestRequest("api/interpreter/{project}/{model}/{force}", Method.POST);
+            Globals.Ribbons.Ribbon1.ProjectDropDown.Enabled = false;
+            Globals.Ribbons.Ribbon1.ProjectAddButton.Enabled = false;
+            Globals.Ribbons.Ribbon1.TestModelDropDown.Enabled = false;
+            Globals.Ribbons.Ribbon1.WrapFromTestBtn.Enabled = false;
+            Globals.Ribbons.Ribbon1.ExportTXTbtn.Enabled = false;
+
+            var Request = new RestRequest("api/interpreter/{project}/{model}/{force}", Method.POST);
+            Request.AddParameter("project", ProjectName, ParameterType.UrlSegment);
+            Request.AddUrlSegment("project", ProjectName);
+            Request.AddParameter("model", ModelName, ParameterType.UrlSegment);
+            Request.AddUrlSegment("model", ModelName);
+            Request.AddParameter("force", ForceUpdate.ToString(), ParameterType.UrlSegment);
+            Request.AddUrlSegment("force", ForceUpdate.ToString());
+
+            ModelPathDataObject DataObjectForApi = new ModelPathDataObject(model_path);
+            var jsonObject = JsonConvert.SerializeObject(DataObjectForApi);
+            Request.AddParameter("application/json; charset=utf-8", jsonObject, ParameterType.RequestBody);
+
+            IRestResponse Response = client.Execute(Request);
+
+            ReqTimer = new Timer(5000);
+            ReqTimer.AutoReset = true;
+            ReqTimer.Elapsed += (sender, e) => OnTimedEvent(sender, e, ProjectName, ModelName, client);
+            ReqTimer.Enabled = true;
+        }
+
+        private static Timer ReqTimer;
+
+        private static void OnTimedEvent(object source, ElapsedEventArgs e, string ProjectName, string ModelName, RestClient client)
+        {
+            var newRequest = new RestRequest("api/interpreter/isloaded/{project}/{model}", Method.GET);
             newRequest.AddParameter("project", ProjectName, ParameterType.UrlSegment);
             newRequest.AddUrlSegment("project", ProjectName);
             newRequest.AddParameter("model", ModelName, ParameterType.UrlSegment);
             newRequest.AddUrlSegment("model", ModelName);
-            newRequest.AddParameter("force", ForceUpdate.ToString(), ParameterType.UrlSegment);
-            newRequest.AddUrlSegment("force", ForceUpdate.ToString());
-
-            ModelPathDataObject DataObjectForApi = new ModelPathDataObject(model_path);
-            var jsonObject = JsonConvert.SerializeObject(DataObjectForApi);
-            newRequest.AddParameter("application/json; charset=utf-8", jsonObject, ParameterType.RequestBody);
 
             IRestResponse newResponse = client.Execute(newRequest);
+            string IsLoaded = JsonConvert.DeserializeObject<string>(newResponse.Content.ToString());
+
+            if (IsLoaded == "True")
+            {
+                Globals.Ribbons.Ribbon1.ProjectDropDown.Enabled = true;
+                Globals.Ribbons.Ribbon1.ProjectAddButton.Enabled = true;
+                Globals.Ribbons.Ribbon1.TestModelDropDown.Enabled = true;
+                Globals.Ribbons.Ribbon1.WrapFromTestBtn.Enabled = true;
+                Globals.Ribbons.Ribbon1.ExportTXTbtn.Enabled = true;
+
+                ReqTimer.Stop();
+                ReqTimer.Dispose();
+            }
         }
 
         private class ModelPathDataObject

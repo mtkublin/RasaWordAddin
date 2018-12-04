@@ -8,12 +8,10 @@ namespace WordAddIn1
     {
         private void Ribbon1_Load(object sender, RibbonUIEventArgs e)
         {
-            this.TestModelDropDown.Enabled = false;
-            this.WrapFromTestBtn.Enabled = false;
             this.AzureStorageButton.Checked = true;
             this.LocalStorageButton.Checked = false;
-            this.TestModelDropDown.Enabled = false;
-            this.WrapFromTestBtn.Enabled = false;
+            //this.TestModelDropDown.Enabled = false;
+            //this.WrapFromTestBtn.Enabled = false;
             this.SetDirButton.Enabled = false;
             this.ModelDirBox.Enabled = false;
 
@@ -80,9 +78,9 @@ namespace WordAddIn1
 
         private void ModelDropDown_Select(object sender, RibbonControlEventArgs e)
         {
-            this.WrapFromTestBtn.Enabled = false;
-            this.ProjectDropDown.Enabled = false;
-            this.ExportTXTbtn.Enabled = false;
+            //this.WrapFromTestBtn.Enabled = false;
+            //this.ProjectDropDown.Enabled = false;
+            //this.ExportTXTbtn.Enabled = false;
 
             string ProjectName = this.ProjectDropDown.SelectedItem.Label;
             string ModelName = this.TestModelDropDown.SelectedItem.Label;
@@ -166,8 +164,8 @@ namespace WordAddIn1
         {
             this.AzureStorageButton.Checked = true;
             this.LocalStorageButton.Checked = false;
-            this.TestModelDropDown.Enabled = false;
-            this.WrapFromTestBtn.Enabled = false;
+            //this.TestModelDropDown.Enabled = false;
+            //this.WrapFromTestBtn.Enabled = false;
             this.SetDirButton.Enabled = false;
             this.ModelDirBox.Enabled = false;
 
@@ -201,8 +199,8 @@ namespace WordAddIn1
         {
             this.AzureStorageButton.Checked = false;
             this.LocalStorageButton.Checked = true;
-            this.TestModelDropDown.Enabled = false;
-            this.WrapFromTestBtn.Enabled = false;
+            //this.TestModelDropDown.Enabled = false;
+            //this.WrapFromTestBtn.Enabled = false;
             this.SetDirButton.Enabled = true;
             this.ModelDirBox.Enabled = true;
 
@@ -233,8 +231,8 @@ namespace WordAddIn1
         {
             var client = new RestClient("http://127.0.0.1:6000");
 
-            this.WrapFromTestBtn.Enabled = false;
-            this.TestModelDropDown.Enabled = false;
+            //this.WrapFromTestBtn.Enabled = false;
+            //this.TestModelDropDown.Enabled = false;
             Globals.ThisAddIn.ChooseModelDir(client, this.ModelDirDialog, this.ModelDirBox, this.ProjectDropDown, this.TestModelDropDown);
 
             //if (this.TestModelDropDown.SelectedItem != null)
