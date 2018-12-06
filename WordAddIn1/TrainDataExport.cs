@@ -12,28 +12,51 @@ namespace WordAddIn1
     {
         private RasaNLUdata rasaData { get; set; }
 
-        public void ExportTrainData(RestClient client, string TrainProjectName, string TrainModelName, string ModelPath = null)
+        public void InitiateTraining(RestClient client, string TrainProjectName, string TrainModelName, string ModelPath = null)
         {
             Globals.Ribbons.Ribbon1.ProjectDropDown.Enabled = false;
             Globals.Ribbons.Ribbon1.ProjectAddButton.Enabled = false;
             Globals.Ribbons.Ribbon1.TestModelDropDown.Enabled = false;
-            Globals.Ribbons.Ribbon1.WrapFromTestBtn.Enabled = false;
-            Globals.Ribbons.Ribbon1.ExportTXTbtn.Enabled = false;
+            Globals.Ribbons.Ribbon1.TestButton.Enabled = false;
+            Globals.Ribbons.Ribbon1.TrainingButton.Enabled = false;
             Globals.Ribbons.Ribbon1.LocalStorageButton.Enabled = false;
             Globals.Ribbons.Ribbon1.AzureStorageButton.Enabled = false;
             Globals.Ribbons.Ribbon1.SetDirButton.Enabled = false;
 
             var examps = new List<Examp> { };
+            if(examps.Count != 0)
+            {
+                examps.Clear();
+            }
+
+            List<string> SentsWithIntent = new List<string>();
 
             foreach (ContentControl intent in Globals.ThisAddIn.Application.ActiveDocument.ContentControls)
             {
                 string intTag = intent.Tag;
                 char intLevelIndicator = intTag[intTag.Length - 1];
-
+                
                 if (intLevelIndicator is '1')
                 {
-                    GatherTrainData(intTag, intent.Range, examps);
+                    if(intent.Range.Sentences.Count == 0 || intent.Range.Sentences.Count == 1)
+                    {
+                        SentsWithIntent.Add(intent.Range.Text);
+                        GatherEntities(intTag, intent.Range, examps);
+                    }
+                    else
+                    {
+                        foreach(Range subInt in intent.Range.Sentences)
+                        {
+                            SentsWithIntent.Add(subInt.Text);
+                            GatherEntities(intTag, subInt, examps);
+                        }
+                    }
                 }
+            }
+
+            foreach (Range sent in Globals.ThisAddIn.Application.ActiveDocument.Sentences) if (SentsWithIntent.Contains(sent.Text) == false)
+            {
+                GatherEntities("empty-intent-1", sent, examps);
             }
 
             TrainData tData = new TrainData(examps);
@@ -53,59 +76,16 @@ namespace WordAddIn1
             IRestResponse response = client.Execute(request);
             string reqID = JsonConvert.DeserializeObject<string>(response.Content.ToString());
 
-            TrainReqTimer = new Timer(3000);
-            TrainReqTimer.AutoReset = true;
-            TrainReqTimer.Elapsed += (sender, e) => TrainOnTimedEvent(sender, e, client, reqID);
-            TrainReqTimer.Enabled = true;
-
-            /* //THIS SAVES TRAIN DATA TO FILE - RIGHT NOW UNNECESSARY 
-            
-            string outputJSON = jsonObject;
-            string mydocpath = @"C:\Users\Mikołaj\Documents\Word_rasa_addin";
-            using (StreamWriter outputFile = new StreamWriter(Path.Combine(mydocpath, "TrainData.json")))
-            {
-                outputFile.WriteLine(outputJSON);
-            }
-            */
+            TrainingStatusCheckTimer = new Timer(3000);
+            TrainingStatusCheckTimer.AutoReset = true;
+            TrainingStatusCheckTimer.Elapsed += (sender, e) => CheckTrainingStatus(sender, e, client, reqID);
+            TrainingStatusCheckTimer.Enabled = true;
         }
 
-        private static Timer TrainReqTimer;
-
-        private static void TrainOnTimedEvent(object source, ElapsedEventArgs e, RestClient client, string reqID)
+        private void GatherEntities(string intTag, Range sent, List<Examp> examps)
         {
-            var newRequest = new RestRequest("api/traindata/isfinished/{req_id}", Method.GET);
-            //var JSONobj = JsonConvert.SerializeObject("{\"DATA\": " + reqID + "}");
-            //newRequest.AddParameter("application/json; charset=utf-8", JSONobj, ParameterType.RequestBody);
-            newRequest.AddParameter("req_id", reqID, ParameterType.UrlSegment);
-            newRequest.AddUrlSegment("req_id", reqID);
-
-            IRestResponse newResponse = client.Execute(newRequest);
-            string IsFinished = JsonConvert.DeserializeObject<string>(newResponse.Content.ToString());
-
-            if (IsFinished == "True")
-            {
-                Globals.Ribbons.Ribbon1.ProjectDropDown.Enabled = true;
-                Globals.Ribbons.Ribbon1.ProjectAddButton.Enabled = true;
-                Globals.Ribbons.Ribbon1.TestModelDropDown.Enabled = true;
-                Globals.Ribbons.Ribbon1.WrapFromTestBtn.Enabled = true;
-                Globals.Ribbons.Ribbon1.ExportTXTbtn.Enabled = true;
-                Globals.Ribbons.Ribbon1.LocalStorageButton.Enabled = true;
-                Globals.Ribbons.Ribbon1.AzureStorageButton.Enabled = true;
-
-                if (Globals.Ribbons.Ribbon1.LocalStorageButton.Checked == true)
-                {
-                    Globals.Ribbons.Ribbon1.SetDirButton.Enabled = true;
-                }
-
-                TrainReqTimer.Stop();
-                TrainReqTimer.Dispose();
-            }
-        }
-
-        private void GatherTrainData(string intTag, Range sent, List<Examp> examps)
-        {
-            string sentText = sent.Text;
             string sentInt = intTag;
+            string sentText = sent.Text;
             int intentStart = sent.Start;
 
             var entities = new List<Ent> { };
@@ -128,78 +108,41 @@ namespace WordAddIn1
                     EntNumber += 2;
                 }
             }
-            Examp examp = new Examp(sentText, sentInt, entities);
-            examps.Add(examp);
-        }
-
-        private class Ent
-        {
-            public int start { get; set; }
-            public int end { get; set; }
-            public string value { get; set; }
-            public string entity { get; set; }
-
-            public Ent(int startchar, int endchar, string val, string ent)
+            if (sentText != " " & sentText != "\r")
             {
-                start = startchar;
-                end = endchar;
-                value = val;
-                entity = ent;
+                Examp examp = new Examp(sentText, sentInt, entities);
+                examps.Add(examp);
             }
         }
 
-        private class Examp
+        private static Timer TrainingStatusCheckTimer;
+
+        private static void CheckTrainingStatus(object source, ElapsedEventArgs e, RestClient client, string reqID)
         {
-            public string text { get; set; }
-            public string intent { get; set; }
-            public List<Ent> entities { get; set; }
+            var newRequest = new RestRequest("api/traindata/isfinished/{req_id}", Method.GET);
+            newRequest.AddParameter("req_id", reqID, ParameterType.UrlSegment);
+            newRequest.AddUrlSegment("req_id", reqID);
 
-            public Examp(string sentText, string intnt, List<Ent> entities1)
+            IRestResponse newResponse = client.Execute(newRequest);
+            string IsFinished = JsonConvert.DeserializeObject<string>(newResponse.Content.ToString());
+
+            if (IsFinished == "True")
             {
-                text = sentText;
-                intent = intnt;
-                entities = entities1;
-            }
-        }
+                Globals.Ribbons.Ribbon1.ProjectDropDown.Enabled = true;
+                Globals.Ribbons.Ribbon1.ProjectAddButton.Enabled = true;
+                Globals.Ribbons.Ribbon1.TestModelDropDown.Enabled = true;
+                Globals.Ribbons.Ribbon1.TestButton.Enabled = true;
+                Globals.Ribbons.Ribbon1.TrainingButton.Enabled = true;
+                Globals.Ribbons.Ribbon1.LocalStorageButton.Enabled = true;
+                Globals.Ribbons.Ribbon1.AzureStorageButton.Enabled = true;
 
-        private class TrainData
-        {
-            public List<Examp> common_examples { get; set; }
-            public List<object> regex_features { get; set; }
-            public List<object> lookup_tables { get; set; }
-            public List<object> entity_synonyms { get; set; }
-
-            public TrainData(List<Examp> examps)
-            {
-                common_examples = examps;
-                regex_features = new List<object>();
-                lookup_tables = new List<object>();
-                entity_synonyms = new List<object>();
-            }
-        }
-
-        private class RasaNLUdata
-        {
-            public TrainData rasa_nlu_data { get; set; }
-            public string ModelPath { get; set; }
-
-            public RasaNLUdata(TrainData DataToPass, string Mpath = null)
-            {
-                rasa_nlu_data = DataToPass;
-                if (Mpath != null)
+                if (Globals.Ribbons.Ribbon1.LocalStorageButton.Checked == true)
                 {
-                    ModelPath = Mpath;
+                    Globals.Ribbons.Ribbon1.SetDirButton.Enabled = true;
                 }
-            }
-        }
 
-        private class FinalDataObject
-        {
-            public RasaNLUdata DATA { get; set; }
-
-            public FinalDataObject(RasaNLUdata DataToPass)
-            {
-                DATA = DataToPass;
+                TrainingStatusCheckTimer.Stop();
+                TrainingStatusCheckTimer.Dispose();
             }
         }
     }

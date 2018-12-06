@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Timers;
 using System.Windows.Forms;
 using XL.Office.Helpers;
 using Microsoft.Office.Interop.Word;
@@ -25,7 +23,6 @@ namespace WordAddIn1
             var jsonTestObject = JsonConvert.SerializeObject(finalExportData);
 
             var client = new RestClient("http://127.0.0.1:6000");
-
             var request = new RestRequest("api/testdata", Method.POST);
             request.AddParameter("application/json; charset=utf-8", jsonTestObject, ParameterType.RequestBody);
             request.RequestFormat = DataFormat.Json;
@@ -33,50 +30,33 @@ namespace WordAddIn1
             string JSONresultDoc = response.Content.ToString();
 
             WrapFromJSON(JSONresultDoc);
-
-            //string req_id_response = response.Content;
-            //string reqID = JsonConvert.DeserializeObject<string>(req_id_response);
-
-            //var newRequest = new RestRequest("api/testres/{id}", Method.GET);
-            //newRequest.AddParameter("req_id", reqID, ParameterType.UrlSegment);
-            //newRequest.AddUrlSegment("id", reqID);
-
-            //IRestResponse newResponse = client.Execute(newRequest);
-
-            //Microsoft.Office.Tools.Word.Document extendedDocument = Globals.Factory.GetVstoObject(this.Application.ActiveDocument);
-
-            //TestReqTimer = new System.Timers.Timer(3000);
-            //TestReqTimer.AutoReset = true;
-            //TestReqTimer.Elapsed += (sender, e) => TestOnTimedEvent(sender, e, reqID, client, this.Application, extendedDocument);
-            //TestReqTimer.Enabled = true;
         }
-
-        //private System.Timers.Timer TestReqTimer;
-
-        //private void TestOnTimedEvent(object source, ElapsedEventArgs e, string reqID, RestClient client, Microsoft.Office.Interop.Word.Application application, Microsoft.Office.Tools.Word.Document extendedDocument)
-        //{
-        //    var newRequest = new RestRequest("api/testres/{id}", Method.GET);
-        //    newRequest.AddParameter("req_id", reqID, ParameterType.UrlSegment);
-        //    newRequest.AddUrlSegment("id", reqID);
-
-        //    IRestResponse newResponse = client.Execute(newRequest);
-        //    string JSONresultDoc = newResponse.Content.ToString();
-        //    List<SentenceObject> SentObjList = JsonConvert.DeserializeObject<List<SentenceObject>>(JSONresultDoc);
-
-        //    if (SentObjList.Count != 0)
-        //    {
-        //        WrapFromJSON(JSONresultDoc, application, extendedDocument);
-        //        //TestReqTimer.Stop();
-        //        //TestReqTimer.Dispose();
-        //    }
-        //}
 
         private void WrapFromJSON(string JSONresult)
         {
             List<SentenceObject> SentObjList = JsonConvert.DeserializeObject<List<SentenceObject>>(JSONresult);
             SentObjList.Reverse();
             if (string.IsNullOrEmpty(JSONresult)) return;
-            
+
+            bool AreThereEntities = false;
+            foreach (SentenceObject sent in SentObjList)
+            {
+                if (sent.entities.Count != 0)
+                {
+                    AreThereEntities = true;
+                }
+                if (sent.intent == null)
+                {
+                    Ribbon1.Prompt.TextMessageOkDialog("Null intents present, empty interpreter");
+                    return;
+                }
+            }
+
+            if (AreThereEntities == false)
+            {
+                Ribbon1.Prompt.TextMessageOkDialog("Interpreter didn't find any entities.");
+            }
+
             Document activeDocument = Application.ActiveDocument;
             var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
 
@@ -95,15 +75,20 @@ namespace WordAddIn1
 
                 Range intRange = Application.ActiveDocument.Range(sentStart, sentEnd);
 
+                int ContentSubstraction = 0;
                 string intTag = sent.intent.name;
-                WrapItem(extendedDocument, intTag, intRange);
+                if (intTag != "empty-intent-1")
+                {
+                    WrapItem(extendedDocument, intTag, intRange);
+                    ContentSubstraction = 1;
+                }
 
                 List<SingleEnt> EntList = sent.entities;
                 EntList.Reverse();
                 foreach (SingleEnt ent in EntList)
                 {
-                    int entStart = sentStart + ent.start + 1;
-                    int entEnd = sentStart + ent.end + 1;
+                    int entStart = sentStart + ent.start + ContentSubstraction;
+                    int entEnd = sentStart + ent.end + ContentSubstraction;
 
                     Range entRange = Application.ActiveDocument.Range(entStart, entEnd);
 
@@ -113,8 +98,6 @@ namespace WordAddIn1
                 sentEnd = sentStart - 1;
             }
             Application.UndoRecord.EndCustomRecord();
-            //TestReqTimer.Stop();
-            //TestReqTimer.Dispose();
         }
 
         private void WrapItem(Microsoft.Office.Tools.Word.Document extendedDocument, string tag, Range range)
@@ -133,64 +116,5 @@ namespace WordAddIn1
                 Utilities.Notification(ex.Message);
             }
         }
-
-        private class TextToExportObject
-        {
-            public List<String> SENTS { get; set; }
-
-            public TextToExportObject(List<String> DataToPass)
-            {
-                SENTS = DataToPass;
-            }
-        }
-
-        private class FinalTestDataExportObject
-        {
-            public TextToExportObject DATA { get; set; }
-
-            public FinalTestDataExportObject(TextToExportObject DataToPass)
-            {
-                DATA = DataToPass;
-            }
-        }
-
-        public class Intent
-        {
-            public string name { get; set; }
-            public double confidence { get; set; }
-        }
-
-        public class SingleEnt
-        {
-            public int start { get; set; }
-            public int end { get; set; }
-            public string value { get; set; }
-            public string entity { get; set; }
-            public float confidence { get; set; }
-            public string extractor { get; set; }
-        }
-
-        public class IntentRanking
-        {
-            public string name { get; set; }
-            public double confidence { get; set; }
-        }
-
-        public class SentenceObject
-        {
-            public Intent intent { get; set; }
-            public List<SingleEnt> entities { get; set; }
-            public List<IntentRanking> intent_ranking { get; set; }
-            public string text { get; set; }
-        }
-
-        public class TestDataReqIDobject
-        {
-            public string req_id { get; set; }
-            public string mongo_id { get; set; }
-            public string status { get; set; }
-
-        }
-
     }
 }

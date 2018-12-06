@@ -1,7 +1,4 @@
-﻿using System.Windows.Forms;
-
-
-namespace WordAddIn1
+﻿namespace WordAddIn1
 {
     partial class Ribbon1 : Microsoft.Office.Tools.Ribbon.RibbonBase
     {
@@ -29,80 +26,6 @@ namespace WordAddIn1
             base.Dispose(disposing);
         }
 
-        //
-        // Text Dialog
-        //
-
-        public static class Prompt
-        {
-            public static string ShowDialog(string text, string caption)
-            {
-                Form prompt = new Form()
-                {
-                    Width = 300,
-                    Height = 140,
-                    FormBorderStyle = FormBorderStyle.FixedDialog,
-                    Text = "",
-                    StartPosition = FormStartPosition.CenterScreen
-                };
-                Label textLabel = new Label() { Left = 25, Top = 15, Text = text };
-                TextBox textBox = new TextBox() { Left = 25, Top = 40, Width = 225 };
-                Button confirmation = new Button() { Text = caption, Left = 175, Width = 75, Top = 70, DialogResult = DialogResult.OK };
-                confirmation.Click += (sender, e) => { prompt.Close(); };
-                prompt.Controls.Add(textBox);
-                prompt.Controls.Add(confirmation);
-                prompt.Controls.Add(textLabel);
-                prompt.AcceptButton = confirmation;
-
-                return prompt.ShowDialog() == DialogResult.OK ? textBox.Text : "";
-            }
-
-            public static string NewShowDialog(string TakenModelName)
-            {
-                Form prompt = new Form()
-                {
-                    Width = 235,
-                    Height = 140,
-                    FormBorderStyle = FormBorderStyle.FixedDialog,
-                    Text = "",
-                    StartPosition = FormStartPosition.CenterScreen
-                };
-                Label textLabel = new Label() { Left = 25, Top = 15, Width = 200, Text = "This model name is already taken." };
-                Label textLabel2 = new Label() { Left = 25, Top = 40, Width = 200, Text = "Do you want to overwrite it?" };
-                Button NOTconfirmation = new Button() { Text = "NO", Left = 25, Width = 75, Top = 65, DialogResult = DialogResult.OK };
-                Button confirmation = new Button() { Text = "YES", Left = 110, Width = 75, Top = 65, DialogResult = DialogResult.OK };
-                //confirmation.Click += (sender, e) => {TakenModelName += "-ToOverwrite"; prompt.Close(); };
-                confirmation.Click += (sender, e) => { prompt.Close(); };
-                NOTconfirmation.Click += (sender, e) => { TakenModelName = Prompt.ShowDialog("Model name:", "TRAIN!"); prompt.Close(); };
-                prompt.Controls.Add(confirmation);
-                prompt.Controls.Add(NOTconfirmation);
-                prompt.Controls.Add(textLabel);
-                prompt.Controls.Add(textLabel2);
-                prompt.AcceptButton = confirmation;
-
-                return prompt.ShowDialog() == DialogResult.OK ? TakenModelName : "";
-            }
-
-            public static string NewProjectShowDialog(string TakenModelName)
-            {
-                Form prompt = new Form()
-                {
-                    Width = 235,
-                    Height = 115,
-                    FormBorderStyle = FormBorderStyle.FixedDialog,
-                    Text = "",
-                    StartPosition = FormStartPosition.CenterScreen
-                };
-                Label textLabel = new Label() { Left = 25, Top = 15, Width = 200, Text = "This project name is already taken." };
-                Button NOTconfirmation = new Button() { Text = "OK", Left = 70, Width = 70, Top = 40, DialogResult = DialogResult.OK };
-                NOTconfirmation.Click += (sender, e) => { TakenModelName = Prompt.ShowDialog("Model name:", "TRAIN!"); prompt.Close(); };
-                prompt.Controls.Add(NOTconfirmation);
-                prompt.Controls.Add(textLabel);
-                prompt.AcceptButton = NOTconfirmation;
-
-                return prompt.ShowDialog() == DialogResult.OK ? TakenModelName : "";
-            }
-        }
 
         #region Component Designer generated code
 
@@ -121,8 +44,8 @@ namespace WordAddIn1
             this.TestTrainGroup = this.Factory.CreateRibbonGroup();
             this.box1 = this.Factory.CreateRibbonBox();
             this.ProjectAddButton = this.Factory.CreateRibbonButton();
-            this.WrapFromTestBtn = this.Factory.CreateRibbonButton();
-            this.ExportTXTbtn = this.Factory.CreateRibbonButton();
+            this.TestButton = this.Factory.CreateRibbonButton();
+            this.TrainingButton = this.Factory.CreateRibbonButton();
             this.box4 = this.Factory.CreateRibbonBox();
             this.ProjectDropDown = this.Factory.CreateRibbonDropDown();
             this.TestModelDropDown = this.Factory.CreateRibbonDropDown();
@@ -194,8 +117,8 @@ namespace WordAddIn1
             // 
             this.box1.BoxStyle = Microsoft.Office.Tools.Ribbon.RibbonBoxStyle.Vertical;
             this.box1.Items.Add(this.ProjectAddButton);
-            this.box1.Items.Add(this.WrapFromTestBtn);
-            this.box1.Items.Add(this.ExportTXTbtn);
+            this.box1.Items.Add(this.TestButton);
+            this.box1.Items.Add(this.TrainingButton);
             this.box1.Name = "box1";
             // 
             // ProjectAddButton
@@ -206,21 +129,21 @@ namespace WordAddIn1
             this.ProjectAddButton.ShowImage = true;
             this.ProjectAddButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ProjectAddButton_Click);
             // 
-            // WrapFromTestBtn
+            // TestButton
             // 
-            this.WrapFromTestBtn.Image = ((System.Drawing.Image)(resources.GetObject("WrapFromTestBtn.Image")));
-            this.WrapFromTestBtn.Label = "Test with";
-            this.WrapFromTestBtn.Name = "WrapFromTestBtn";
-            this.WrapFromTestBtn.ShowImage = true;
-            this.WrapFromTestBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.WrapFromTestBtn_Click);
+            this.TestButton.Image = ((System.Drawing.Image)(resources.GetObject("TestButton.Image")));
+            this.TestButton.Label = "Test with";
+            this.TestButton.Name = "TestButton";
+            this.TestButton.ShowImage = true;
+            this.TestButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.TestButton_Click);
             // 
-            // ExportTXTbtn
+            // TrainingButton
             // 
-            this.ExportTXTbtn.Image = ((System.Drawing.Image)(resources.GetObject("ExportTXTbtn.Image")));
-            this.ExportTXTbtn.Label = "Train";
-            this.ExportTXTbtn.Name = "ExportTXTbtn";
-            this.ExportTXTbtn.ShowImage = true;
-            this.ExportTXTbtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.ExportTXTbtn_Click);
+            this.TrainingButton.Image = ((System.Drawing.Image)(resources.GetObject("TrainingButton.Image")));
+            this.TrainingButton.Label = "Train";
+            this.TrainingButton.Name = "TrainingButton";
+            this.TrainingButton.ShowImage = true;
+            this.TrainingButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.TrainingButton_Click);
             // 
             // box4
             // 
@@ -328,8 +251,8 @@ namespace WordAddIn1
         internal Microsoft.Office.Tools.Ribbon.RibbonTab tab1;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton ContentControlButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton UnwrapRangeButton;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton ExportTXTbtn;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton WrapFromTestBtn;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton TrainingButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton TestButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonDropDown TestModelDropDown;
         private System.Windows.Forms.FolderBrowserDialog ModelDirDialog;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup WrapperGroup;

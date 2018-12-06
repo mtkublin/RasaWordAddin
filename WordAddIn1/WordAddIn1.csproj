@@ -215,7 +215,11 @@
     can be found.
   -->
   <ItemGroup>
-    <Compile Include="Project and model lists.cs" />
+    <Compile Include="DataObjects.cs" />
+    <Compile Include="Dialogs.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ProjectsAndModels.cs" />
     <Compile Include="TestDocument.cs" />
     <Compile Include="TrainDataExport.cs" />
     <Compile Include="Keyboard.cs" />
