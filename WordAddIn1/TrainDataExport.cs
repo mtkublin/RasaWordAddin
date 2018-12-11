@@ -45,10 +45,22 @@ namespace WordAddIn1
                     }
                     else
                     {
+                        bool isLastSent = false;
                         foreach(Range subInt in intent.Range.Sentences)
                         {
+                            if (subInt.Text == " ")
+                            {
+                                isLastSent = true;
+                                break;
+                            }
                             SentsWithIntent.Add(subInt.Text);
                             GatherEntities(intTag, subInt, examps);
+                        }
+
+                        if (isLastSent)
+                        {
+                            GatherEntities(intTag, intent.Range.Sentences.Last, examps);
+
                         }
                     }
                 }
