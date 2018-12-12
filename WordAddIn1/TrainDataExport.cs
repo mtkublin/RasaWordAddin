@@ -24,51 +24,56 @@ namespace WordAddIn1
             Globals.Ribbons.Ribbon1.SetDirButton.Enabled = false;
 
             var examps = new List<Examp> { };
-            if(examps.Count != 0)
+            if (examps.Count != 0)
             {
                 examps.Clear();
             }
 
-            List<string> SentsWithIntent = new List<string>();
-
-            foreach (ContentControl intent in Globals.ThisAddIn.Application.ActiveDocument.ContentControls)
+            List<string> AddedSents = new List<string>();
+            foreach (Range sent in Globals.ThisAddIn.Application.ActiveDocument.Sentences)
             {
-                string intTag = intent.Tag;
-                char intLevelIndicator = intTag[intTag.Length - 1];
-                
-                if (intLevelIndicator is '1')
+                if (sent.ParentContentControl is ContentControl)
                 {
-                    if(intent.Range.Sentences.Count == 0 || intent.Range.Sentences.Count == 1)
+                    string intTag = sent.ParentContentControl.Tag;
+                    GatherEntities(intTag, sent, examps);
+                    AddedSents.Add(sent.Text);
+                }
+
+                else
+                {
+                    bool IsNotFirstOrLast = true;
+                    foreach (ContentControl control in Globals.ThisAddIn.Application.ActiveDocument.ContentControls) if (control.Tag[control.Tag.Length - 1] == '1')
                     {
-                        SentsWithIntent.Add(intent.Range.Text);
-                        GatherEntities(intTag, intent.Range, examps);
+                        if (sent.Text == control.Range.Sentences.First.Text || sent.Text == control.Range.Sentences.Last.Text)
+                        {
+                            string intTag = control.Tag;
+                            GatherEntities(intTag, sent, examps);
+                            IsNotFirstOrLast = false;
+                            AddedSents.Add(sent.Text);
+                            break;
+                        }
                     }
-                    else
+
+                    if (IsNotFirstOrLast)
                     {
-                        bool isLastSent = false;
-                        foreach(Range subInt in intent.Range.Sentences)
-                        {
-                            if (subInt.Text == " ")
-                            {
-                                isLastSent = true;
-                                break;
-                            }
-                            SentsWithIntent.Add(subInt.Text);
-                            GatherEntities(intTag, subInt, examps);
-                        }
-
-                        if (isLastSent)
-                        {
-                            GatherEntities(intTag, intent.Range.Sentences.Last, examps);
-
-                        }
+                        GatherEntities("empty-intent-1", sent, examps);
                     }
                 }
             }
 
-            foreach (Range sent in Globals.ThisAddIn.Application.ActiveDocument.Sentences) if (SentsWithIntent.Contains(sent.Text) == false)
+            foreach (ContentControl control in Globals.ThisAddIn.Application.ActiveDocument.ContentControls) if (control.Tag[control.Tag.Length - 1] == '1')
             {
-                GatherEntities("empty-intent-1", sent, examps);
+                if (AddedSents.Contains(control.Range.Sentences.First.Text) == false)
+                {
+                    string intTag = control.Tag;
+                    GatherEntities(intTag, control.Range.Sentences.First, examps);
+                }
+
+                if (AddedSents.Contains(control.Range.Sentences.Last.Text) == false)
+                {
+                    string intTag = control.Tag;
+                    GatherEntities(intTag, control.Range.Sentences.Last, examps);
+                }
             }
 
             TrainData tData = new TrainData(examps);
@@ -100,28 +105,28 @@ namespace WordAddIn1
             string sentText = sent.Text;
             int intentStart = sent.Start;
 
-            var entities = new List<Ent> { };
-            int EntNumber = 0;
-            foreach (ContentControl ent in sent.ContentControls)
-            {
-                string entTag = ent.Tag;
-                char entLevelIndicator = entTag[entTag.Length - 1];
-
-                if (entLevelIndicator is '2')
-                {
-                    int st = ent.Range.Start - intentStart - 1 - EntNumber;
-                    int en = ent.Range.End - intentStart - 1 - EntNumber;
-                    string val = ent.Range.Text;
-                    string tag = entTag;
-
-                    Ent entity = new Ent(st, en, val, tag);
-                    entities.Add(entity);
-
-                    EntNumber += 2;
-                }
-            }
             if (sentText != " " & sentText != "\r")
             {
+                var entities = new List<Ent> { };
+                int EntNumber = 0;
+                foreach (ContentControl ent in sent.ContentControls)
+                {
+                    string entTag = ent.Tag;
+                    char entLevelIndicator = entTag[entTag.Length - 1];
+
+                    if (entLevelIndicator is '2')
+                    {
+                        int st = ent.Range.Start - intentStart - 1 - EntNumber;
+                        int en = ent.Range.End - intentStart - 1 - EntNumber;
+                        string val = ent.Range.Text;
+                        string tag = entTag;
+
+                        Ent entity = new Ent(st, en, val, tag);
+                        entities.Add(entity);
+
+                        EntNumber += 2;
+                    }
+                }
                 Examp examp = new Examp(sentText, sentInt, entities);
                 examps.Add(examp);
             }

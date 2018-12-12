@@ -4,8 +4,6 @@ using System.Timers;
 using Newtonsoft.Json;
 using RestSharp;
 using Microsoft.Office.Tools.Ribbon;
-using System;
-using System.ComponentModel;
 
 namespace WordAddIn1
 {

@@ -8,18 +8,22 @@ namespace WordAddIn1
     {
         private void Ribbon1_Load(object sender, RibbonUIEventArgs e)
         {
-            this.AzureStorageButton.Checked = true;
-            this.LocalStorageButton.Checked = false;
-            this.SetDirButton.Enabled = false;
+            this.AzureStorageButton.Checked = false;
+            this.LocalStorageButton.Checked = true;
+            this.SetDirButton.Enabled = true;
             this.ModelDirBox.Enabled = false;
+            this.ProjectDropDown.Enabled = false;
+            this.ProjectAddButton.Enabled = false;
+            this.TestModelDropDown.Enabled = false;
+            this.TestButton.Enabled = false;
+            this.TrainingButton.Enabled = false;
 
-            var client = new RestClient("http://127.0.0.1:6000");
-            Globals.ThisAddIn.GetProjsListAzure(client, this.ProjectDropDown);
+            //Globals.ThisAddIn.GetProjsListAzure(client, this.ProjectDropDown);
 
-            if (this.ProjectDropDown.SelectedItem != null)
-            {
-                Globals.ThisAddIn.GetModelsListAzure(client, this.ProjectDropDown.SelectedItem.Label, this.TestModelDropDown);
-            }
+            //if (this.ProjectDropDown.SelectedItem != null)
+            //{
+            //    Globals.ThisAddIn.GetModelsListAzure(client, this.ProjectDropDown.SelectedItem.Label, this.TestModelDropDown);
+            //}
         }
 
         private void ContentControlButton_Click(object sender, RibbonControlEventArgs e)
@@ -92,7 +96,6 @@ namespace WordAddIn1
                     Overwrite = true;
                 }
 
-                //if (ModelName.Length >= 12 & ModelName.Substring(ModelName.Length - 12, 12) == "-ToOverwrite")
                 if (Overwrite)
                 {
                     ModelName = ModelName.Substring(0, ModelName.Length - 12);
