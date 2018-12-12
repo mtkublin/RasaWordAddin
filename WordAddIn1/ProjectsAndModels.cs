@@ -67,7 +67,7 @@ namespace WordAddIn1
 
         public void AddNewProject()
         {
-            string NewProjName = Ribbon1.Prompt.NameInputDialog("New Project name:", "CREATE!");
+            string NewProjName = Globals.Ribbons.Ribbon1.NameInputDialog("New Project name:", "CREATE!");
 
             if (Globals.Ribbons.Ribbon1.ProjectDropDown.Items.Count != 0)
             {
@@ -80,7 +80,7 @@ namespace WordAddIn1
 
                 while (ProjsList.Contains(NewProjName))
                 {
-                    NewProjName = Ribbon1.Prompt.ProjectNameTakenDialog(NewProjName);
+                    NewProjName = Globals.Ribbons.Ribbon1.ProjectNameTakenDialog(NewProjName);
                 }
             }
 

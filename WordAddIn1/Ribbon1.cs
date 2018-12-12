@@ -17,13 +17,6 @@ namespace WordAddIn1
             this.TestModelDropDown.Enabled = false;
             this.TestButton.Enabled = false;
             this.TrainingButton.Enabled = false;
-
-            //Globals.ThisAddIn.GetProjsListAzure(client, this.ProjectDropDown);
-
-            //if (this.ProjectDropDown.SelectedItem != null)
-            //{
-            //    Globals.ThisAddIn.GetModelsListAzure(client, this.ProjectDropDown.SelectedItem.Label, this.TestModelDropDown);
-            //}
         }
 
         private void ContentControlButton_Click(object sender, RibbonControlEventArgs e)
@@ -70,30 +63,30 @@ namespace WordAddIn1
             Globals.ThisAddIn.TestDoc();
         }
 
+        bool Overwrite = false;
+
         private void TrainingButton_Click(object sender, RibbonControlEventArgs e)
         {
             if (Globals.ThisAddIn.Application.ActiveDocument.ContentControls.Count == 0)
             {
-                Prompt.TextMessageOkDialog("No intent or entities to train");
+                this.TextMessageOkDialog("No intent or entities to train");
                 return;
             }
 
-            string ModelName = Prompt.NameInputDialog("Model name:", "TRAIN!");
+            string ModelName = this.NameInputDialog("Model name:", "TRAIN!");
 
+            List<string> ModelsList = new List<string>();
             if (this.TestModelDropDown.Items.Count != 0)
             {
-                List<string> ModelsList = new List<string>();
                 foreach (RibbonDropDownItem item in this.TestModelDropDown.Items)
                 {
                     string ExistingModelName = item.ToString();
                     ModelsList.Add(ExistingModelName);
                 }
 
-                bool Overwrite = false;
                 while (ModelsList.Contains(ModelName))
                 {
-                    ModelName = Prompt.ModelNameTakenDialog(ModelName);
-                    Overwrite = true;
+                    ModelName = this.ModelNameTakenDialog(ModelName);
                 }
 
                 if (Overwrite)
@@ -117,10 +110,13 @@ namespace WordAddIn1
                     Globals.ThisAddIn.InitiateTraining(client, ProjectName, ModelName, ModelPath);
                 }
 
-                RibbonDropDownItem newModel = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
-                newModel.Label = ModelName;
-                this.TestModelDropDown.Items.Add(newModel);
-                this.TestModelDropDown.SelectedItem = newModel;
+                if (Overwrite == false)
+                {
+                    RibbonDropDownItem newModel = Globals.Factory.GetRibbonFactory().CreateRibbonDropDownItem();
+                    newModel.Label = ModelName;
+                    this.TestModelDropDown.Items.Add(newModel);
+                    this.TestModelDropDown.SelectedItem = newModel;
+                }
             }
         }
 

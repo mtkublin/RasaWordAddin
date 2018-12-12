@@ -47,14 +47,14 @@ namespace WordAddIn1
                 }
                 if (sent.intent == null)
                 {
-                    Ribbon1.Prompt.TextMessageOkDialog("Null intents present, empty interpreter");
+                    Globals.Ribbons.Ribbon1.TextMessageOkDialog("Null intents present, empty interpreter");
                     return;
                 }
             }
 
             if (AreThereEntities == false)
             {
-                Ribbon1.Prompt.TextMessageOkDialog("Interpreter didn't find any entities.");
+                Globals.Ribbons.Ribbon1.TextMessageOkDialog("Interpreter didn't find any entities.");
             }
 
             Document activeDocument = Application.ActiveDocument;
