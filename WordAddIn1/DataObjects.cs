@@ -145,11 +145,15 @@ namespace WordAddIn1
 
         private class ModelPathDataObject
         {
-            public string DATA { get; set; }
+            public string project { get; set; }
+            public string model { get; set; }
+            public string model_path { get; set; }
 
-            public ModelPathDataObject(string DataToPass)
+            public ModelPathDataObject(string projectData, string modelData, string model_pathData)
             {
-                DATA = DataToPass;
+                project = projectData;
+                model = modelData;
+                model_path = model_pathData;
             }
         }
     }
