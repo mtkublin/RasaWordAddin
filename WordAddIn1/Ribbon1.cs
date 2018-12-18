@@ -49,7 +49,7 @@ namespace WordAddIn1
         private void ProjectDropDown_Select(object sender, RibbonControlEventArgs e)
         {
             //var client = new RestClient("http://127.0.0.1:6000");
-            Globals.ThisAddIn.ChangeCurrentProject(this.TrainingButton, this.TestButton, client, this.ModelDirDialog, this.ProjectDropDown, this.TestModelDropDown, this.AzureStorageButton, this.LocalStorageButton);
+            //Globals.ThisAddIn.ChangeCurrentProject(this.TrainingButton, this.TestButton, client, this.ModelDirDialog, this.ProjectDropDown, this.TestModelDropDown, this.AzureStorageButton, this.LocalStorageButton);
         }
 
         private void ModelDropDown_Select(object sender, RibbonControlEventArgs e)
@@ -61,12 +61,12 @@ namespace WordAddIn1
 
             if (this.AzureStorageButton.Checked == true)
             {
-                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName);
+                Globals.ThisAddIn.UpdateInterpreter(/*client,*/ ProjectName, ModelName);
             }
             else if (this.LocalStorageButton.Checked == true)
             {
                 string ModelPath = this.ModelDirDialog.SelectedPath + "\\MODELS\\" + ProjectName + "\\" + ModelName;
-                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, false, ModelPath);
+                Globals.ThisAddIn.UpdateInterpreter(/*client,*/ ProjectName, ModelName, false, ModelPath);
             }
         }
         
@@ -114,12 +114,12 @@ namespace WordAddIn1
 
                 if (this.AzureStorageButton.Checked)
                 {
-                    Globals.ThisAddIn.InitiateTraining(client, ProjectName, ModelName);
+                    //Globals.ThisAddIn.InitiateTraining(client, ProjectName, ModelName);
                 }
                 else
                 {
                     string ModelPath = this.ModelDirDialog.SelectedPath;
-                    Globals.ThisAddIn.InitiateTraining(client, ProjectName, ModelName, ModelPath);
+                    //Globals.ThisAddIn.InitiateTraining(client, ProjectName, ModelName, ModelPath);
                 }
 
                 if (Overwrite == false)
@@ -141,11 +141,11 @@ namespace WordAddIn1
 
 
             //var client = new RestClient("http://127.0.0.1:6000");
-            Globals.ThisAddIn.GetProjsListAzure(client, this.ProjectDropDown);
+            //Globals.ThisAddIn.GetProjsListAzure(client, this.ProjectDropDown);
 
             if (this.ProjectDropDown.SelectedItem != null)
             {
-                Globals.ThisAddIn.GetModelsListAzure(client, this.ProjectDropDown.SelectedItem.Label, this.TestModelDropDown);
+                //Globals.ThisAddIn.GetModelsListAzure(client, this.ProjectDropDown.SelectedItem.Label, this.TestModelDropDown);
             }
         }
 
@@ -162,11 +162,11 @@ namespace WordAddIn1
 
             if (this.ModelDirBox.Text == "")
             {
-                Globals.ThisAddIn.ChooseModelDir(client, this.ModelDirDialog, this.ModelDirBox, this.ProjectDropDown, this.TestModelDropDown);
+                Globals.ThisAddIn.ChooseModelDir(/*client,*/ this.ModelDirDialog, this.ModelDirBox, this.ProjectDropDown, this.TestModelDropDown);
             }
             else
             {
-                Globals.ThisAddIn.ChangeToLocalStorage(client, this.ModelDirDialog.SelectedPath, this.ProjectDropDown, this.TestModelDropDown);
+                Globals.ThisAddIn.ChangeToLocalStorage(/*client,*/ this.ModelDirDialog.SelectedPath, this.ProjectDropDown, this.TestModelDropDown);
             }
         }
 

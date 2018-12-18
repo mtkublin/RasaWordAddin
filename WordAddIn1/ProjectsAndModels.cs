@@ -116,10 +116,22 @@ namespace WordAddIn1
 
             ModelPathDataObject DataObjectForApi = new ModelPathDataObject(ProjectName, ModelName, model_path);
             string jsonObject = JsonConvert.SerializeObject(DataObjectForApi).ToString();
+
+            using (StreamWriter outputFile = new StreamWriter(@"C:\Users\Mikołaj\WORD_ADDIN_PROJECT\wordaddin1\WordAddIn1\bin\Debug\actions\received\update_interpreter.json"))
+            {
+                outputFile.Write(jsonObject);
+            }
+
+            using (StreamWriter outputFile = new StreamWriter(@"C:\Users\Mikołaj\WORD_ADDIN_PROJECT\wordaddin1\WordAddIn1\bin\Debug\actions\update_interpreter.json"))
+            {
+                outputFile.Write(jsonObject);
+            }
+
+            Globals.Ribbons.Ribbon1.myStreamWriter.WriteLine("update_interpreter");
             //Request.AddParameter("application/json; charset=utf-8", jsonObject, ParameterType.RequestBody);
 
             //IRestResponse Response = client.Execute(Request);
-            
+
             UpdateStatusCheckTimer = new Timer(3000);
             UpdateStatusCheckTimer.AutoReset = true;
             UpdateStatusCheckTimer.Elapsed += (sender, e) => CheckUpdateStatus(sender, e, ProjectName, ModelName/*, client*/);
@@ -140,7 +152,7 @@ namespace WordAddIn1
 
             Globals.Ribbons.Ribbon1.myStreamWriter.WriteLine("interpreter_is_loaded");
             string IsLoaded;
-            using (StreamReader sr = new StreamReader("TestFile.txt"))
+            using (StreamReader sr = new StreamReader(@"C:\Users\Mikołaj\WORD_ADDIN_PROJECT\wordaddin1\WordAddIn1\bin\Debug\actions\response\interpreter_is_loaded.json"))
             {
                 IsLoaded = JsonConvert.DeserializeObject<string>(sr.ReadToEnd().ToString());
             }
@@ -227,7 +239,7 @@ namespace WordAddIn1
             if (TestModelDropDown.Items.Count != 0)
             {
                 string ModelName = TestModelDropDown.SelectedItem.Label;
-                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName);
+                Globals.ThisAddIn.UpdateInterpreter(/*client,*/ ProjectName, ModelName);
             }
 
             else
