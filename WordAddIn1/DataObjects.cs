@@ -144,16 +144,12 @@ namespace WordAddIn1
         // OTHER -------------------------------------------------------------------------------------------------
 
         private class ModelPathDataObject
-        {
-            public string project { get; set; }
-            public string model { get; set; }
-            public string model_path { get; set; }
+        { 
+            public string DATA { get; set; }
 
-            public ModelPathDataObject(string projectData, string modelData, string model_pathData)
+            public ModelPathDataObject(string model_pathData)
             {
-                project = projectData;
-                model = modelData;
-                model_path = model_pathData;
+                DATA = model_pathData;
             }
         }
     }

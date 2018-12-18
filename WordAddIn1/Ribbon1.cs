@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-//using RestSharp;
+using RestSharp;
 
 namespace WordAddIn1
 {
@@ -21,14 +21,6 @@ namespace WordAddIn1
             this.TestModelDropDown.Enabled = false;
             this.TestButton.Enabled = false;
             this.TrainingButton.Enabled = false;
-
-            Process RaServ = new Process();
-            RaServ.StartInfo.FileName = @"C:\Users\Mikołaj\WORD_ADDIN_PROJECT\wordaddin1\RaServ.exe";
-            RaServ.StartInfo.UseShellExecute = false;
-            RaServ.StartInfo.RedirectStandardInput = true;
-
-            RaServ.Start();
-            myStreamWriter = RaServ.StandardInput;
         }
 
         private void ContentControlButton_Click(object sender, RibbonControlEventArgs e)
@@ -48,8 +40,8 @@ namespace WordAddIn1
 
         private void ProjectDropDown_Select(object sender, RibbonControlEventArgs e)
         {
-            //var client = new RestClient("http://127.0.0.1:6000");
-            //Globals.ThisAddIn.ChangeCurrentProject(this.TrainingButton, this.TestButton, client, this.ModelDirDialog, this.ProjectDropDown, this.TestModelDropDown, this.AzureStorageButton, this.LocalStorageButton);
+            var client = new RestClient("http://127.0.0.1:6000");
+            Globals.ThisAddIn.ChangeCurrentProject(this.TrainingButton, this.TestButton, client, this.ModelDirDialog, this.ProjectDropDown, this.TestModelDropDown, this.AzureStorageButton, this.LocalStorageButton);
         }
 
         private void ModelDropDown_Select(object sender, RibbonControlEventArgs e)
@@ -57,16 +49,16 @@ namespace WordAddIn1
             string ProjectName = this.ProjectDropDown.SelectedItem.Label;
             string ModelName = this.TestModelDropDown.SelectedItem.Label;
 
-            //var client = new RestClient("http://127.0.0.1:6000");
+            var client = new RestClient("http://127.0.0.1:6000");
 
             if (this.AzureStorageButton.Checked == true)
             {
-                Globals.ThisAddIn.UpdateInterpreter(/*client,*/ ProjectName, ModelName);
+                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName);
             }
             else if (this.LocalStorageButton.Checked == true)
             {
                 string ModelPath = this.ModelDirDialog.SelectedPath + "\\MODELS\\" + ProjectName + "\\" + ModelName;
-                Globals.ThisAddIn.UpdateInterpreter(/*client,*/ ProjectName, ModelName, false, ModelPath);
+                Globals.ThisAddIn.UpdateInterpreter(client, ProjectName, ModelName, false, ModelPath);
             }
         }
         
@@ -110,16 +102,16 @@ namespace WordAddIn1
             if (ModelName != "")
             {
                 string ProjectName = this.ProjectDropDown.SelectedItem.Label;
-                //var client = new RestClient("http://127.0.0.1:6000");
+                var client = new RestClient("http://127.0.0.1:6000");
 
                 if (this.AzureStorageButton.Checked)
                 {
-                    //Globals.ThisAddIn.InitiateTraining(client, ProjectName, ModelName);
+                    Globals.ThisAddIn.InitiateTraining(client, ProjectName, ModelName);
                 }
                 else
                 {
                     string ModelPath = this.ModelDirDialog.SelectedPath;
-                    //Globals.ThisAddIn.InitiateTraining(client, ProjectName, ModelName, ModelPath);
+                    Globals.ThisAddIn.InitiateTraining(client, ProjectName, ModelName, ModelPath);
                 }
 
                 if (Overwrite == false)
@@ -140,12 +132,12 @@ namespace WordAddIn1
             this.ModelDirBox.Enabled = false;
 
 
-            //var client = new RestClient("http://127.0.0.1:6000");
-            //Globals.ThisAddIn.GetProjsListAzure(client, this.ProjectDropDown);
+            var client = new RestClient("http://127.0.0.1:6000");
+            Globals.ThisAddIn.GetProjsListAzure(client, this.ProjectDropDown);
 
             if (this.ProjectDropDown.SelectedItem != null)
             {
-                //Globals.ThisAddIn.GetModelsListAzure(client, this.ProjectDropDown.SelectedItem.Label, this.TestModelDropDown);
+                Globals.ThisAddIn.GetModelsListAzure(client, this.ProjectDropDown.SelectedItem.Label, this.TestModelDropDown);
             }
         }
 
@@ -158,22 +150,22 @@ namespace WordAddIn1
             this.ProjectDropDown.Items.Clear();
             this.TestModelDropDown.Items.Clear();
 
-            //var client = new RestClient("http://127.0.0.1:6000");
+            var client = new RestClient("http://127.0.0.1:6000");
 
             if (this.ModelDirBox.Text == "")
             {
-                Globals.ThisAddIn.ChooseModelDir(/*client,*/ this.ModelDirDialog, this.ModelDirBox, this.ProjectDropDown, this.TestModelDropDown);
+                Globals.ThisAddIn.ChooseModelDir(client, this.ModelDirDialog, this.ModelDirBox, this.ProjectDropDown, this.TestModelDropDown);
             }
             else
             {
-                Globals.ThisAddIn.ChangeToLocalStorage(/*client,*/ this.ModelDirDialog.SelectedPath, this.ProjectDropDown, this.TestModelDropDown);
+                Globals.ThisAddIn.ChangeToLocalStorage(client, this.ModelDirDialog.SelectedPath, this.ProjectDropDown, this.TestModelDropDown);
             }
         }
 
         private void SetDirButton_Click(object sender, RibbonControlEventArgs e)
         {
-            //var client = new RestClient("http://127.0.0.1:6000");
-            Globals.ThisAddIn.ChooseModelDir(/*client, */this.ModelDirDialog, this.ModelDirBox, this.ProjectDropDown, this.TestModelDropDown);
+            var client = new RestClient("http://127.0.0.1:6000");
+            Globals.ThisAddIn.ChooseModelDir(client, this.ModelDirDialog, this.ModelDirBox, this.ProjectDropDown, this.TestModelDropDown);
         }
     }
 }
