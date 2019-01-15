@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using System.IO;
 using XL.Office.Helpers;
 using Microsoft.Office.Interop.Word;
@@ -111,40 +112,59 @@ namespace WordAddIn1
                 ts.Hours, ts.Minutes, ts.Seconds,
                 ts.Milliseconds / 10);
 
-            //using (StreamWriter outputFile = new StreamWriter(Path.Combine(@"C:\Users\Mikołaj\WORD_ADDIN_PROJECT", "TestHighlightTimes.txt"), true))
-            //{
-            //        outputFile.WriteLine(elapsedTime);
-            //}
+            using (StreamWriter outputFile = new StreamWriter(Path.Combine(@"C:\Users\Mikołaj\WORD_ADDIN_PROJECT", "TestHighlightTimes.txt"), true))
+            {
+                outputFile.WriteLine(elapsedTime);
+            }
         }
 
         private void WrapItem(Microsoft.Office.Tools.Word.Document extendedDocument, string tag, Range range)
         {
             try
             {
-                //HighlightContentControl(tag, range);
-                int BookmarkNumber = this.Application.ActiveDocument.Bookmarks.Count;
-                char entLevelIndicator = tag[tag.Length - 1];
-                string bookmarkName;
+                HighlightContentControl(tag, range);
 
+                int BookmarkNumber = this.Application.ActiveDocument.Bookmarks.Count;
+
+                char entLevelIndicator = tag[tag.Length - 1];
+                string NewTag = Regex.Replace(tag, "-1", "");
+                NewTag = Regex.Replace(NewTag, "-2", "");
+                NewTag = Regex.Replace(NewTag, "-", "_");
+
+                string bookmarkName;
                 if (entLevelIndicator is '1')
                 {
-                    bookmarkName = "_intent_" + BookmarkNumber.ToString();
+                    bookmarkName = "_" + BookmarkNumber.ToString() + "_intent_" + NewTag;
+                }
+                else if (entLevelIndicator is '2')
+                {
+                    bookmarkName = "_" + BookmarkNumber.ToString() + "_entity_" + NewTag;
                 }
                 else
                 {
-                    bookmarkName = "_entity_" + BookmarkNumber.ToString();
+                    bookmarkName = "_" + BookmarkNumber.ToString() + "_notspecified_" + NewTag;
                 }
-                //var next = DateTime.Now.Ticks.ToString();
-                //var control = extendedDocument.Controls.AddRichTextContentControl(range, string.Format("richText{0}", next));
+
                 var control = extendedDocument.Controls.AddBookmark(range, bookmarkName);
                 control.Tag = tag;
                 control.Text = range.Text;
-                //HighlightControlHierarchy(control.Range);
+                control.Selected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender, e) => bookmark_Selected(sender, e, extendedDocument, tag, range));
             }
             catch (Exception ex)
             {
                 Utilities.Notification(ex.Message);
             }
+        }
+
+        void bookmark_Selected(object sender, Microsoft.Office.Tools.Word.SelectionEventArgs e, Microsoft.Office.Tools.Word.Document extendedDocument, string tag, Range range)
+        {
+            //MessageBox.Show("The selection has moved to bookmark.");
+            //HighlightContentControl(tag, range);
+            range.Select();
+            var currentTime = DateTime.Now.Ticks.ToString();
+            var newContentControl = extendedDocument.Controls.AddRichTextContentControl(currentTime);
+            newContentControl.Tag = tag;
+            newContentControl.Title = tag;
         }
     }
 }
