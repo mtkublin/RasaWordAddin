@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema targetNamespace="http://tempuri.org/XMLSchema.xsd"
+    elementFormDefault="qualified"
+    xmlns="http://tempuri.org/XMLSchema.xsd"
+    xmlns:mstns="http://tempuri.org/XMLSchema.xsd"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
+  
+  <xs:attributeGroup name="entattrgroup">
+    <xs:attribute name="tag" type="xs:string" use="required"/>
+    <xs:attribute name="text" type="xs:string" use="required"/>
+  </xs:attributeGroup>
+
+  <xs:element name="entity">
+    <xs:complexType mixed="true">
+      <xs:attributeGroup ref="entattrgroup"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="intent">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element ref="entity"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="entattrgroup"/>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="Document">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element ref="intent"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+</xs:schema>

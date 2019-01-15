@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Diagnostics;
+using System.IO;
 using XL.Office.Helpers;
 using Microsoft.Office.Interop.Word;
 using Newtonsoft.Json;
@@ -57,6 +59,9 @@ namespace WordAddIn1
                 Globals.Ribbons.Ribbon1.TextMessageOkDialog("Interpreter didn't find any entities.");
             }
 
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
             Document activeDocument = Application.ActiveDocument;
             var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
 
@@ -80,7 +85,7 @@ namespace WordAddIn1
                 if (intTag != "empty-intent-1")
                 {
                     WrapItem(extendedDocument, intTag, intRange);
-                    ContentSubstraction = 1;
+                    ContentSubstraction = 0;
                 }
 
                 List<SingleEnt> EntList = sent.entities;
@@ -98,18 +103,43 @@ namespace WordAddIn1
                 sentEnd = sentStart - 1;
             }
             Application.UndoRecord.EndCustomRecord();
+
+            stopWatch.Stop();
+            TimeSpan ts = stopWatch.Elapsed;
+
+            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                ts.Hours, ts.Minutes, ts.Seconds,
+                ts.Milliseconds / 10);
+
+            //using (StreamWriter outputFile = new StreamWriter(Path.Combine(@"C:\Users\Mikołaj\WORD_ADDIN_PROJECT", "TestHighlightTimes.txt"), true))
+            //{
+            //        outputFile.WriteLine(elapsedTime);
+            //}
         }
 
         private void WrapItem(Microsoft.Office.Tools.Word.Document extendedDocument, string tag, Range range)
         {
             try
             {
-                var next = DateTime.Now.Ticks.ToString();
-                var control = extendedDocument.Controls.AddRichTextContentControl(range, string.Format("richText{0}", next));
-                control.PlaceholderText = "...";
+                //HighlightContentControl(tag, range);
+                int BookmarkNumber = this.Application.ActiveDocument.Bookmarks.Count;
+                char entLevelIndicator = tag[tag.Length - 1];
+                string bookmarkName;
+
+                if (entLevelIndicator is '1')
+                {
+                    bookmarkName = "_intent_" + BookmarkNumber.ToString();
+                }
+                else
+                {
+                    bookmarkName = "_entity_" + BookmarkNumber.ToString();
+                }
+                //var next = DateTime.Now.Ticks.ToString();
+                //var control = extendedDocument.Controls.AddRichTextContentControl(range, string.Format("richText{0}", next));
+                var control = extendedDocument.Controls.AddBookmark(range, bookmarkName);
                 control.Tag = tag;
-                control.Title = tag;
-                HighlightControlHierarchy(control.Range);
+                control.Text = range.Text;
+                //HighlightControlHierarchy(control.Range);
             }
             catch (Exception ex)
             {

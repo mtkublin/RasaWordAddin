@@ -23,6 +23,8 @@ namespace WordAddIn1
         private TreeNode CurrentNode;
         private string CurrentPath;
 
+
+
         private Word.WdColor TagBackColor(string tag)
         {
             Color color = TagColors[tag];
@@ -42,6 +44,8 @@ namespace WordAddIn1
             CurrentProject = Properties.Settings.Default.RecentProject;
             CurrentTag = Properties.Settings.Default.RecentTag;
             TagColors = new Dictionary<string, Color>();
+
+            this.Application.ActiveDocument.Bookmarks.ShowHidden = true;
 
             KeyboardShortcuts();
             Application.WindowActivate += ActivateDocumentWindow;
