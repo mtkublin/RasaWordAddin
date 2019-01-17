@@ -127,9 +127,7 @@ namespace WordAddIn1
                 int BookmarkNumber = this.Application.ActiveDocument.Bookmarks.Count;
 
                 char entLevelIndicator = tag[tag.Length - 1];
-                string NewTag = Regex.Replace(tag, "-1", "");
-                NewTag = Regex.Replace(NewTag, "-2", "");
-                NewTag = Regex.Replace(NewTag, "-", "_");
+                string NewTag = Regex.Replace(tag, "-", "_");
 
                 string bookmarkName;
                 if (entLevelIndicator is '1')
@@ -145,10 +143,15 @@ namespace WordAddIn1
                     bookmarkName = "_" + BookmarkNumber.ToString() + "_notspecified_" + NewTag;
                 }
 
-                var control = extendedDocument.Controls.AddBookmark(range, bookmarkName);
+                Microsoft.Office.Tools.Word.Bookmark control = extendedDocument.Controls.AddBookmark(range, bookmarkName);
                 control.Tag = tag;
                 control.Text = range.Text;
-                control.Selected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender, e) => bookmark_Selected(sender, e, extendedDocument, tag, range));
+
+                if (entLevelIndicator is '1')
+                {
+                    control.Selected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender, e) => bookmark_Selected(sender, e, extendedDocument, control));
+                }
+                //control.Selected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender, e) => bookmark_Selected(sender, e, extendedDocument, control));
             }
             catch (Exception ex)
             {
@@ -156,15 +159,47 @@ namespace WordAddIn1
             }
         }
 
-        void bookmark_Selected(object sender, Microsoft.Office.Tools.Word.SelectionEventArgs e, Microsoft.Office.Tools.Word.Document extendedDocument, string tag, Range range)
+        void bookmark_Selected(object sender, Microsoft.Office.Tools.Word.SelectionEventArgs e, Microsoft.Office.Tools.Word.Document extendedDocument, Microsoft.Office.Tools.Word.Bookmark bookmark)
         {
-            //MessageBox.Show("The selection has moved to bookmark.");
             //HighlightContentControl(tag, range);
+            Range range = bookmark.Range;
+            string tag = bookmark.Tag.ToString();
+            addContentControlFromToolsBookmark(extendedDocument, range, tag);
+
+            foreach (Microsoft.Office.Interop.Word.Bookmark insideBookmark in bookmark.Bookmarks)
+            {
+                string name = bookmark.Name.ToString();
+                string NewTag;
+                if (name.EndsWith("_2") || name.EndsWith("_1"))
+                {
+                    NewTag = name.Substring(11);
+                }
+                else
+                {
+                    NewTag = name.Substring(17);
+                }
+                string NewTagReplaced = Regex.Replace(NewTag, "_", "-");
+
+                Range newRange = bookmark.Range;
+                addContentControlFromToolsBookmark(extendedDocument, newRange, NewTagReplaced);
+            }
+        }
+
+        void control_Deselected(object sender, Microsoft.Office.Tools.Word.ContentControlExitingEventArgs e, Microsoft.Office.Tools.Word.RichTextContentControl control)
+        {
+            control.Delete(false);
+        }
+
+        private void addContentControlFromToolsBookmark(Microsoft.Office.Tools.Word.Document extendedDocument, Range range, string tag)
+        {
+
             range.Select();
-            var currentTime = DateTime.Now.Ticks.ToString();
-            var newContentControl = extendedDocument.Controls.AddRichTextContentControl(currentTime);
+            string currentTime = DateTime.Now.Ticks.ToString();
+            Microsoft.Office.Tools.Word.RichTextContentControl newContentControl = extendedDocument.Controls.AddRichTextContentControl(currentTime);
             newContentControl.Tag = tag;
             newContentControl.Title = tag;
+
+            newContentControl.Exiting += new Microsoft.Office.Tools.Word.ContentControlExitingEventHandler((sender, e) => control_Deselected(sender, e, newContentControl));
         }
     }
 }
