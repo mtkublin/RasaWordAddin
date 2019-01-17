@@ -162,26 +162,32 @@ namespace WordAddIn1
         void bookmark_Selected(object sender, Microsoft.Office.Tools.Word.SelectionEventArgs e, Microsoft.Office.Tools.Word.Document extendedDocument, Microsoft.Office.Tools.Word.Bookmark bookmark)
         {
             Range range = bookmark.Range;
-            string tag = bookmark.Tag.ToString();
-            addContentControlFromToolsBookmark(extendedDocument, range, tag);
+            //string tag = bookmark.Tag.ToString();
+            //addContentControlFromToolsBookmark(extendedDocument, range, tag);
 
-            if (bookmark.Bookmarks.Count > 1) foreach (Bookmark insideBookmark in bookmark.Bookmarks)
+            /*if (bookmark.Bookmarks.Count > 1)*/ foreach (Bookmark insideBookmark in range.Bookmarks)
             {
                 Range newRange = insideBookmark.Range;
-                if (newRange.Start != range.Start & newRange.End != range.End)
-                {
-                    string name = insideBookmark.Name.ToString();
-                    string NewTag = Regex.Replace(name, "_[0-9]+_entity_", "");
-                    NewTag = Regex.Replace(NewTag, "_[0-9]+_intent_", "");
-                    NewTag = Regex.Replace(NewTag, "_[0-9]+_notspecified_", "");
-                    NewTag = Regex.Replace(NewTag, "_", "-");
+                //if (newRange.Start != range.Start & newRange.End != range.End)
+                //{
+                string name = insideBookmark.Name.ToString();
+                string NewTag = Regex.Replace(name, "_[0-9]+_entity_", "");
+                NewTag = Regex.Replace(NewTag, "_[0-9]+_intent_", "");
+                NewTag = Regex.Replace(NewTag, "_[0-9]+_notspecified_", "");
+                NewTag = Regex.Replace(NewTag, "_", "-");
 
-                    addContentControlFromToolsBookmark(extendedDocument, newRange, NewTag);
+                bool deleteCCevent = false;
+                if (name.EndsWith("_1"))
+                {
+                    deleteCCevent = true;
                 }
+
+                addContentControlFromBookmark(extendedDocument, newRange, NewTag, deleteCCevent);
+                //}
             }
         }
 
-        private void addContentControlFromToolsBookmark(Microsoft.Office.Tools.Word.Document extendedDocument, Range range, string tag)
+        private void addContentControlFromBookmark(Microsoft.Office.Tools.Word.Document extendedDocument, Range range, string tag, bool deleteCCevent)
         {
 
             range.Select();
@@ -190,17 +196,20 @@ namespace WordAddIn1
             newContentControl.Tag = tag;
             newContentControl.Title = tag;
 
-            newContentControl.Exiting += new Microsoft.Office.Tools.Word.ContentControlExitingEventHandler((sender, e) => control_Deselected(sender, e, newContentControl));
+            if (deleteCCevent == true)
+            {
+                newContentControl.Exiting += new Microsoft.Office.Tools.Word.ContentControlExitingEventHandler((sender, e) => control_Deselected(sender, e, newContentControl));
+            }
         }
 
-        void control_Deselected(object sender, Microsoft.Office.Tools.Word.ContentControlExitingEventArgs e, Microsoft.Office.Tools.Word.RichTextContentControl control)
+        void control_Deselected(object sender, Microsoft.Office.Tools.Word.ContentControlExitingEventArgs e, Microsoft.Office.Tools.Word.RichTextContentControl IntentContentControl)
         {
-            //Range rng = control.Range;
-            control.Delete(false);
-            //foreach (Microsoft.Office.Tools.Word.RichTextContentControl insideControl in rng.ContentControls)
-            //{
-            //    insideControl.Delete(false);
-            //}
+            Range IntentRange = IntentContentControl.Range;
+            IntentContentControl.Delete(false);
+            foreach (Microsoft.Office.Tools.Word.RichTextContentControl insideControl in IntentRange.ContentControls)
+            {
+                insideControl.Delete(false);
+            }
         }
     }
 }
