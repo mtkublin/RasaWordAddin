@@ -162,14 +162,11 @@ namespace WordAddIn1
         void bookmark_Selected(object sender, Microsoft.Office.Tools.Word.SelectionEventArgs e, Microsoft.Office.Tools.Word.Document extendedDocument, Microsoft.Office.Tools.Word.Bookmark bookmark)
         {
             Range range = bookmark.Range;
-            //string tag = bookmark.Tag.ToString();
-            //addContentControlFromToolsBookmark(extendedDocument, range, tag);
 
-            /*if (bookmark.Bookmarks.Count > 1)*/ foreach (Bookmark insideBookmark in range.Bookmarks)
+            foreach (Bookmark insideBookmark in range.Bookmarks)
             {
                 Range newRange = insideBookmark.Range;
-                //if (newRange.Start != range.Start & newRange.End != range.End)
-                //{
+
                 string name = insideBookmark.Name.ToString();
                 string NewTag = Regex.Replace(name, "_[0-9]+_entity_", "");
                 NewTag = Regex.Replace(NewTag, "_[0-9]+_intent_", "");
@@ -183,7 +180,6 @@ namespace WordAddIn1
                 }
 
                 addContentControlFromBookmark(extendedDocument, newRange, NewTag, deleteCCevent);
-                //}
             }
         }
 
@@ -198,18 +194,25 @@ namespace WordAddIn1
 
             if (deleteCCevent == true)
             {
-                newContentControl.Exiting += new Microsoft.Office.Tools.Word.ContentControlExitingEventHandler((sender, e) => control_Deselected(sender, e, newContentControl));
+                newContentControl.Exiting += new Microsoft.Office.Tools.Word.ContentControlExitingEventHandler((sender, e) => control_Deselected(sender, e, extendedDocument, newContentControl));
+                newContentControl.Added += new Microsoft.Office.Tools.Word.ContentControlAddedEventHandler((sender, e) => select_ContentControl(sender, e, newContentControl));
             }
         }
 
-        void control_Deselected(object sender, Microsoft.Office.Tools.Word.ContentControlExitingEventArgs e, Microsoft.Office.Tools.Word.RichTextContentControl IntentContentControl)
+        void control_Deselected(object sender, Microsoft.Office.Tools.Word.ContentControlExitingEventArgs e, Microsoft.Office.Tools.Word.Document extendedDocument, Microsoft.Office.Tools.Word.RichTextContentControl IntentContentControl)
         {
             Range IntentRange = IntentContentControl.Range;
-            IntentContentControl.Delete(false);
-            foreach (Microsoft.Office.Tools.Word.RichTextContentControl insideControl in IntentRange.ContentControls)
+
+            foreach (Microsoft.Office.Interop.Word.ContentControl insideControl in IntentRange.ContentControls)
             {
                 insideControl.Delete(false);
             }
+            IntentContentControl.Delete(false);
+        }
+
+        void select_ContentControl(object sender, Microsoft.Office.Tools.Word.ContentControlAddedEventArgs e, Microsoft.Office.Tools.Word.RichTextContentControl ContentControlToSelect)
+        {
+            ContentControlToSelect.Range.Select();
         }
     }
 }

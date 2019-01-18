@@ -112,9 +112,9 @@ namespace WordAddIn1
             if (control != null)
             {
                 //clear content control formatting
-                control.Range.Select();
-                Application.Selection.ClearFormatting();
-                originalRange.Select();
+                //control.Range.Select();
+                //Application.Selection.ClearFormatting();
+                //originalRange.Select();
 
                 //remove content control
                 control.Delete(false);
