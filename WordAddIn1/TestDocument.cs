@@ -135,6 +135,8 @@ namespace WordAddIn1
             }
             Application.UndoRecord.EndCustomRecord();
 
+            HighlightBookmarksInVisibleRange();
+
             stopWatch.Stop();
             TimeSpan ts = stopWatch.Elapsed;
 
@@ -152,8 +154,6 @@ namespace WordAddIn1
         {
             try
             {
-                HighlightContentControl(tag, range);
-
                 int BookmarkNumber = this.Application.ActiveDocument.Bookmarks.Count;
 
                 string bookmarkName = "_" + BookmarkNumber.ToString();
@@ -217,6 +217,50 @@ namespace WordAddIn1
             Microsoft.Office.Tools.Word.RichTextContentControl newContentControl = extendedDocument.Controls.AddRichTextContentControl(currentTime);
             newContentControl.Tag = tag;
             newContentControl.Title = tag;
+        }
+
+        private void HighlightBookmarksInVisibleRange()
+        {
+            System.Windows.Rect rect = System.Windows.Automation.AutomationElement.FocusedElement.Current.BoundingRectangle;
+
+            foreach (Range r in this.Application.ActiveDocument.StoryRanges)
+            {
+                int left = 0, top = 0, width = 0, height = 0;
+                try
+                {
+                    try
+                    {
+                        this.Application.ActiveWindow.GetPoint(out left, out top, out width, out height, r);
+                    }
+                    catch
+                    {
+                        left = (int)rect.Left;
+                        top = (int)rect.Top;
+                        width = (int)rect.Width;
+                        height = (int)rect.Height;
+                    }
+                    System.Windows.Rect newRect = new System.Windows.Rect(left, top, width, height);
+                    System.Windows.Rect inter;
+                    if ((inter = System.Windows.Rect.Intersect(rect, newRect)) != System.Windows.Rect.Empty)
+                    {
+                        Range r1 = this.Application.ActiveWindow.RangeFromPoint((int)inter.Left, (int)inter.Top);
+                        Range r2 = this.Application.ActiveWindow.RangeFromPoint((int)inter.Right, (int)inter.Bottom);
+                        r.SetRange(r1.Start, r2.Start);
+
+                        foreach (Bookmark bookmark in r.Bookmarks)
+                        {
+                            string name = bookmark.Name.ToString();
+                            string NewTag = Regex.Replace(name, "_[0-9]+_entity_", "");
+                            NewTag = Regex.Replace(NewTag, "_[0-9]+_intent_", "");
+                            NewTag = Regex.Replace(NewTag, "_[0-9]+_notspecified_", "");
+                            NewTag = Regex.Replace(NewTag, "_", "-");
+
+                            HighlightContentControl(NewTag, bookmark.Range);
+                        }
+                    }
+                }
+                catch { }
+            }
         }
     }
 }

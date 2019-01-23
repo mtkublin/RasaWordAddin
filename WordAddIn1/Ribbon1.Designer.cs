@@ -186,6 +186,7 @@
             this.box5.Items.Add(this.LocalStorageButton);
             this.box5.Items.Add(this.AzureStorageButton);
             this.box5.Name = "box5";
+            this.box5.Visible = false;
             // 
             // LocalStorageButton
             // 
