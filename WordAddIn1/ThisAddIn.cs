@@ -1,12 +1,16 @@
 ﻿using Microsoft.Office.Tools;
+using Microsoft.Office.Interop.Word;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using XL.Office.Helpers;
 using Word = Microsoft.Office.Interop.Word;
+using System;
 using System.Xml;
 using System.Xml.Linq;
 using System.Linq;
-using System.Drawing; 
+using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace WordAddIn1
 {
@@ -17,7 +21,7 @@ namespace WordAddIn1
         private Dictionary<KeyState, KeyHandlerDelegate> KeyHandlers;
         private Dictionary<Word.Window, CustomTaskPane> WindowTaskPanes;
 
-        private string CurrentProject;        
+        private string CurrentProject;
         public string CurrentTag;
         public string CurrentName;
         private TreeNode CurrentNode;
@@ -50,6 +54,47 @@ namespace WordAddIn1
             KeyboardShortcuts();
             Application.WindowActivate += ActivateDocumentWindow;
             Application.WindowDeactivate += DeactivateDocumentWindow;
+
+            InitializeComponents();
+
+            //IntPtr h = Process.GetCurrentProcess().MainWindowHandle;
+            IntPtr h = NativeMethods.GetActiveWindow();
+            h = NativeMethods.FindWindowExW(h, new IntPtr(0), "_WwF", "");
+            h = NativeMethods.FindWindowExW(h, new IntPtr(0), "_WwB", Application.ActiveDocument.Name.ToString());
+            h = NativeMethods.FindWindowExW(h, new IntPtr(0), "_WwG", "Microsoft Word Document");
+
+            ScrollEvent s = new ScrollEvent();
+            s.AssignHandle(h);
+        }
+
+        public partial class NativeMethods
+        {
+            [DllImportAttribute("user32.dll")]
+            public static extern IntPtr GetActiveWindow();
+
+            [DllImportAttribute("user32.dll", EntryPoint = "FindWindowExW")]
+            public static extern IntPtr FindWindowExW([InAttribute()] IntPtr hWndParent, [InAttribute()] IntPtr hWndChildAfter, 
+                [InAttribute()] [MarshalAsAttribute(UnmanagedType.LPWStr)] string lpszClass, [InAttribute()] [MarshalAsAttribute(UnmanagedType.LPWStr)] string lpszWindow);
+        }
+
+        class ScrollEvent : NativeWindow
+        {
+            protected override void WndProc(ref Message m)
+            {
+                base.WndProc(ref m);
+
+                const int WM_VSCROLL = 0x115;
+                const int WM_HSCROLL = 0x114;
+
+                if (m.Msg == WM_VSCROLL)
+                {
+                    MessageBox.Show("Scrolled vertically");
+                }
+                else if (m.Msg == WM_HSCROLL)
+                {
+                    MessageBox.Show("Scrolled horizontally");
+                }
+            }
         }
 
         private void KeyboardShortcuts()
@@ -107,11 +152,11 @@ namespace WordAddIn1
             int index = 0;
 
             foreach (XElement project in projects)
-            { 
+            {
                 string projectName = (string)project.Attribute("Name");
                 TreeNode projectNode = new TreeNode(projectName);
-                IEnumerable <XElement> intentions = from item in project.Descendants("Intention") select item;
-                foreach(XElement intention in intentions)
+                IEnumerable<XElement> intentions = from item in project.Descendants("Intention") select item;
+                foreach (XElement intention in intentions)
                 {
                     string intentName = (string)intention.Attribute("Name");
                     string intentTag = (string)intention.Attribute("Tag");
@@ -120,7 +165,7 @@ namespace WordAddIn1
                         intentColor = intentColors.Current;
                     }
                     if (!TagColors.ContainsKey(intentTag))
-                    { 
+                    {
                         TagColors.Add(intentTag, intentColor);
                     }
                     TreeNode intentionNode = new TreeNode(intentName)
