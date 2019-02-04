@@ -27,8 +27,6 @@ namespace WordAddIn1
         private TreeNode CurrentNode;
         private string CurrentPath;
 
-
-
         private Word.WdColor TagBackColor(string tag)
         {
             Color color = TagColors[tag];
@@ -55,47 +53,47 @@ namespace WordAddIn1
             Application.WindowActivate += ActivateDocumentWindow;
             Application.WindowDeactivate += DeactivateDocumentWindow;
 
-            InitializeComponents();
+            //InitializeComponents();
 
-            //IntPtr h = Process.GetCurrentProcess().MainWindowHandle;
-            IntPtr h = NativeMethods.GetActiveWindow();
-            h = NativeMethods.FindWindowExW(h, new IntPtr(0), "_WwF", "");
-            h = NativeMethods.FindWindowExW(h, new IntPtr(0), "_WwB", Application.ActiveDocument.Name.ToString());
-            h = NativeMethods.FindWindowExW(h, new IntPtr(0), "_WwG", "Microsoft Word Document");
+            ////IntPtr h = Process.GetCurrentProcess().MainWindowHandle;
+            //IntPtr h = NativeMethods.GetActiveWindow();
+            //h = NativeMethods.FindWindowExW(h, new IntPtr(0), "_WwF", "");
+            //h = NativeMethods.FindWindowExW(h, new IntPtr(0), "_WwB", Application.ActiveDocument.Name.ToString());
+            //h = NativeMethods.FindWindowExW(h, new IntPtr(0), "_WwG", "Microsoft Word Document");
 
-            ScrollEvent s = new ScrollEvent();
-            s.AssignHandle(h);
+            //ScrollEvent s = new ScrollEvent();
+            //s.AssignHandle(h);
         }
 
-        public partial class NativeMethods
-        {
-            [DllImportAttribute("user32.dll")]
-            public static extern IntPtr GetActiveWindow();
+        //public partial class NativeMethods
+        //{
+        //    [DllImportAttribute("user32.dll")]
+        //    public static extern IntPtr GetActiveWindow();
 
-            [DllImportAttribute("user32.dll", EntryPoint = "FindWindowExW")]
-            public static extern IntPtr FindWindowExW([InAttribute()] IntPtr hWndParent, [InAttribute()] IntPtr hWndChildAfter, 
-                [InAttribute()] [MarshalAsAttribute(UnmanagedType.LPWStr)] string lpszClass, [InAttribute()] [MarshalAsAttribute(UnmanagedType.LPWStr)] string lpszWindow);
-        }
+        //    [DllImportAttribute("user32.dll", EntryPoint = "FindWindowExW")]
+        //    public static extern IntPtr FindWindowExW([InAttribute()] IntPtr hWndParent, [InAttribute()] IntPtr hWndChildAfter, 
+        //        [InAttribute()] [MarshalAsAttribute(UnmanagedType.LPWStr)] string lpszClass, [InAttribute()] [MarshalAsAttribute(UnmanagedType.LPWStr)] string lpszWindow);
+        //}
 
-        class ScrollEvent : NativeWindow
-        {
-            protected override void WndProc(ref Message m)
-            {
-                base.WndProc(ref m);
+        //class ScrollEvent : NativeWindow
+        //{
+        //    protected override void WndProc(ref Message m)
+        //    {
+        //        base.WndProc(ref m);
 
-                const int WM_VSCROLL = 0x115;
-                const int WM_HSCROLL = 0x114;
+        //        const int WM_VSCROLL = 0x115;
+        //        const int WM_HSCROLL = 0x114;
 
-                if (m.Msg == WM_VSCROLL)
-                {
-                    MessageBox.Show("Scrolled vertically");
-                }
-                else if (m.Msg == WM_HSCROLL)
-                {
-                    MessageBox.Show("Scrolled horizontally");
-                }
-            }
-        }
+        //        if (m.Msg == WM_VSCROLL)
+        //        {
+        //            MessageBox.Show("Scrolled vertically");
+        //        }
+        //        else if (m.Msg == WM_HSCROLL)
+        //        {
+        //            MessageBox.Show("Scrolled horizontally");
+        //        }
+        //    }
+        //}
 
         private void KeyboardShortcuts()
         {

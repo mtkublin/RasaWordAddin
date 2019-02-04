@@ -219,6 +219,9 @@ namespace WordAddIn1
             newContentControl.Title = tag;
         }
 
+        List<Bookmark> HighlightedBookmarks = new List<Bookmark>();
+        List<Bookmark> HighlightedBMsToCheck = new List<Bookmark>();
+
         private void HighlightBookmarksInVisibleRange()
         {
             System.Windows.Rect rect = System.Windows.Automation.AutomationElement.FocusedElement.Current.BoundingRectangle;
@@ -247,7 +250,14 @@ namespace WordAddIn1
                         Range r2 = this.Application.ActiveWindow.RangeFromPoint((int)inter.Right, (int)inter.Bottom);
                         r.SetRange(r1.Start, r2.Start);
 
-                        foreach (Bookmark bookmark in r.Bookmarks)
+                        foreach (Bookmark bm in HighlightedBookmarks)
+                        {
+                            HighlightedBMsToCheck.Add(bm);
+                        }
+
+                        HighlightedBookmarks.Clear();
+
+                        foreach (Bookmark bookmark in r.Bookmarks) if (HighlightedBMsToCheck.Contains(bookmark) == false)
                         {
                             string name = bookmark.Name.ToString();
                             string NewTag = Regex.Replace(name, "_[0-9]+_entity_", "");
@@ -256,7 +266,11 @@ namespace WordAddIn1
                             NewTag = Regex.Replace(NewTag, "_", "-");
 
                             HighlightContentControl(NewTag, bookmark.Range);
+
+                            HighlightedBookmarks.Add(bookmark);
                         }
+
+                        HighlightedBMsToCheck.Clear();
                     }
                 }
                 catch { }

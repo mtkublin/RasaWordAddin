@@ -56,6 +56,9 @@
             this.AzureStorageButton = this.Factory.CreateRibbonToggleButton();
             this.SetDirButton = this.Factory.CreateRibbonButton();
             this.ModelDirBox = this.Factory.CreateRibbonEditBox();
+            this.HighlightGroup = this.Factory.CreateRibbonGroup();
+            this.HighlightInVisibleBTN = this.Factory.CreateRibbonButton();
+            this.HighlightInNextVisibleBTN = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.WrapperGroup.SuspendLayout();
             this.TestTrainGroup.SuspendLayout();
@@ -64,6 +67,7 @@
             this.StorageGroup.SuspendLayout();
             this.box3.SuspendLayout();
             this.box5.SuspendLayout();
+            this.HighlightGroup.SuspendLayout();
             this.SuspendLayout();
             // 
             // ModelDirDialog
@@ -76,6 +80,7 @@
             this.tab1.Groups.Add(this.WrapperGroup);
             this.tab1.Groups.Add(this.TestTrainGroup);
             this.tab1.Groups.Add(this.StorageGroup);
+            this.tab1.Groups.Add(this.HighlightGroup);
             this.tab1.Label = "RasaNLU addin";
             this.tab1.Name = "tab1";
             // 
@@ -221,6 +226,25 @@
             this.ModelDirBox.SuperTip = this.ModelDirBox.Text;
             this.ModelDirBox.Text = null;
             // 
+            // HighlightGroup
+            // 
+            this.HighlightGroup.Items.Add(this.HighlightInVisibleBTN);
+            this.HighlightGroup.Items.Add(this.HighlightInNextVisibleBTN);
+            this.HighlightGroup.Label = "Highlight";
+            this.HighlightGroup.Name = "HighlightGroup";
+            // 
+            // HighlightInVisibleBTN
+            // 
+            this.HighlightInVisibleBTN.Label = "Highlight visible";
+            this.HighlightInVisibleBTN.Name = "HighlightInVisibleBTN";
+            this.HighlightInVisibleBTN.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.HighlightInVisibleBTN_Click);
+            // 
+            // HighlightInNextVisibleBTN
+            // 
+            this.HighlightInNextVisibleBTN.Label = "Highlight next";
+            this.HighlightInNextVisibleBTN.Name = "HighlightInNextVisibleBTN";
+            this.HighlightInNextVisibleBTN.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.HighlightInNextVisibleBTN_Click);
+            // 
             // Ribbon1
             // 
             this.Name = "Ribbon1";
@@ -243,6 +267,8 @@
             this.box3.PerformLayout();
             this.box5.ResumeLayout(false);
             this.box5.PerformLayout();
+            this.HighlightGroup.ResumeLayout(false);
+            this.HighlightGroup.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -269,6 +295,9 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonBox box3;
         internal Microsoft.Office.Tools.Ribbon.RibbonBox box5;
         internal Microsoft.Office.Tools.Ribbon.RibbonDropDown ProjectDropDown;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup HighlightGroup;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton HighlightInVisibleBTN;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton HighlightInNextVisibleBTN;
     }
 
     partial class ThisRibbonCollection

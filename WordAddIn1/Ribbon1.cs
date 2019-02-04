@@ -167,5 +167,15 @@ namespace WordAddIn1
             var client = new RestClient("http://127.0.0.1:6000");
             Globals.ThisAddIn.ChooseModelDir(client, this.ModelDirDialog, this.ModelDirBox, this.ProjectDropDown, this.TestModelDropDown);
         }
+
+        private void HighlightInVisibleBTN_Click(object sender, RibbonControlEventArgs e)
+        {
+            
+        }
+
+        private void HighlightInNextVisibleBTN_Click(object sender, RibbonControlEventArgs e)
+        {
+
+        }
     }
 }
