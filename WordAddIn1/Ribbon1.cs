@@ -170,12 +170,12 @@ namespace WordAddIn1
 
         private void HighlightInVisibleBTN_Click(object sender, RibbonControlEventArgs e)
         {
-            
+            Globals.ThisAddIn.HighlightBookmarksInVisibleRange();
         }
 
         private void HighlightInNextVisibleBTN_Click(object sender, RibbonControlEventArgs e)
         {
-
+            Globals.ThisAddIn.HighlightBookmarksInNextRange();
         }
     }
 }

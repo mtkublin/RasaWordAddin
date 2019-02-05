@@ -40,6 +40,21 @@ namespace WordAddIn1
             }
         }
 
+        private void UnhighlightControl(Range range)
+        {
+            try
+            {
+                range.Font.Color = Utilities.RGBwdColor(System.Drawing.Color.Black);
+                range.Font.Shading.ForegroundPatternColor = Utilities.RGBwdColor(System.Drawing.Color.White);
+                range.Font.Shading.Texture = Word.WdTextureIndex.wdTextureSolid;
+                range.HighlightColorIndex = Word.WdColorIndex.wdNoHighlight;
+            }
+            catch (Exception ex)
+            {
+                Utilities.Notification(ex.ToString());
+            }
+        }
+
         public void WrapContent()
         {
             //do not wrap if current tag is empty or null

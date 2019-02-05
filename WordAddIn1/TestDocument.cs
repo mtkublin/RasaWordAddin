@@ -177,12 +177,51 @@ namespace WordAddIn1
 
                 if ((tag.EndsWith("-1")))
                 {
-                    bookmark.Selected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender, e) => bookmark_Selected(sender, e, extendedDocument, bookmark));
+                    //    bookmark.Selected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender, e) => bookmark_Selected(sender, e, extendedDocument, bookmark));
+                    bookmark.SelectionChange += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender, e) => bookmark_SelectionChanged(sender, e, extendedDocument, bookmark));
                 }
             }
             catch (Exception ex)
             {
                 Utilities.Notification(ex.Message);
+            }
+        }
+
+        void bookmark_SelectionChanged(object sender, Microsoft.Office.Tools.Word.SelectionEventArgs e, Microsoft.Office.Tools.Word.Document extendedDocument, Microsoft.Office.Tools.Word.Bookmark bookmark)
+        {
+            int selectionStart = this.Application.Selection.Start;
+            int selectionEnd = this.Application.Selection.End;
+            int bookmarkStart = bookmark.Range.Start;
+            int bookmarkEnd = bookmark.Range.End;
+
+            if (selectionEnd != selectionStart)
+            {
+                Range NewBookmarkRange = this.Application.ActiveDocument.Range(bookmarkStart, selectionEnd);
+
+                UnhighlightControl(bookmark.Range);
+                UnhighlightControl(NewBookmarkRange);
+
+                string bookmarkName = bookmark.Name.ToString();
+                string tag = Regex.Replace(bookmarkName, "_[0-9]+_entity_", "");
+                tag = Regex.Replace(tag, "_[0-9]+_intent_", "");
+                tag = Regex.Replace(tag, "_[0-9]+_notspecified_", "");
+                tag = Regex.Replace(tag, "_", "-");
+
+                bookmark.Delete();
+
+                Microsoft.Office.Tools.Word.Bookmark newBookmark = extendedDocument.Controls.AddBookmark(NewBookmarkRange, bookmarkName);
+                newBookmark.Tag = tag;
+                HighlightContentControl(tag, NewBookmarkRange);
+                foreach (Bookmark bm in NewBookmarkRange.Bookmarks)
+                {
+                    string name = bm.Name.ToString();
+                    string NewTag = Regex.Replace(name, "_[0-9]+_entity_", "");
+                    NewTag = Regex.Replace(NewTag, "_[0-9]+_intent_", "");
+                    NewTag = Regex.Replace(NewTag, "_[0-9]+_notspecified_", "");
+                    NewTag = Regex.Replace(NewTag, "_", "-");
+
+                    HighlightContentControl(NewTag, bm.Range);
+                }
             }
         }
 
@@ -219,11 +258,15 @@ namespace WordAddIn1
             newContentControl.Title = tag;
         }
 
-        List<Bookmark> HighlightedBookmarks = new List<Bookmark>();
-        List<Bookmark> HighlightedBMsToCheck = new List<Bookmark>();
+        Range FirstSelectedRange;
+        Range LastSelectedRange;
+        bool IsItFirstBM = true;
 
-        private void HighlightBookmarksInVisibleRange()
+        public void HighlightBookmarksInVisibleRange()
         {
+            Range WholeDocRange = this.Application.ActiveDocument.Content;
+            UnhighlightControl(WholeDocRange);
+
             System.Windows.Rect rect = System.Windows.Automation.AutomationElement.FocusedElement.Current.BoundingRectangle;
 
             foreach (Range r in this.Application.ActiveDocument.StoryRanges)
@@ -250,14 +293,7 @@ namespace WordAddIn1
                         Range r2 = this.Application.ActiveWindow.RangeFromPoint((int)inter.Right, (int)inter.Bottom);
                         r.SetRange(r1.Start, r2.Start);
 
-                        foreach (Bookmark bm in HighlightedBookmarks)
-                        {
-                            HighlightedBMsToCheck.Add(bm);
-                        }
-
-                        HighlightedBookmarks.Clear();
-
-                        foreach (Bookmark bookmark in r.Bookmarks) if (HighlightedBMsToCheck.Contains(bookmark) == false)
+                        foreach (Bookmark bookmark in r.Bookmarks)
                         {
                             string name = bookmark.Name.ToString();
                             string NewTag = Regex.Replace(name, "_[0-9]+_entity_", "");
@@ -266,14 +302,51 @@ namespace WordAddIn1
                             NewTag = Regex.Replace(NewTag, "_", "-");
 
                             HighlightContentControl(NewTag, bookmark.Range);
-
-                            HighlightedBookmarks.Add(bookmark);
+                            LastSelectedRange = bookmark.Range;
+                            if (IsItFirstBM)
+                            {
+                                FirstSelectedRange = bookmark.Range;
+                                IsItFirstBM = false;
+                            }
                         }
-
-                        HighlightedBMsToCheck.Clear();
                     }
                 }
                 catch { }
+                IsItFirstBM = true;
+            }
+        }
+
+        public void HighlightBookmarksInNextRange()
+        {
+            Range WholeDocRange = this.Application.ActiveDocument.Content;
+            UnhighlightControl(WholeDocRange);
+
+            int HLstart = LastSelectedRange.End;
+            if (HLstart < this.Application.ActiveDocument.Content.End)
+            {
+                int HLlength = LastSelectedRange.End - FirstSelectedRange.Start;
+                int HLend = HLstart + HLlength;
+                if (HLend > this.Application.ActiveDocument.Content.End) HLend = this.Application.ActiveDocument.Content.End;
+                Range HLrange = this.Application.ActiveDocument.Range(HLstart, HLend);
+
+                foreach (Bookmark bookmark in HLrange.Bookmarks)
+                {
+                    string name = bookmark.Name.ToString();
+                    string NewTag = Regex.Replace(name, "_[0-9]+_entity_", "");
+                    NewTag = Regex.Replace(NewTag, "_[0-9]+_intent_", "");
+                    NewTag = Regex.Replace(NewTag, "_[0-9]+_notspecified_", "");
+                    NewTag = Regex.Replace(NewTag, "_", "-");
+
+                    HighlightContentControl(NewTag, bookmark.Range);
+                    LastSelectedRange = bookmark.Range;
+                    if (IsItFirstBM)
+                    {
+                        FirstSelectedRange = bookmark.Range;
+                        IsItFirstBM = false;
+                    }
+                }
+                
+                IsItFirstBM = true;
             }
         }
     }
