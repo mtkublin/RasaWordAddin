@@ -177,8 +177,8 @@ namespace WordAddIn1
 
                 if ((tag.EndsWith("-1")))
                 {
-                    //    bookmark.Selected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender, e) => bookmark_Selected(sender, e, extendedDocument, bookmark));
-                    bookmark.SelectionChange += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender, e) => bookmark_SelectionChanged(sender, e, extendedDocument, bookmark));
+                    bookmark.Selected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender, e) => bookmark_Selected(sender, e, extendedDocument, bookmark));
+                    //bookmark.SelectionChange += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender, e) => bookmark_SelectionChanged(sender, e, extendedDocument, bookmark));
                 }
             }
             catch (Exception ex)
@@ -193,6 +193,7 @@ namespace WordAddIn1
             int selectionEnd = this.Application.Selection.End;
             int bookmarkStart = bookmark.Range.Start;
             int bookmarkEnd = bookmark.Range.End;
+            int bookmarkLen = bookmarkEnd - bookmarkStart;
 
             if (selectionEnd != selectionStart)
             {
@@ -211,6 +212,7 @@ namespace WordAddIn1
 
                 Microsoft.Office.Tools.Word.Bookmark newBookmark = extendedDocument.Controls.AddBookmark(NewBookmarkRange, bookmarkName);
                 newBookmark.Tag = tag;
+                newBookmark.SelectionChange += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => bookmark_SelectionChanged(sender2, e2, extendedDocument, newBookmark));
                 HighlightContentControl(tag, NewBookmarkRange);
                 foreach (Bookmark bm in NewBookmarkRange.Bookmarks)
                 {
@@ -222,6 +224,7 @@ namespace WordAddIn1
 
                     HighlightContentControl(NewTag, bm.Range);
                 }
+                
             }
         }
 

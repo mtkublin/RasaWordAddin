@@ -47,7 +47,7 @@ namespace WordAddIn1
             CurrentTag = Properties.Settings.Default.RecentTag;
             TagColors = new Dictionary<string, Color>();
 
-            this.Application.ActiveDocument.Bookmarks.ShowHidden = true;
+            Application.ActiveDocument.Bookmarks.ShowHidden = true;
 
             KeyboardShortcuts();
             Application.WindowActivate += ActivateDocumentWindow;
