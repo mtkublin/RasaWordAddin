@@ -59,6 +59,16 @@
             this.HighlightGroup = this.Factory.CreateRibbonGroup();
             this.HighlightInVisibleBTN = this.Factory.CreateRibbonButton();
             this.HighlightInNextVisibleBTN = this.Factory.CreateRibbonButton();
+            this.CurBMgroup = this.Factory.CreateRibbonGroup();
+            this.box2 = this.Factory.CreateRibbonBox();
+            this.label1 = this.Factory.CreateRibbonLabel();
+            this.CurBMtextLabel = this.Factory.CreateRibbonLabel();
+            this.box6 = this.Factory.CreateRibbonBox();
+            this.label2 = this.Factory.CreateRibbonLabel();
+            this.CurBMentLabel = this.Factory.CreateRibbonLabel();
+            this.box7 = this.Factory.CreateRibbonBox();
+            this.label3 = this.Factory.CreateRibbonLabel();
+            this.IntOrEntLabel = this.Factory.CreateRibbonLabel();
             this.tab1.SuspendLayout();
             this.WrapperGroup.SuspendLayout();
             this.TestTrainGroup.SuspendLayout();
@@ -68,6 +78,10 @@
             this.box3.SuspendLayout();
             this.box5.SuspendLayout();
             this.HighlightGroup.SuspendLayout();
+            this.CurBMgroup.SuspendLayout();
+            this.box2.SuspendLayout();
+            this.box6.SuspendLayout();
+            this.box7.SuspendLayout();
             this.SuspendLayout();
             // 
             // ModelDirDialog
@@ -81,6 +95,7 @@
             this.tab1.Groups.Add(this.TestTrainGroup);
             this.tab1.Groups.Add(this.StorageGroup);
             this.tab1.Groups.Add(this.HighlightGroup);
+            this.tab1.Groups.Add(this.CurBMgroup);
             this.tab1.Label = "RasaNLU addin";
             this.tab1.Name = "tab1";
             // 
@@ -235,15 +250,75 @@
             // 
             // HighlightInVisibleBTN
             // 
+            this.HighlightInVisibleBTN.Image = ((System.Drawing.Image)(resources.GetObject("HighlightInVisibleBTN.Image")));
             this.HighlightInVisibleBTN.Label = "Highlight visible";
             this.HighlightInVisibleBTN.Name = "HighlightInVisibleBTN";
+            this.HighlightInVisibleBTN.ShowImage = true;
             this.HighlightInVisibleBTN.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.HighlightInVisibleBTN_Click);
             // 
             // HighlightInNextVisibleBTN
             // 
+            this.HighlightInNextVisibleBTN.Image = ((System.Drawing.Image)(resources.GetObject("HighlightInNextVisibleBTN.Image")));
             this.HighlightInNextVisibleBTN.Label = "Highlight next";
             this.HighlightInNextVisibleBTN.Name = "HighlightInNextVisibleBTN";
+            this.HighlightInNextVisibleBTN.ShowImage = true;
             this.HighlightInNextVisibleBTN.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.HighlightInNextVisibleBTN_Click);
+            // 
+            // CurBMgroup
+            // 
+            this.CurBMgroup.Items.Add(this.box2);
+            this.CurBMgroup.Items.Add(this.box6);
+            this.CurBMgroup.Items.Add(this.box7);
+            this.CurBMgroup.Label = "Current Bookmark";
+            this.CurBMgroup.Name = "CurBMgroup";
+            // 
+            // box2
+            // 
+            this.box2.Items.Add(this.label1);
+            this.box2.Items.Add(this.CurBMtextLabel);
+            this.box2.Name = "box2";
+            // 
+            // label1
+            // 
+            this.label1.Label = "Text:";
+            this.label1.Name = "label1";
+            // 
+            // CurBMtextLabel
+            // 
+            this.CurBMtextLabel.Label = "label1";
+            this.CurBMtextLabel.Name = "CurBMtextLabel";
+            // 
+            // box6
+            // 
+            this.box6.Items.Add(this.label2);
+            this.box6.Items.Add(this.CurBMentLabel);
+            this.box6.Name = "box6";
+            // 
+            // label2
+            // 
+            this.label2.Label = "Tag:";
+            this.label2.Name = "label2";
+            // 
+            // CurBMentLabel
+            // 
+            this.CurBMentLabel.Label = "label2";
+            this.CurBMentLabel.Name = "CurBMentLabel";
+            // 
+            // box7
+            // 
+            this.box7.Items.Add(this.label3);
+            this.box7.Items.Add(this.IntOrEntLabel);
+            this.box7.Name = "box7";
+            // 
+            // label3
+            // 
+            this.label3.Label = "Type:";
+            this.label3.Name = "label3";
+            // 
+            // IntOrEntLabel
+            // 
+            this.IntOrEntLabel.Label = "Intent";
+            this.IntOrEntLabel.Name = "IntOrEntLabel";
             // 
             // Ribbon1
             // 
@@ -269,6 +344,14 @@
             this.box5.PerformLayout();
             this.HighlightGroup.ResumeLayout(false);
             this.HighlightGroup.PerformLayout();
+            this.CurBMgroup.ResumeLayout(false);
+            this.CurBMgroup.PerformLayout();
+            this.box2.ResumeLayout(false);
+            this.box2.PerformLayout();
+            this.box6.ResumeLayout(false);
+            this.box6.PerformLayout();
+            this.box7.ResumeLayout(false);
+            this.box7.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -298,6 +381,16 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup HighlightGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton HighlightInVisibleBTN;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton HighlightInNextVisibleBTN;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup CurBMgroup;
+        internal Microsoft.Office.Tools.Ribbon.RibbonLabel CurBMtextLabel;
+        internal Microsoft.Office.Tools.Ribbon.RibbonLabel CurBMentLabel;
+        internal Microsoft.Office.Tools.Ribbon.RibbonBox box2;
+        internal Microsoft.Office.Tools.Ribbon.RibbonLabel label1;
+        internal Microsoft.Office.Tools.Ribbon.RibbonBox box6;
+        internal Microsoft.Office.Tools.Ribbon.RibbonLabel label2;
+        internal Microsoft.Office.Tools.Ribbon.RibbonBox box7;
+        internal Microsoft.Office.Tools.Ribbon.RibbonLabel label3;
+        internal Microsoft.Office.Tools.Ribbon.RibbonLabel IntOrEntLabel;
     }
 
     partial class ThisRibbonCollection

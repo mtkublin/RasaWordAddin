@@ -21,6 +21,8 @@ namespace WordAddIn1
             this.TestModelDropDown.Enabled = false;
             this.TestButton.Enabled = false;
             this.TrainingButton.Enabled = false;
+            this.CurBMtextLabel.Label = "";
+            this.CurBMentLabel.Label = "";
         }
 
         private void ContentControlButton_Click(object sender, RibbonControlEventArgs e)

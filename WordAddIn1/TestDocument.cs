@@ -35,14 +35,135 @@ namespace WordAddIn1
             WrapFromJSON(JSONresultDoc);
 
             Microsoft.Office.Tools.Word.Document vstoDoc = Globals.Factory.GetVstoObject(this.Application.ActiveDocument);
-            var handler = new Microsoft.Office.Tools.Word.SelectionEventHandler(ThisDocument_SelectionChange);
+            var handler = new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => ThisDocument_SelectionChange(sender2, e2, currentBookmark, vstoDoc));
             vstoDoc.SelectionChange -= handler;
             vstoDoc.SelectionChange += handler;
         }
 
-        void ThisDocument_SelectionChange(object sender, Microsoft.Office.Tools.Word.SelectionEventArgs e)
-        {
+        Microsoft.Office.Tools.Word.Bookmark currentBookmark;
 
+        void ThisDocument_SelectionChange(object sender, Microsoft.Office.Tools.Word.SelectionEventArgs e, Microsoft.Office.Tools.Word.Bookmark bookmark, Microsoft.Office.Tools.Word.Document extendedDocument)
+        {
+            if (currentBookmark != null)
+            {
+                int selectionStart = this.Application.Selection.Start;
+                int selectionEnd = this.Application.Selection.End;
+                int bookmarkStart = bookmark.Range.Start;
+                int bookmarkEnd = bookmark.Range.End;
+                int bookmarkLen = bookmarkEnd - bookmarkStart;
+
+                bool isStartActive = Application.Selection.StartIsActive;
+
+                if ((selectionEnd != selectionStart) & ((selectionStart >= bookmarkStart & selectionEnd >= bookmarkEnd) || (selectionStart <= bookmarkStart & selectionEnd <= bookmarkEnd) || (selectionStart <= bookmarkStart & selectionEnd >= bookmarkEnd)))
+                {
+                    Range NewBookmarkRange = this.Application.ActiveDocument.Range(bookmarkStart, bookmarkEnd);
+                    bool isNewBokmarkBigger = false;
+
+                    if (isStartActive)
+                    {
+                        if (selectionStart > bookmarkStart & selectionEnd > bookmarkEnd)
+                        {
+                            NewBookmarkRange = this.Application.ActiveDocument.Range(bookmarkStart, selectionStart);
+                        }
+                        else if (selectionStart < bookmarkStart & selectionEnd <= bookmarkEnd)
+                        {
+                            NewBookmarkRange = this.Application.ActiveDocument.Range(selectionStart, bookmarkEnd);
+                            isNewBokmarkBigger = true;
+                        }
+                        else if (selectionStart <= bookmarkStart & selectionEnd > bookmarkEnd)
+                        {
+                            NewBookmarkRange = null;
+                        }
+                    }
+                    else
+                    {
+                        if (selectionStart >= bookmarkStart & selectionEnd > bookmarkEnd)
+                        {
+                            NewBookmarkRange = this.Application.ActiveDocument.Range(bookmarkStart, selectionEnd);
+                            isNewBokmarkBigger = true;
+                        }
+                        else if (selectionStart < bookmarkStart & selectionEnd < bookmarkEnd)
+                        {
+                            NewBookmarkRange = this.Application.ActiveDocument.Range(selectionEnd, bookmarkEnd);
+                        }
+                        else if (selectionStart < bookmarkStart & selectionEnd > bookmarkEnd)
+                        {
+                            NewBookmarkRange = this.Application.ActiveDocument.Range(selectionStart, selectionEnd);
+                            isNewBokmarkBigger = true;
+                        }
+                    }
+
+                    UnhighlightControl(bookmark.Range);
+
+                    if (NewBookmarkRange != null)
+                    {
+                        UnhighlightControl(NewBookmarkRange);
+
+                        //foreach (Bookmark insideBookmark in Application.Selection.Bookmarks)
+                        //{
+                        //    if ((insideBookmark.Start > selectionStart & insideBookmark.Start < selectionEnd) || (insideBookmark.End > selectionStart & insideBookmark.End < selectionEnd))
+                        //    {
+                        //        if (insideBookmark.Name.EndsWith("_1"))
+                        //        {
+                        //            if (insideBookmark.Start > bookmarkEnd)
+                        //            {
+                        //                Range newInsideBookmarkRange = Application.ActiveDocument.Range(NewBookmarkRange.End + 1, insideBookmark.End);
+                        //                replaceBookmarkWithNewRange(newInsideBookmarkRange, insideBookmark, extendedDocument);
+                        //            }
+
+                        //            else if (insideBookmark.End < bookmarkStart)
+                        //            {
+                        //                Range newInsideBookmarkRange = Application.ActiveDocument.Range(insideBookmark.Start, NewBookmarkRange.Start - 1);
+                        //                replaceBookmarkWithNewRange(newInsideBookmarkRange, insideBookmark, extendedDocument);
+                        //            }
+                        //        }
+                        //    }
+                        //}
+                        
+                        replaceBookmarkWithNewRange(NewBookmarkRange, bookmark, extendedDocument);
+                        
+                    }
+                    else
+                    {
+                        bookmark.Delete();
+                        currentBookmark = null;
+                        Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = "";
+                        Globals.Ribbons.Ribbon1.CurBMentLabel.Label = "";
+                    }
+                }
+            }
+        }
+
+        private void replaceBookmarkWithNewRange(Range NewBookmarkRange, Microsoft.Office.Tools.Word.Bookmark bookmark, Microsoft.Office.Tools.Word.Document extendedDocument)
+        {
+            string bookmarkName = bookmark.Name.ToString();
+            string tag = Regex.Replace(bookmarkName, "_[0-9]+_entity_", "");
+            tag = Regex.Replace(tag, "_[0-9]+_intent_", "");
+            tag = Regex.Replace(tag, "_[0-9]+_notspecified_", "");
+            tag = Regex.Replace(tag, "_", "-");
+
+            bookmark.Delete();
+
+            Microsoft.Office.Tools.Word.Bookmark newBookmark = extendedDocument.Controls.AddBookmark(NewBookmarkRange, bookmarkName);
+            newBookmark.Tag = tag;
+            newBookmark.Selected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => bookmark_Selected(sender2, e2, extendedDocument, newBookmark));
+            newBookmark.Deselected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => bookmark_Deselected(sender2, e2, newBookmark));
+            HighlightContentControl(tag, NewBookmarkRange);
+
+            foreach (Bookmark bm in NewBookmarkRange.Bookmarks)
+            {
+                string name = bm.Name.ToString();
+                string NewTag = Regex.Replace(name, "_[0-9]+_entity_", "");
+                NewTag = Regex.Replace(NewTag, "_[0-9]+_intent_", "");
+                NewTag = Regex.Replace(NewTag, "_[0-9]+_notspecified_", "");
+                NewTag = Regex.Replace(NewTag, "_", "-");
+
+                HighlightContentControl(NewTag, bm.Range);
+            }
+
+            currentBookmark = newBookmark;
+            Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = newBookmark.Text;
+            Globals.Ribbons.Ribbon1.CurBMentLabel.Label = tag;
         }
 
         private void WrapFromJSON(string JSONresult)
@@ -167,67 +288,32 @@ namespace WordAddIn1
             }
         }
 
-        Microsoft.Office.Tools.Word.Bookmark currentBookmark;
-
-        void bookmark_SelectionChanged(object sender, Microsoft.Office.Tools.Word.SelectionEventArgs e, Microsoft.Office.Tools.Word.Document extendedDocument, Microsoft.Office.Tools.Word.Bookmark bookmark)
-        {
-            int selectionStart = this.Application.Selection.Start;
-            int selectionEnd = this.Application.Selection.End;
-            int bookmarkStart = bookmark.Range.Start;
-            int bookmarkEnd = bookmark.Range.End;
-            int bookmarkLen = bookmarkEnd - bookmarkStart;
-
-            if (selectionEnd != selectionStart)
-            {
-                Range NewBookmarkRange = this.Application.ActiveDocument.Range(bookmarkStart, selectionEnd);
-
-                UnhighlightControl(bookmark.Range);
-                UnhighlightControl(NewBookmarkRange);
-
-                string bookmarkName = bookmark.Name.ToString();
-                string tag = Regex.Replace(bookmarkName, "_[0-9]+_entity_", "");
-                tag = Regex.Replace(tag, "_[0-9]+_intent_", "");
-                tag = Regex.Replace(tag, "_[0-9]+_notspecified_", "");
-                tag = Regex.Replace(tag, "_", "-");
-
-                bookmark.Delete();
-
-                Microsoft.Office.Tools.Word.Bookmark newBookmark = extendedDocument.Controls.AddBookmark(NewBookmarkRange, bookmarkName);
-                newBookmark.Tag = tag;
-                newBookmark.SelectionChange += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => bookmark_SelectionChanged(sender2, e2, extendedDocument, newBookmark));
-                HighlightContentControl(tag, NewBookmarkRange);
-                foreach (Bookmark bm in NewBookmarkRange.Bookmarks)
-                {
-                    string name = bm.Name.ToString();
-                    string NewTag = Regex.Replace(name, "_[0-9]+_entity_", "");
-                    NewTag = Regex.Replace(NewTag, "_[0-9]+_intent_", "");
-                    NewTag = Regex.Replace(NewTag, "_[0-9]+_notspecified_", "");
-                    NewTag = Regex.Replace(NewTag, "_", "-");
-
-                    HighlightContentControl(NewTag, bm.Range);
-                }
-                
-            }
-        }
-
         void bookmark_Selected(object sender, Microsoft.Office.Tools.Word.SelectionEventArgs e, Microsoft.Office.Tools.Word.Document extendedDocument, Microsoft.Office.Tools.Word.Bookmark bookmark)
         {
-            Range range = bookmark.Range;
+            //Range range = bookmark.Range;
 
-            foreach (Bookmark insideBookmark in range.Bookmarks)
-            {
-                Range newRange = insideBookmark.Range;
+            //foreach (Bookmark insideBookmark in range.Bookmarks)
+            //{
+            //    Range newRange = insideBookmark.Range;
 
-                string name = insideBookmark.Name.ToString();
-                string NewTag = Regex.Replace(name, "_[0-9]+_entity_", "");
-                NewTag = Regex.Replace(NewTag, "_[0-9]+_intent_", "");
-                NewTag = Regex.Replace(NewTag, "_[0-9]+_notspecified_", "");
-                NewTag = Regex.Replace(NewTag, "_", "-");
+            //    string name = insideBookmark.Name.ToString();
+            //    string NewTag = Regex.Replace(name, "_[0-9]+_entity_", "");
+            //    NewTag = Regex.Replace(NewTag, "_[0-9]+_intent_", "");
+            //    NewTag = Regex.Replace(NewTag, "_[0-9]+_notspecified_", "");
+            //    NewTag = Regex.Replace(NewTag, "_", "-");
 
-                addContentControlFromBookmark(extendedDocument, newRange, NewTag);
-            }
+            //    addContentControlFromBookmark(extendedDocument, newRange, NewTag);
+            //}
+
+            string name = bookmark.Name.ToString();
+            string NewTag = Regex.Replace(name, "_[0-9]+_entity_", "");
+            NewTag = Regex.Replace(NewTag, "_[0-9]+_intent_", "");
+            NewTag = Regex.Replace(NewTag, "_[0-9]+_notspecified_", "");
+            NewTag = Regex.Replace(NewTag, "_", "-");
 
             currentBookmark = bookmark;
+            Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = currentBookmark.Text;
+            Globals.Ribbons.Ribbon1.CurBMentLabel.Label = NewTag;
         }
 
         private void bookmark_Deselected(object sender, Microsoft.Office.Tools.Word.SelectionEventArgs e, Microsoft.Office.Tools.Word.Bookmark bookmark)
@@ -242,8 +328,6 @@ namespace WordAddIn1
             {
                 bookmarkRange.ParentContentControl.Delete();
             }
-
-            currentBookmark = null;
         }
 
         private void addContentControlFromBookmark(Microsoft.Office.Tools.Word.Document extendedDocument, Range range, string tag)

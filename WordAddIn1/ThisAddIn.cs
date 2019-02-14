@@ -53,47 +53,20 @@ namespace WordAddIn1
             Application.WindowActivate += ActivateDocumentWindow;
             Application.WindowDeactivate += DeactivateDocumentWindow;
 
-            //InitializeComponents();
+            //Microsoft.Office.Tools.Word.Document vstoDoc = Globals.Factory.GetVstoObject(this.Application.ActiveDocument);
+            //var handler = new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => ThisDocument_SelectionChange(sender2, e2, currentBookmark, vstoDoc));
+            //vstoDoc.SelectionChange -= handler;
+            //vstoDoc.SelectionChange += handler;
 
-            ////IntPtr h = Process.GetCurrentProcess().MainWindowHandle;
-            //IntPtr h = NativeMethods.GetActiveWindow();
-            //h = NativeMethods.FindWindowExW(h, new IntPtr(0), "_WwF", "");
-            //h = NativeMethods.FindWindowExW(h, new IntPtr(0), "_WwB", Application.ActiveDocument.Name.ToString());
-            //h = NativeMethods.FindWindowExW(h, new IntPtr(0), "_WwG", "Microsoft Word Document");
-
-            //ScrollEvent s = new ScrollEvent();
-            //s.AssignHandle(h);
+            //foreach (Microsoft.Office.Tools.Word.Bookmark bookmark in vstoDoc.Bookmarks)
+            //{
+            //    if (bookmark.Name.EndsWith("_1"))
+            //    {
+            //        bookmark.Selected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => bookmark_Selected(sender2, e2, vstoDoc, bookmark));
+            //        bookmark.Deselected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => bookmark_Deselected(sender2, e2, bookmark));
+            //    }
+            //}
         }
-
-        //public partial class NativeMethods
-        //{
-        //    [DllImportAttribute("user32.dll")]
-        //    public static extern IntPtr GetActiveWindow();
-
-        //    [DllImportAttribute("user32.dll", EntryPoint = "FindWindowExW")]
-        //    public static extern IntPtr FindWindowExW([InAttribute()] IntPtr hWndParent, [InAttribute()] IntPtr hWndChildAfter, 
-        //        [InAttribute()] [MarshalAsAttribute(UnmanagedType.LPWStr)] string lpszClass, [InAttribute()] [MarshalAsAttribute(UnmanagedType.LPWStr)] string lpszWindow);
-        //}
-
-        //class ScrollEvent : NativeWindow
-        //{
-        //    protected override void WndProc(ref Message m)
-        //    {
-        //        base.WndProc(ref m);
-
-        //        const int WM_VSCROLL = 0x115;
-        //        const int WM_HSCROLL = 0x114;
-
-        //        if (m.Msg == WM_VSCROLL)
-        //        {
-        //            MessageBox.Show("Scrolled vertically");
-        //        }
-        //        else if (m.Msg == WM_HSCROLL)
-        //        {
-        //            MessageBox.Show("Scrolled horizontally");
-        //        }
-        //    }
-        //}
 
         private void KeyboardShortcuts()
         {
