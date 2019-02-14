@@ -40,29 +40,9 @@ namespace WordAddIn1
             vstoDoc.SelectionChange += handler;
         }
 
-        Range CurrentIntentRange = null;
-        Range PreviousIntentRange = null;
-
         void ThisDocument_SelectionChange(object sender, Microsoft.Office.Tools.Word.SelectionEventArgs e)
         {
-            Selection currentSelection = this.Application.ActiveDocument.ActiveWindow.Selection;
 
-            if (PreviousIntentRange != null)
-            {
-                if (currentSelection.End < PreviousIntentRange.Start || currentSelection.Start > PreviousIntentRange.End)
-                {
-                    foreach (ContentControl insideControl in PreviousIntentRange.ContentControls)
-                    {
-                        insideControl.Delete(false);
-                    }
-                    if (PreviousIntentRange.ParentContentControl != null)
-                    {
-                        PreviousIntentRange.ParentContentControl.Delete();
-                    }
-
-                    PreviousIntentRange = null;
-                }
-            }
         }
 
         private void WrapFromJSON(string JSONresult)
@@ -178,7 +158,7 @@ namespace WordAddIn1
                 if ((tag.EndsWith("-1")))
                 {
                     bookmark.Selected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender, e) => bookmark_Selected(sender, e, extendedDocument, bookmark));
-                    //bookmark.SelectionChange += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender, e) => bookmark_SelectionChanged(sender, e, extendedDocument, bookmark));
+                    bookmark.Deselected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender, e) => bookmark_Deselected(sender, e, bookmark));
                 }
             }
             catch (Exception ex)
@@ -186,6 +166,8 @@ namespace WordAddIn1
                 Utilities.Notification(ex.Message);
             }
         }
+
+        Microsoft.Office.Tools.Word.Bookmark currentBookmark;
 
         void bookmark_SelectionChanged(object sender, Microsoft.Office.Tools.Word.SelectionEventArgs e, Microsoft.Office.Tools.Word.Document extendedDocument, Microsoft.Office.Tools.Word.Bookmark bookmark)
         {
@@ -244,16 +226,28 @@ namespace WordAddIn1
 
                 addContentControlFromBookmark(extendedDocument, newRange, NewTag);
             }
+
+            currentBookmark = bookmark;
+        }
+
+        private void bookmark_Deselected(object sender, Microsoft.Office.Tools.Word.SelectionEventArgs e, Microsoft.Office.Tools.Word.Bookmark bookmark)
+        {
+            Range bookmarkRange = bookmark.Range;
+
+            foreach (ContentControl insideControl in bookmarkRange.ContentControls)
+            {
+                insideControl.Delete(false);
+            }
+            if (bookmarkRange.ParentContentControl != null)
+            {
+                bookmarkRange.ParentContentControl.Delete();
+            }
+
+            currentBookmark = null;
         }
 
         private void addContentControlFromBookmark(Microsoft.Office.Tools.Word.Document extendedDocument, Range range, string tag)
         {
-            if (tag.EndsWith("-1"))
-            {
-                PreviousIntentRange = CurrentIntentRange;
-                CurrentIntentRange = range;
-            }
-
             range.Select();
             string currentTime = DateTime.Now.Ticks.ToString();
             Microsoft.Office.Tools.Word.RichTextContentControl newContentControl = extendedDocument.Controls.AddRichTextContentControl(currentTime);
