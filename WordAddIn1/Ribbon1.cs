@@ -23,6 +23,7 @@ namespace WordAddIn1
             this.TrainingButton.Enabled = false;
             this.CurBMtextLabel.Label = "";
             this.CurBMentLabel.Label = "";
+            this.IntOrEntLabel.Label = "";
         }
 
         private void ContentControlButton_Click(object sender, RibbonControlEventArgs e)

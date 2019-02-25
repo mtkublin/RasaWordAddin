@@ -35,7 +35,7 @@ namespace WordAddIn1
             WrapFromJSON(JSONresultDoc);
 
             Microsoft.Office.Tools.Word.Document vstoDoc = Globals.Factory.GetVstoObject(this.Application.ActiveDocument);
-            var handler = new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => ThisDocument_SelectionChange(sender2, e2, currentBookmark, vstoDoc));
+            var handler = new Microsoft.Office.Tools.Word.SelectionEventHandler((sender, e) => ThisDocument_SelectionChange(sender, e, currentBookmark, vstoDoc));
             vstoDoc.SelectionChange -= handler;
             vstoDoc.SelectionChange += handler;
         }
@@ -58,6 +58,7 @@ namespace WordAddIn1
                 {
                     Range NewBookmarkRange = this.Application.ActiveDocument.Range(bookmarkStart, bookmarkEnd);
                     bool isNewBokmarkBigger = false;
+                    bool deleteBookmark = false;
 
                     if (isStartActive)
                     {
@@ -73,6 +74,7 @@ namespace WordAddIn1
                         else if (selectionStart <= bookmarkStart & selectionEnd > bookmarkEnd)
                         {
                             NewBookmarkRange = null;
+                            deleteBookmark = true;
                         }
                     }
                     else
@@ -95,35 +97,13 @@ namespace WordAddIn1
 
                     UnhighlightControl(bookmark.Range);
 
-                    if (NewBookmarkRange != null)
+                    if (NewBookmarkRange != this.Application.ActiveDocument.Range(bookmarkStart, bookmarkEnd))
                     {
                         UnhighlightControl(NewBookmarkRange);
-
-                        //foreach (Bookmark insideBookmark in Application.Selection.Bookmarks)
-                        //{
-                        //    if ((insideBookmark.Start > selectionStart & insideBookmark.Start < selectionEnd) || (insideBookmark.End > selectionStart & insideBookmark.End < selectionEnd))
-                        //    {
-                        //        if (insideBookmark.Name.EndsWith("_1"))
-                        //        {
-                        //            if (insideBookmark.Start > bookmarkEnd)
-                        //            {
-                        //                Range newInsideBookmarkRange = Application.ActiveDocument.Range(NewBookmarkRange.End + 1, insideBookmark.End);
-                        //                replaceBookmarkWithNewRange(newInsideBookmarkRange, insideBookmark, extendedDocument);
-                        //            }
-
-                        //            else if (insideBookmark.End < bookmarkStart)
-                        //            {
-                        //                Range newInsideBookmarkRange = Application.ActiveDocument.Range(insideBookmark.Start, NewBookmarkRange.Start - 1);
-                        //                replaceBookmarkWithNewRange(newInsideBookmarkRange, insideBookmark, extendedDocument);
-                        //            }
-                        //        }
-                        //    }
-                        //}
-                        
                         replaceBookmarkWithNewRange(NewBookmarkRange, bookmark, extendedDocument);
-                        
                     }
-                    else
+
+                    if (deleteBookmark)
                     {
                         bookmark.Delete();
                         currentBookmark = null;
@@ -162,8 +142,32 @@ namespace WordAddIn1
             }
 
             currentBookmark = newBookmark;
-            Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = newBookmark.Text;
-            Globals.Ribbons.Ribbon1.CurBMentLabel.Label = tag;
+            if (newBookmark.Text.Length <= 1024)
+            {
+                Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = newBookmark.Text;
+            }
+            else
+            {
+                Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = "..." + newBookmark.Text.Substring(newBookmark.Text.Length - 1020);
+            }
+
+            if (tag.Length <= 1024)
+            {
+                Globals.Ribbons.Ribbon1.CurBMentLabel.Label = tag;
+            }
+            else
+            {
+                Globals.Ribbons.Ribbon1.CurBMentLabel.Label = "..." + tag.Substring(newBookmark.Text.Length - 1020);
+            }
+            
+            if (bookmarkName.EndsWith("1"))
+            {
+                Globals.Ribbons.Ribbon1.IntOrEntLabel.Label = "Intent";
+            }
+            else if (bookmarkName.EndsWith("2"))
+            {
+                Globals.Ribbons.Ribbon1.IntOrEntLabel.Label = "Entity";
+            }
         }
 
         private void WrapFromJSON(string JSONresult)
@@ -314,6 +318,33 @@ namespace WordAddIn1
             currentBookmark = bookmark;
             Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = currentBookmark.Text;
             Globals.Ribbons.Ribbon1.CurBMentLabel.Label = NewTag;
+
+            if (currentBookmark.Text.Length <= 1024)
+            {
+                Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = currentBookmark.Text;
+            }
+            else
+            {
+                Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = "..." + currentBookmark.Text.Substring(currentBookmark.Text.Length - 1020);
+            }
+
+            if (NewTag.Length <= 1024)
+            {
+                Globals.Ribbons.Ribbon1.CurBMentLabel.Label = NewTag;
+            }
+            else
+            {
+                Globals.Ribbons.Ribbon1.CurBMentLabel.Label = "..." + NewTag.Substring(currentBookmark.Text.Length - 1020);
+            }
+
+            if (NewTag.EndsWith("1"))
+            {
+                Globals.Ribbons.Ribbon1.IntOrEntLabel.Label = "Intent";
+            }
+            else if (NewTag.EndsWith("2"))
+            {
+                Globals.Ribbons.Ribbon1.IntOrEntLabel.Label = "Entity";
+            }
         }
 
         private void bookmark_Deselected(object sender, Microsoft.Office.Tools.Word.SelectionEventArgs e, Microsoft.Office.Tools.Word.Bookmark bookmark)
