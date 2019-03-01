@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using XL.Office.Helpers;
 using Word = Microsoft.Office.Interop.Word;
 using Microsoft.Office.Interop.Word;
+using System.Text.RegularExpressions;
 
 namespace WordAddIn1
 {
@@ -40,7 +41,7 @@ namespace WordAddIn1
             }
         }
 
-        private void UnhighlightControl(Range range)
+        public void UnhighlightControl(Range range)
         {
             try
             {
@@ -57,112 +58,78 @@ namespace WordAddIn1
 
         public void WrapContent()
         {
-            //do not wrap if current tag is empty or null
-            if (string.IsNullOrEmpty(CurrentTag)) return;
-
-            var selection = Application.Selection;
-            //do not wrap if range is collapsed
-            if (selection.Start == selection.End) return;
-
-            //TODO identify where new content control cannot be created
-            //do not allow wrapping part of another control
-            int start = selection.Start;
-            int end = selection.End;
-            selection.Collapse(Word.WdCollapseDirection.wdCollapseStart);
-            Word.ContentControl startParent = selection.ParentContentControl;
-            selection.SetRange(end, end);
-            Word.ContentControl endParent = selection.ParentContentControl;
-            selection.SetRange(start, end);
-
-            if (startParent != null && endParent == null || startParent == null && endParent != null) return;
-            if (startParent != null && endParent != null)
-            {
-                if (startParent.Range.Start != endParent.Range.Start || startParent.Range.End != endParent.Range.End) return;
-            }
-
-            var activeDocument = Application.ActiveDocument;
+            Range range = this.Application.Selection.Range;
+            Document activeDocument = Application.ActiveDocument;
             var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
-            var next = DateTime.Now.Ticks.ToString();
+            Application.UndoRecord.StartCustomRecord($"Tag Selection ({CurrentTag})");
 
-            try
+            if (range.Start != range.End)
             {
-                Application.UndoRecord.StartCustomRecord($"Tag Selection ({CurrentTag})");
-                Word.ContentControl parent = selection.ParentContentControl;
-                //change tag, if entire content control selected
-                if (parent != null && selection.Range.Start == parent.Range.Start && selection.Range.End == parent.Range.End)
+                try
                 {
-                    parent.Tag = CurrentTag;
-                    parent.Title = CurrentName;
-                    HighlightControlHierarchy(parent.Range);
+                    int BookmarkNumber = this.Application.ActiveDocument.Bookmarks.Count;
+
+                    string bookmarkName = "_" + BookmarkNumber.ToString();
+                    if (CurrentTag.EndsWith("1"))
+                    {
+                        bookmarkName += "_intent_";
+                    }
+                    else if (CurrentTag.EndsWith("2"))
+                    {
+                        bookmarkName += "_entity_";
+                    }
+                    else
+                    {
+                        bookmarkName += "_notspecified_";
+                    }
+                    string NewTag = Regex.Replace(CurrentTag, "-", "_");
+                    bookmarkName += NewTag;
+
+                    Microsoft.Office.Tools.Word.Bookmark bookmark = extendedDocument.Controls.AddBookmark(range, bookmarkName);
+                    bookmark.Tag = CurrentTag;
+                    HighlightContentControl(CurrentTag, bookmark.Range);
+
+                    foreach (Bookmark bm in bookmark.Range.Bookmarks) if (bm != bookmark)
+                    {
+                        string bmName = bm.Name.ToString();
+                        string bmTag = Regex.Replace(bmName, "_[0-9]+_entity_", "");
+                        bmTag = Regex.Replace(bmTag, "_[0-9]+_intent_", "");
+                        bmTag = Regex.Replace(bmTag, "_[0-9]+_notspecified_", "");
+                        bmTag = Regex.Replace(bmTag, "_", "-");
+                        HighlightContentControl(bmTag, bm.Range);
+                    }
+
+                    bookmark.Selected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender, e) => bookmark_Selected(sender, e, extendedDocument, bookmark));
+                    if (bookmark.Name.EndsWith("1"))
+                    {
+                        bookmark.SelectionChange += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => bookmark_SelectionChange(sender2, e2, extendedDocument, bookmark));
+                    }
                 }
-                //wrap the content range 
-                else
-                { 
-                    var control = extendedDocument.Controls.AddRichTextContentControl(string.Format("richText{0}", next));
-                    control.PlaceholderText = "...";
-                    control.Tag = CurrentTag;
-                    control.Title = CurrentName;
-                    HighlightControlHierarchy(control.Range);
+                catch (Exception ex)
+                {
+                    Utilities.Notification(ex.Message);
                 }
-            }
-            catch (Exception ex)
-            {
-                Utilities.Notification(ex.Message);
-            }
-            finally
-            {
-                Application.UndoRecord.EndCustomRecord();
             }
         }
 
         public void UnwrapContent()
         {
-            var selection = Application.Selection;
-            Word.Range originalRange = selection.Range;
-            Word.ContentControl control = selection.ParentContentControl;
-            Word.ContentControl parent = control.ParentContentControl;
-            var remainingControls = control.Range.ContentControls;
+            foreach (Bookmark bm in Application.Selection.Range.Bookmarks)
+            {
+                Microsoft.Office.Tools.Word.Document vstoDoc = Globals.Factory.GetVstoObject(this.Application.ActiveDocument);
+                Microsoft.Office.Tools.Word.Bookmark VSTObookmark = vstoDoc.Controls[bm.Name] as Microsoft.Office.Tools.Word.Bookmark;
 
-            Application.UndoRecord.StartCustomRecord("Remove Tag");
-            if (control != null)
-            {
-                //clear content control formatting
-                //control.Range.Select();
-                //Application.Selection.ClearFormatting();
-                //originalRange.Select();
+                UnhighlightControl(VSTObookmark.Range);
+                VSTObookmark.Delete();
 
-                //remove content control
-                control.Delete(false);
-            }
-            if (parent != null)
-            {
-                HighlightControlHierarchy(parent.Range);
-            }
-            if (remainingControls != null && remainingControls.Count > 0)
-            {
-                foreach (Word.ContentControl survivor in remainingControls)
+                if (currentBookmark == VSTObookmark)
                 {
-                    if(survivor != null)
-                    {
-                        HighlightControlHierarchy(survivor.Range);
-                    }
+                    currentBookmark = null;
+                    Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = "";
+                    Globals.Ribbons.Ribbon1.CurBMentLabel.Label = "";
+                    Globals.Ribbons.Ribbon1.IntOrEntLabel.Label = "";
                 }
             }
-            Application.UndoRecord.EndCustomRecord();
-
-            //UNDONE remove all content controls in entire selection
-            //if (selection.ContentControls.Count > 0)
-            //{
-            //    foreach (Word.ContentControl child in selection.ContentControls)
-            //    {                    
-            //        var range = child.Range;
-            //        range.Font.Color = Word.WdColor.wdColorBlack;
-            //        range.Font.Shading.ForegroundPatternColor = Word.WdColor.wdColorWhite;
-            //        range.Font.Shading.Texture = Word.WdTextureIndex.wdTextureNone;
-            //        range.HighlightColorIndex = Word.WdColorIndex.wdNoHighlight;
-            //        child.Delete(false);
-            //    }
-            //}
         }
     }
 }

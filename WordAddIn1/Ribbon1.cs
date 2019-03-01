@@ -180,5 +180,15 @@ namespace WordAddIn1
         {
             Globals.ThisAddIn.HighlightBookmarksInNextRange();
         }
+
+        private void UnhighlightBTN_Click(object sender, RibbonControlEventArgs e)
+        {
+            Microsoft.Office.Interop.Word.Document ActiveDoc = Globals.ThisAddIn.Application.ActiveDocument;
+
+            foreach (Microsoft.Office.Interop.Word.Range range in ActiveDoc.StoryRanges)
+            {
+                Globals.ThisAddIn.UnhighlightControl(range);
+            }
+        }
     }
 }

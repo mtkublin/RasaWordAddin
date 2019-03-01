@@ -53,19 +53,46 @@ namespace WordAddIn1
             Application.WindowActivate += ActivateDocumentWindow;
             Application.WindowDeactivate += DeactivateDocumentWindow;
 
-            //Microsoft.Office.Tools.Word.Document vstoDoc = Globals.Factory.GetVstoObject(this.Application.ActiveDocument);
-            //var handler = new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => ThisDocument_SelectionChange(sender2, e2, currentBookmark, vstoDoc));
-            //vstoDoc.SelectionChange -= handler;
-            //vstoDoc.SelectionChange += handler;
+            this.Application.DocumentOpen += new ApplicationEvents4_DocumentOpenEventHandler(DocOpen);
+            ((ApplicationEvents4_Event)this.Application).NewDocument += new ApplicationEvents4_NewDocumentEventHandler(NewDoc);
+        }
 
-            //foreach (Microsoft.Office.Tools.Word.Bookmark bookmark in vstoDoc.Bookmarks)
-            //{
-            //    if (bookmark.Name.EndsWith("_1"))
-            //    {
-            //        bookmark.Selected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => bookmark_Selected(sender2, e2, vstoDoc, bookmark));
-            //        bookmark.Deselected += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => bookmark_Deselected(sender2, e2, bookmark));
-            //    }
-            //}
+        private void DocOpen(Document OpenedDoc)
+        {
+            Microsoft.Office.Tools.Word.Document vstoDoc = Globals.Factory.GetVstoObject(OpenedDoc);
+            var handler = new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => ThisDocument_SelectionChange(sender2, e2, currentBookmark, vstoDoc));
+            vstoDoc.SelectionChange -= handler;
+            vstoDoc.SelectionChange += handler;
+
+            foreach (Bookmark bookmark in OpenedDoc.Bookmarks)
+            { 
+                Microsoft.Office.Tools.Word.Bookmark VSTObookmark;
+                if (vstoDoc.Controls.Contains(bookmark.Name))
+                {
+                    VSTObookmark = vstoDoc.Controls[bookmark.Name] as Microsoft.Office.Tools.Word.Bookmark;
+                }
+                else
+                {
+                    VSTObookmark = vstoDoc.Controls.AddBookmark(bookmark, bookmark.Name);
+                }
+                    
+                var VSTOselectedHandler = new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => bookmark_Selected(sender2, e2, vstoDoc, VSTObookmark));
+                VSTObookmark.Selected -= VSTOselectedHandler;
+                VSTObookmark.Selected += VSTOselectedHandler;
+                if (VSTObookmark.Name.EndsWith("1"))
+                {
+                    VSTObookmark.SelectionChange += new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => bookmark_SelectionChange(sender2, e2, vstoDoc, VSTObookmark));
+                }
+            }
+            
+        }
+
+        private void NewDoc(Document NewDoc)
+        {
+            Microsoft.Office.Tools.Word.Document vstoDoc = Globals.Factory.GetVstoObject(NewDoc);
+            var handler = new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => ThisDocument_SelectionChange(sender2, e2, currentBookmark, vstoDoc));
+            vstoDoc.SelectionChange -= handler;
+            vstoDoc.SelectionChange += handler;
         }
 
         private void KeyboardShortcuts()

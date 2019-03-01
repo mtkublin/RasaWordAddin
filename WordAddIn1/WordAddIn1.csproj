@@ -217,6 +217,7 @@
     can be found.
   -->
   <ItemGroup>
+    <Compile Include="Bookmarks.cs" />
     <Compile Include="DataObjects.cs" />
     <Compile Include="Dialogs.cs">
       <SubType>Component</SubType>

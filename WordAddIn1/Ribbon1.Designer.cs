@@ -59,6 +59,7 @@
             this.HighlightGroup = this.Factory.CreateRibbonGroup();
             this.HighlightInVisibleBTN = this.Factory.CreateRibbonButton();
             this.HighlightInNextVisibleBTN = this.Factory.CreateRibbonButton();
+            this.UnhighlightBTN = this.Factory.CreateRibbonButton();
             this.CurBMgroup = this.Factory.CreateRibbonGroup();
             this.box2 = this.Factory.CreateRibbonBox();
             this.label1 = this.Factory.CreateRibbonLabel();
@@ -105,7 +106,6 @@
             this.WrapperGroup.Items.Add(this.UnwrapRangeButton);
             this.WrapperGroup.Label = "Wrapper";
             this.WrapperGroup.Name = "WrapperGroup";
-            this.WrapperGroup.Visible = false;
             // 
             // ContentControlButton
             // 
@@ -246,6 +246,7 @@
             // 
             this.HighlightGroup.Items.Add(this.HighlightInVisibleBTN);
             this.HighlightGroup.Items.Add(this.HighlightInNextVisibleBTN);
+            this.HighlightGroup.Items.Add(this.UnhighlightBTN);
             this.HighlightGroup.Label = "Highlight";
             this.HighlightGroup.Name = "HighlightGroup";
             // 
@@ -264,6 +265,14 @@
             this.HighlightInNextVisibleBTN.Name = "HighlightInNextVisibleBTN";
             this.HighlightInNextVisibleBTN.ShowImage = true;
             this.HighlightInNextVisibleBTN.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.HighlightInNextVisibleBTN_Click);
+            // 
+            // UnhighlightBTN
+            // 
+            this.UnhighlightBTN.Image = ((System.Drawing.Image)(resources.GetObject("UnhighlightBTN.Image")));
+            this.UnhighlightBTN.Label = "Unhighlight all";
+            this.UnhighlightBTN.Name = "UnhighlightBTN";
+            this.UnhighlightBTN.ShowImage = true;
+            this.UnhighlightBTN.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.UnhighlightBTN_Click);
             // 
             // CurBMgroup
             // 
@@ -392,6 +401,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonBox box7;
         internal Microsoft.Office.Tools.Ribbon.RibbonLabel label3;
         internal Microsoft.Office.Tools.Ribbon.RibbonLabel IntOrEntLabel;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton UnhighlightBTN;
     }
 
     partial class ThisRibbonCollection

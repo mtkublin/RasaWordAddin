@@ -8,88 +8,120 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace WordAddIn1.Properties {
-    
-    
+namespace WordAddIn1.Properties
+{
+
+
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.8.0.0")]
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
-        
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase
+    {
+
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
-        
-        public static Settings Default {
-            get {
+
+        public static Settings Default
+        {
+            get
+            {
                 return defaultInstance;
             }
         }
-        
+
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
 <Projects>
-  <Project Name=""Recipies"">
-    <Intentions>
-      <Intention Name=""Genaral Info"" Tag=""gen"">
-        <Entities>
-          <Entity Tag=""gen-author"" Name=""Author"" />
-          <Entity Tag=""gen-occasion"" Name=""Occasion"" />
-          <Entity Tag=""gen-subject"" Name=""Subject"" />
-        </Entities>
-      </Intention>
-      <Intention Name=""Ingredient"" Tag=""ing"">
-        <Entities>
-          <Entity Tag=""ing-name"" Name=""Name"" />
-          <Entity Tag=""ing-quantity"" Name=""Quantity"" />
-          <Entity Tag=""ing-form"" Name=""Form"" />
-        </Entities>
-      </Intention>
-    </Intentions>
-  </Project>
-  <Project Name=""Support"">
-    <Intentions>
-      <Intention Name=""Header"" Tag=""gen"">
-        <Entities>
-          <Entity Tag=""gen-author"" Name=""Author"" />
-          <Entity Tag=""gen-sent"" Name=""Sent Date"" />
-          <Entity Tag=""gen-subject"" Name=""Subject"" />
-        </Entities>
-      </Intention>
-      <Intention Name=""Product"" Tag=""ing"">
-        <Entities>
-          <Entity Tag=""ing-name"" Name=""Product Name"" />
-          <Entity Tag=""ing-quantity"" Name=""Version"" />
-          <Entity Tag=""ing-form"" Name=""Operating System"" />
-        </Entities>
-      </Intention>
-    </Intentions>
-  </Project>
-</Projects>")]
-        public global::System.Xml.XmlDocument Projects {
-            get {
+                        <Project Name=""Recipies"">
+                            < Intentions >
+                                < Intention Name = ""Genaral Info"" Tag = ""g-info-1"" >
+                                    < Entities >
+                                        < Entity Tag = ""g-i-title-2"" Name = ""Title"" />
+                                        < Entity Tag = ""g-i-author-2"" Name = ""Author"" />
+                                        < Entity Tag = ""g-i-dif-2"" Name = ""Difficulty"" />
+                                        < Entity Tag = ""g-i-time-2"" Name = ""Time"" />
+                                        < Entity Tag = ""g-i-size-2"" Name = ""Size"" />
+                                        < Entity Tag = ""g-i-cont-2"" Name = ""Context"" />
+                                    </ Entities >
+                                </ Intention >
+                                < Intention Name = ""Nutrition"" Tag = ""nut-1"" >
+                                  < Entities >
+                                    < Entity Tag = ""nut-type-2"" Name = ""Type"" />
+                                    < Entity Tag = ""nut-quant-2"" Name = ""Quantity"" />
+                                    < Entity Tag = ""nut-perc-2"" Name = ""Percent"" />
+                                  </ Entities >
+                                </ Intention >
+                                < Intention Name = ""Ingredients"" Tag = ""ing-1"" >
+                                    < Entities >
+                                        < Entity Tag = ""ing-name-2"" Name = ""Name"" />
+                                        < Entity Tag = ""ing-form-2"" Name = ""Form"" />
+                                        < Entity Tag = ""ing-quant-2"" Name = ""Quantity"" />
+                                        < Entity Tag = ""ing-purp-2"" Name = ""Purpose"" />
+                                    </ Entities >
+                                </ Intention >
+                                < Intention Name = ""Preperation"" Tag = ""prep-1"" >
+                                  < Entities >
+                                    < Entity Tag = ""prep-op-2"" Name = ""Operation"" />
+                                    < Entity Tag = ""prep-met-2"" Name = ""Method"" />
+                                    < Entity Tag = ""prep-dur-2"" Name = ""Duration"" />
+                                    < Entity Tag = ""prep-cond-2"" Name = ""Condition"" />
+                                    < Entity Tag = ""prep-temp-2"" Name = ""Temperature"" />
+                                  </ Entities >
+                                </ Intention >
+                            </ Intentions >
+                        </ Project >
+                        < Project Name = ""Support"" >
+                            < Intentions >
+                                < Intention Name = ""Header"" Tag = ""gen"" >
+                                    < Entities >
+                                        < Entity Tag = ""gen-author"" Name = ""Author"" />
+                                        < Entity Tag = ""gen-sent"" Name = ""Sent Date"" />
+                                        < Entity Tag = ""gen-subject"" Name = ""Subject"" />
+                                    </ Entities >
+                                </ Intention >
+                                < Intention Name = ""Product"" Tag = ""ing"" >
+                                    < Entities >
+                                        < Entity Tag = ""ing-name"" Name = ""Product Name"" />
+                                        < Entity Tag = ""ing-quantity"" Name = ""Version"" />
+                                        < Entity Tag = ""ing-form"" Name = ""Operating System"" />
+                                    </ Entities >
+                                </ Intention >
+                            </ Intentions >
+                        </ Project >
+                    </ Projects > ")]
+        public global::System.Xml.XmlDocument Projects
+        {
+            get
+            {
                 return ((global::System.Xml.XmlDocument)(this["Projects"]));
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Recipies")]
-        public string RecentProject {
-            get {
+        public string RecentProject
+        {
+            get
+            {
                 return ((string)(this["RecentProject"]));
             }
-            set {
+            set
+            {
                 this["RecentProject"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("gen-author")]
-        public string RecentTag {
-            get {
+        public string RecentTag
+        {
+            get
+            {
                 return ((string)(this["RecentTag"]));
             }
-            set {
+            set
+            {
                 this["RecentTag"] = value;
             }
         }
