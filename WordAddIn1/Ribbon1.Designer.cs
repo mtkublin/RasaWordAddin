@@ -105,6 +105,7 @@
             this.WrapperGroup.Items.Add(this.UnwrapRangeButton);
             this.WrapperGroup.Label = "Wrapper";
             this.WrapperGroup.Name = "WrapperGroup";
+            this.WrapperGroup.Visible = false;
             // 
             // ContentControlButton
             // 
