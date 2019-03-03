@@ -21,6 +21,7 @@ namespace WordAddIn1
             this.TestModelDropDown.Enabled = false;
             this.TestButton.Enabled = false;
             this.TrainingButton.Enabled = false;
+            this.reverseTestBTN.Enabled = false;
             this.CurBMtextLabel.Label = "";
             this.CurBMentLabel.Label = "";
             this.IntOrEntLabel.Label = "";
@@ -189,6 +190,39 @@ namespace WordAddIn1
             {
                 Globals.ThisAddIn.UnhighlightControl(range);
             }
+        }
+
+        private void reverseTestBTN_Click(object sender, RibbonControlEventArgs e)
+        {
+            Microsoft.Office.Interop.Word.Document activeDocument = Globals.ThisAddIn.Application.ActiveDocument;
+            var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
+
+            foreach (Microsoft.Office.Interop.Word.Range range in activeDocument.StoryRanges)
+            {
+                Globals.ThisAddIn.UnhighlightControl(range);
+            }
+
+            foreach (Microsoft.Office.Interop.Word.Bookmark existingBM in activeDocument.Bookmarks)
+            {
+                Microsoft.Office.Tools.Word.Bookmark VSTOexistingBM = extendedDocument.Controls[existingBM.Name] as Microsoft.Office.Tools.Word.Bookmark;
+                VSTOexistingBM.Delete();
+            }
+
+            Dictionary<string, Microsoft.Office.Interop.Word.Range> bmsDict = Globals.ThisAddIn.bmRangesPriorToTestDict;
+            foreach (string bmName in bmsDict.Keys)
+            {
+                extendedDocument.Controls.AddBookmark(bmsDict[bmName], bmName);
+            }
+
+            //foreach (Microsoft.Office.Interop.Word.Bookmark previousBM in Globals.ThisAddIn.bmsPriorToTest)
+            //{
+            //    extendedDocument.Controls.AddBookmark(previousBM, previousBM.Name);
+            //}
+
+            //Globals.ThisAddIn.bmsPriorToTest.Clear();
+
+            Globals.ThisAddIn.HighlightBookmarksInVisibleRange();
+            this.reverseTestBTN.Enabled = false;
         }
     }
 }

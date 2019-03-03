@@ -14,8 +14,34 @@ namespace WordAddIn1
 {
     public partial class ThisAddIn
     {
+        //public List<Range> bmRangesPriorToTest;
+        //public List<string> bmNamesPriorToTest;
+
+        public Dictionary<string, Range> bmRangesPriorToTestDict;
+
         public void TestDoc()
         {
+            Document activeDocument = Application.ActiveDocument;
+            var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
+            //bmRangesPriorToTest = new List<Range>();
+            //bmNamesPriorToTest = new List<string>();
+
+            bmRangesPriorToTestDict = new Dictionary<string, Range>();
+
+            foreach (Range range in activeDocument.StoryRanges)
+            {
+                Globals.ThisAddIn.UnhighlightControl(range);
+            }
+
+            foreach (Bookmark existingBM in Application.ActiveDocument.Bookmarks)
+            {
+                Microsoft.Office.Tools.Word.Bookmark VSTOexistingBM = extendedDocument.Controls[existingBM.Name] as Microsoft.Office.Tools.Word.Bookmark;
+                //bmRangesPriorToTest.Add(existingBM.Range);
+                //bmNamesPriorToTest.Add(existingBM.Name);
+                bmRangesPriorToTestDict[existingBM.Name] = existingBM.Range;
+                VSTOexistingBM.Delete();
+            }
+
             List<String> SentsToExport = new List<String>();
             foreach (Range sent in Globals.ThisAddIn.Application.ActiveDocument.Sentences)
             {
@@ -33,6 +59,8 @@ namespace WordAddIn1
             string JSONresultDoc = response.Content.ToString();
 
             WrapFromJSON(JSONresultDoc);
+
+            Globals.Ribbons.Ribbon1.reverseTestBTN.Enabled = true;
         }
 
         private void WrapFromJSON(string JSONresult)
@@ -66,7 +94,7 @@ namespace WordAddIn1
             Document activeDocument = Application.ActiveDocument;
             var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
 
-            Application.UndoRecord.StartCustomRecord($"Tag Selection ({CurrentTag})");
+            //Application.UndoRecord.StartCustomRecord($"Tag Selection ({CurrentTag})");
 
             int sentEnd = 0;
             foreach (Range sentence in Application.ActiveDocument.Sentences)
@@ -103,7 +131,7 @@ namespace WordAddIn1
                 }
                 sentEnd = sentStart - 1;
             }
-            Application.UndoRecord.EndCustomRecord();
+            //Application.UndoRecord.EndCustomRecord();
 
             HighlightBookmarksInVisibleRange();
 

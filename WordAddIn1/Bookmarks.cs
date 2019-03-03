@@ -148,25 +148,41 @@ namespace WordAddIn1
                             Range HLrange = this.Application.ActiveDocument.Range(HLrangeStart, HLrangeEnd);
                             UnhighlightControl(HLrange);
 
-                            foreach (Bookmark BMtoHL in HLrange.Bookmarks) if (BMtoHL.Name.EndsWith("1"))
+                            if (bookmark.Name.EndsWith("1"))
                             {
-                                string BMtoHLName = BMtoHL.Name.ToString();
-                                string BMtoHLTag = Regex.Replace(BMtoHLName, "_[0-9]+_entity_", "");
-                                BMtoHLTag = Regex.Replace(BMtoHLTag, "_[0-9]+_intent_", "");
-                                BMtoHLTag = Regex.Replace(BMtoHLTag, "_[0-9]+_notspecified_", "");
-                                BMtoHLTag = Regex.Replace(BMtoHLTag, "_", "-");
+                                foreach (Bookmark BMtoHL in HLrange.Bookmarks) if (BMtoHL.Name.EndsWith("1"))
+                                {
+                                    string BMtoHLName = BMtoHL.Name.ToString();
+                                    string BMtoHLTag = Regex.Replace(BMtoHLName, "_[0-9]+_entity_", "");
+                                    BMtoHLTag = Regex.Replace(BMtoHLTag, "_[0-9]+_intent_", "");
+                                    BMtoHLTag = Regex.Replace(BMtoHLTag, "_[0-9]+_notspecified_", "");
+                                    BMtoHLTag = Regex.Replace(BMtoHLTag, "_", "-");
 
-                                HighlightContentControl(BMtoHLTag, BMtoHL.Range);
+                                    HighlightContentControl(BMtoHLTag, BMtoHL.Range);
+                                }
+                                foreach (Bookmark BMtoHL in HLrange.Bookmarks) if (BMtoHL.Name.EndsWith("2"))
+                                {
+                                    string BMtoHLName = BMtoHL.Name.ToString();
+                                    string BMtoHLTag = Regex.Replace(BMtoHLName, "_[0-9]+_entity_", "");
+                                    BMtoHLTag = Regex.Replace(BMtoHLTag, "_[0-9]+_intent_", "");
+                                    BMtoHLTag = Regex.Replace(BMtoHLTag, "_[0-9]+_notspecified_", "");
+                                    BMtoHLTag = Regex.Replace(BMtoHLTag, "_", "-");
+
+                                    HighlightContentControl(BMtoHLTag, BMtoHL.Range);
+                                }
                             }
-                            foreach (Bookmark BMtoHL in HLrange.Bookmarks) if (BMtoHL.Name.EndsWith("2"))
+                            else
                             {
-                                string BMtoHLName = BMtoHL.Name.ToString();
-                                string BMtoHLTag = Regex.Replace(BMtoHLName, "_[0-9]+_entity_", "");
-                                BMtoHLTag = Regex.Replace(BMtoHLTag, "_[0-9]+_intent_", "");
-                                BMtoHLTag = Regex.Replace(BMtoHLTag, "_[0-9]+_notspecified_", "");
-                                BMtoHLTag = Regex.Replace(BMtoHLTag, "_", "-");
+                                foreach (Bookmark BMtoHL in HLrange.Bookmarks)
+                                {
+                                    string BMtoHLName = BMtoHL.Name.ToString();
+                                    string BMtoHLTag = Regex.Replace(BMtoHLName, "_[0-9]+_entity_", "");
+                                    BMtoHLTag = Regex.Replace(BMtoHLTag, "_[0-9]+_intent_", "");
+                                    BMtoHLTag = Regex.Replace(BMtoHLTag, "_[0-9]+_notspecified_", "");
+                                    BMtoHLTag = Regex.Replace(BMtoHLTag, "_", "-");
 
-                                HighlightContentControl(BMtoHLTag, BMtoHL.Range);
+                                    HighlightContentControl(BMtoHLTag, BMtoHL.Range);
+                                }
                             }
                         }
                     }
@@ -233,25 +249,25 @@ namespace WordAddIn1
             NewTag = Regex.Replace(NewTag, "_", "-");
 
             currentBookmark = bookmark;
-            Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = currentBookmark.Text;
-            Globals.Ribbons.Ribbon1.CurBMentLabel.Label = NewTag;
+            //Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = currentBookmark.Text;
+            //Globals.Ribbons.Ribbon1.CurBMentLabel.Label = NewTag;
 
-            if (currentBookmark.Text.Length <= 1024)
+            if (currentBookmark.Text.Length <= 35)
             {
                 Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = currentBookmark.Text;
             }
             else
             {
-                Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = "..." + currentBookmark.Text.Substring(currentBookmark.Text.Length - 1020);
+                Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = currentBookmark.Text.Substring(0, 14) + "... ..." + currentBookmark.Text.Substring(currentBookmark.Text.Length - 14);
             }
 
-            if (NewTag.Length <= 1024)
+            if (NewTag.Length <= 35)
             {
                 Globals.Ribbons.Ribbon1.CurBMentLabel.Label = NewTag;
             }
             else
             {
-                Globals.Ribbons.Ribbon1.CurBMentLabel.Label = "..." + NewTag.Substring(currentBookmark.Text.Length - 1020);
+                Globals.Ribbons.Ribbon1.CurBMentLabel.Label = NewTag.Substring(0, 14) + "... ..." + NewTag.Substring(currentBookmark.Text.Length - 14);
             }
 
             if (NewTag.EndsWith("1"))
@@ -277,8 +293,26 @@ namespace WordAddIn1
                 NewTag = Regex.Replace(NewTag, "_", "-");
 
                 currentBookmark = VSTObookmark;
-                Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = currentBookmark.Text;
-                Globals.Ribbons.Ribbon1.CurBMentLabel.Label = NewTag;
+                //Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = currentBookmark.Text;
+                //Globals.Ribbons.Ribbon1.CurBMentLabel.Label = NewTag;
+                if (currentBookmark.Text.Length <= 35)
+                {
+                    Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = currentBookmark.Text;
+                }
+                else
+                {
+                    Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = currentBookmark.Text.Substring(0, 14) + "... ..." + currentBookmark.Text.Substring(currentBookmark.Text.Length - 14);
+                }
+
+                if (NewTag.Length <= 35)
+                {
+                    Globals.Ribbons.Ribbon1.CurBMentLabel.Label = NewTag;
+                }
+                else
+                {
+                    Globals.Ribbons.Ribbon1.CurBMentLabel.Label = NewTag.Substring(0, 14) + "... ..." + NewTag.Substring(currentBookmark.Text.Length - 14);
+                }
+
                 Globals.Ribbons.Ribbon1.IntOrEntLabel.Label = "Intent";
             }
         }
@@ -372,8 +406,24 @@ namespace WordAddIn1
                     if (HLend > this.Application.ActiveDocument.Content.End) HLend = this.Application.ActiveDocument.Content.End;
                     Range HLrange = this.Application.ActiveDocument.Range(HLstart, HLend);
 
-                    foreach (Bookmark bookmark in HLrange.Bookmarks)
+                    foreach (Bookmark bookmark in HLrange.Bookmarks) if (bookmark.Name.EndsWith("1"))
                     {
+                        string name = bookmark.Name.ToString();
+                        string NewTag = Regex.Replace(name, "_[0-9]+_entity_", "");
+                        NewTag = Regex.Replace(NewTag, "_[0-9]+_intent_", "");
+                        NewTag = Regex.Replace(NewTag, "_[0-9]+_notspecified_", "");
+                        NewTag = Regex.Replace(NewTag, "_", "-");
+
+                        HighlightContentControl(NewTag, bookmark.Range);
+                        LastSelectedRange = bookmark.Range;
+                        if (IsItFirstBM)
+                        {
+                            FirstSelectedRange = bookmark.Range;
+                            IsItFirstBM = false;
+                        }
+                    }
+                    foreach (Bookmark bookmark in HLrange.Bookmarks) if (bookmark.Name.EndsWith("2"))
+                        {
                         string name = bookmark.Name.ToString();
                         string NewTag = Regex.Replace(name, "_[0-9]+_entity_", "");
                         NewTag = Regex.Replace(NewTag, "_[0-9]+_intent_", "");

@@ -63,7 +63,18 @@ namespace WordAddIn1
             var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
             Application.UndoRecord.StartCustomRecord($"Tag Selection ({CurrentTag})");
 
-            if (range.Start != range.End)
+            string currentTagLevelIndicator = CurrentTag.Substring(CurrentTag.Length - 1);
+            bool doesRangeOverlapExistingEnt = false;
+
+            foreach (Bookmark existingBM in range.Bookmarks)
+            {
+                if (existingBM.Name.EndsWith(currentTagLevelIndicator))
+                {
+                    doesRangeOverlapExistingEnt = true;
+                }
+            }
+
+            if (range.Start != range.End & doesRangeOverlapExistingEnt == false)
             {
                 try
                 {
@@ -110,17 +121,17 @@ namespace WordAddIn1
                     Utilities.Notification(ex.Message);
                 }
             }
+            Application.UndoRecord.EndCustomRecord();
         }
 
         public void UnwrapContent()
         {
             foreach (Bookmark bm in Application.Selection.Range.Bookmarks)
             {
+                string bmName = bm.Name;
+                Range bmRange = bm.Range;
                 Microsoft.Office.Tools.Word.Document vstoDoc = Globals.Factory.GetVstoObject(this.Application.ActiveDocument);
-                Microsoft.Office.Tools.Word.Bookmark VSTObookmark = vstoDoc.Controls[bm.Name] as Microsoft.Office.Tools.Word.Bookmark;
-
-                UnhighlightControl(VSTObookmark.Range);
-                VSTObookmark.Delete();
+                Microsoft.Office.Tools.Word.Bookmark VSTObookmark = vstoDoc.Controls[bmName] as Microsoft.Office.Tools.Word.Bookmark;
 
                 if (currentBookmark == VSTObookmark)
                 {
@@ -128,6 +139,22 @@ namespace WordAddIn1
                     Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = "";
                     Globals.Ribbons.Ribbon1.CurBMentLabel.Label = "";
                     Globals.Ribbons.Ribbon1.IntOrEntLabel.Label = "";
+                }
+
+                UnhighlightControl(VSTObookmark.Range);
+                VSTObookmark.Delete();
+
+                if (bmName.EndsWith("1"))
+                {
+                    foreach (Bookmark entInInt in bmRange.Bookmarks) if (entInInt.Name.EndsWith("2"))
+                    {
+                        string entInIntName = entInInt.Name.ToString();
+                        string entInIntTag = Regex.Replace(entInIntName, "_[0-9]+_entity_", "");
+                        entInIntTag = Regex.Replace(entInIntTag, "_[0-9]+_intent_", "");
+                        entInIntTag = Regex.Replace(entInIntTag, "_[0-9]+_notspecified_", "");
+                        entInIntTag = Regex.Replace(entInIntTag, "_", "-");
+                        HighlightContentControl(entInIntTag, entInInt.Range);
+                    }
                 }
             }
         }

@@ -70,6 +70,8 @@
             this.box7 = this.Factory.CreateRibbonBox();
             this.label3 = this.Factory.CreateRibbonLabel();
             this.IntOrEntLabel = this.Factory.CreateRibbonLabel();
+            this.box8 = this.Factory.CreateRibbonBox();
+            this.reverseTestBTN = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.WrapperGroup.SuspendLayout();
             this.TestTrainGroup.SuspendLayout();
@@ -83,6 +85,7 @@
             this.box2.SuspendLayout();
             this.box6.SuspendLayout();
             this.box7.SuspendLayout();
+            this.box8.SuspendLayout();
             this.SuspendLayout();
             // 
             // ModelDirDialog
@@ -92,10 +95,10 @@
             // tab1
             // 
             this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
-            this.tab1.Groups.Add(this.WrapperGroup);
-            this.tab1.Groups.Add(this.TestTrainGroup);
             this.tab1.Groups.Add(this.StorageGroup);
+            this.tab1.Groups.Add(this.TestTrainGroup);
             this.tab1.Groups.Add(this.HighlightGroup);
+            this.tab1.Groups.Add(this.WrapperGroup);
             this.tab1.Groups.Add(this.CurBMgroup);
             this.tab1.Label = "RasaNLU addin";
             this.tab1.Name = "tab1";
@@ -130,6 +133,7 @@
             // TestTrainGroup
             // 
             this.TestTrainGroup.Items.Add(this.box1);
+            this.TestTrainGroup.Items.Add(this.box8);
             this.TestTrainGroup.Items.Add(this.box4);
             this.TestTrainGroup.Label = "Test/Train";
             this.TestTrainGroup.Name = "TestTrainGroup";
@@ -330,6 +334,20 @@
             this.IntOrEntLabel.Label = "Intent";
             this.IntOrEntLabel.Name = "IntOrEntLabel";
             // 
+            // box8
+            // 
+            this.box8.Items.Add(this.reverseTestBTN);
+            this.box8.Name = "box8";
+            // 
+            // reverseTestBTN
+            // 
+            this.reverseTestBTN.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.reverseTestBTN.Image = ((System.Drawing.Image)(resources.GetObject("reverseTestBTN.Image")));
+            this.reverseTestBTN.Label = "Reverse Test";
+            this.reverseTestBTN.Name = "reverseTestBTN";
+            this.reverseTestBTN.ShowImage = true;
+            this.reverseTestBTN.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.reverseTestBTN_Click);
+            // 
             // Ribbon1
             // 
             this.Name = "Ribbon1";
@@ -362,6 +380,8 @@
             this.box6.PerformLayout();
             this.box7.ResumeLayout(false);
             this.box7.PerformLayout();
+            this.box8.ResumeLayout(false);
+            this.box8.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -402,6 +422,8 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonLabel label3;
         internal Microsoft.Office.Tools.Ribbon.RibbonLabel IntOrEntLabel;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton UnhighlightBTN;
+        internal Microsoft.Office.Tools.Ribbon.RibbonBox box8;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton reverseTestBTN;
     }
 
     partial class ThisRibbonCollection
