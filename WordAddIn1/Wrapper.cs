@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Word;
+using System;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using XL.Office.Helpers;
 using Word = Microsoft.Office.Interop.Word;
-using Microsoft.Office.Interop.Word;
-using System.Text.RegularExpressions;
 
 namespace WordAddIn1
 {
@@ -100,7 +100,7 @@ namespace WordAddIn1
                     bookmark.Tag = CurrentTag;
                     HighlightContentControl(CurrentTag, bookmark.Range);
 
-                    foreach (Bookmark bm in bookmark.Range.Bookmarks) if (bm != bookmark)
+                    foreach (Bookmark bm in bookmark.Range.Bookmarks) if (bm != bookmark & bookmark.Name.EndsWith("1"))
                     {
                         string bmName = bm.Name.ToString();
                         string bmTag = Regex.Replace(bmName, "_[0-9]+_entity_", "");

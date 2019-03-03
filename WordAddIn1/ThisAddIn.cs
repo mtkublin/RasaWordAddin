@@ -1,16 +1,13 @@
-﻿using Microsoft.Office.Tools;
-using Microsoft.Office.Interop.Word;
-using System.Windows.Forms;
+﻿using Microsoft.Office.Interop.Word;
+using Microsoft.Office.Tools;
 using System.Collections.Generic;
-using XL.Office.Helpers;
-using Word = Microsoft.Office.Interop.Word;
-using System;
+using System.Drawing;
+using System.Linq;
+using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
-using System.Linq;
-using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
+using XL.Office.Helpers;
+using Word = Microsoft.Office.Interop.Word;
 
 namespace WordAddIn1
 {

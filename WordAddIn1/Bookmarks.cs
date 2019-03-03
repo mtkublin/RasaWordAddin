@@ -1,13 +1,7 @@
-﻿using System;
+﻿using Microsoft.Office.Interop.Word;
 using System.Collections.Generic;
-using System.Windows.Forms;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
-using System.IO;
-using XL.Office.Helpers;
-using Microsoft.Office.Interop.Word;
-using Newtonsoft.Json;
-using RestSharp;
+using System.Windows.Forms;
 
 namespace WordAddIn1
 {
@@ -173,7 +167,7 @@ namespace WordAddIn1
                             }
                             else
                             {
-                                foreach (Bookmark BMtoHL in HLrange.Bookmarks)
+                                foreach (Bookmark BMtoHL in HLrange.Bookmarks) if (BMtoHL.Name.EndsWith("2"))
                                 {
                                     string BMtoHLName = BMtoHL.Name.ToString();
                                     string BMtoHLTag = Regex.Replace(BMtoHLName, "_[0-9]+_entity_", "");
@@ -249,8 +243,6 @@ namespace WordAddIn1
             NewTag = Regex.Replace(NewTag, "_", "-");
 
             currentBookmark = bookmark;
-            //Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = currentBookmark.Text;
-            //Globals.Ribbons.Ribbon1.CurBMentLabel.Label = NewTag;
 
             if (currentBookmark.Text.Length <= 35)
             {
@@ -293,8 +285,7 @@ namespace WordAddIn1
                 NewTag = Regex.Replace(NewTag, "_", "-");
 
                 currentBookmark = VSTObookmark;
-                //Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = currentBookmark.Text;
-                //Globals.Ribbons.Ribbon1.CurBMentLabel.Label = NewTag;
+
                 if (currentBookmark.Text.Length <= 35)
                 {
                     Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = currentBookmark.Text;

@@ -1,8 +1,7 @@
 ﻿using Microsoft.Office.Tools.Ribbon;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using RestSharp;
+using System.Collections.Generic;
+using System.IO;
 
 namespace WordAddIn1
 {
@@ -75,7 +74,7 @@ namespace WordAddIn1
 
         private void TrainingButton_Click(object sender, RibbonControlEventArgs e)
         {
-            if (Globals.ThisAddIn.Application.ActiveDocument.ContentControls.Count == 0)
+            if (Globals.ThisAddIn.Application.ActiveDocument.Bookmarks.Count == 0)
             {
                 this.TextMessageOkDialog("No intent or entities to train");
                 return;
@@ -213,13 +212,6 @@ namespace WordAddIn1
             {
                 extendedDocument.Controls.AddBookmark(bmsDict[bmName], bmName);
             }
-
-            //foreach (Microsoft.Office.Interop.Word.Bookmark previousBM in Globals.ThisAddIn.bmsPriorToTest)
-            //{
-            //    extendedDocument.Controls.AddBookmark(previousBM, previousBM.Name);
-            //}
-
-            //Globals.ThisAddIn.bmsPriorToTest.Clear();
 
             Globals.ThisAddIn.HighlightBookmarksInVisibleRange();
             this.reverseTestBTN.Enabled = false;

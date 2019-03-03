@@ -1,16 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Timers;
-using Microsoft.Office.Interop.Word;
+﻿using Microsoft.Office.Interop.Word;
 using Newtonsoft.Json;
 using RestSharp;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Timers;
 
 namespace WordAddIn1
 {
     public partial class ThisAddIn
     {
         private RasaNLUdata rasaData { get; set; }
+
+        private void checkIfParentsAreBookmarks(Range objToCheck, Bookmark parentBookmark)
+        {
+            if (objToCheck.Parent != null)
+            {
+                if (objToCheck.Parent is Bookmark)
+                {
+                    parentBookmark = objToCheck.Parent;
+                }
+                else
+                {
+                    if (objToCheck.Parent.Range != null)
+                    {
+                        checkIfParentsAreBookmarks(objToCheck.Parent.Range, parentBookmark);
+                    }
+                }
+            }
+        }
 
         public void InitiateTraining(RestClient client, string TrainProjectName, string TrainModelName, string ModelPath = null)
         {
@@ -30,23 +47,56 @@ namespace WordAddIn1
             }
 
             List<string> AddedSents = new List<string>();
-            foreach (Range sent in Globals.ThisAddIn.Application.ActiveDocument.Sentences)
+            foreach (Range sent in Application.ActiveDocument.Sentences)
             {
-                if (sent.ParentContentControl is ContentControl)
+                //if (sent.Parent is Bookmark)
+                //{
+                //    string intTag = sent.ParentContentControl.Tag;
+                //    GatherEntities(intTag, sent, examps);
+                //    AddedSents.Add(sent.Text);
+                //}
+
+                Bookmark parentBookmark = null;
+                //checkIfParentsAreBookmarks(sent, parentBookmark);
+
+                foreach (Bookmark bm in sent.Bookmarks)
                 {
-                    string intTag = sent.ParentContentControl.Tag;
-                    GatherEntities(intTag, sent, examps);
-                    AddedSents.Add(sent.Text);
+                    if (bm.Name.EndsWith("1"))
+                    {
+                        parentBookmark = bm;
+                        break;
+                    }
+                }
+
+                if (parentBookmark != null) 
+                {
+                    if (parentBookmark.Name.EndsWith("1"))
+                    {
+                        string parentBookmarkName = parentBookmark.Name.ToString();
+                        string parentBookmarkTag = Regex.Replace(parentBookmarkName, "_[0-9]+_entity_", "");
+                        parentBookmarkTag = Regex.Replace(parentBookmarkTag, "_[0-9]+_intent_", "");
+                        parentBookmarkTag = Regex.Replace(parentBookmarkTag, "_[0-9]+_notspecified_", "");
+                        parentBookmarkTag = Regex.Replace(parentBookmarkTag, "_", "-");
+
+                        string intTag = parentBookmarkTag;
+                        GatherEntities(intTag, sent, examps);
+                        AddedSents.Add(sent.Text);
+                    }
                 }
 
                 else
                 {
                     bool IsNotFirstOrLast = true;
-                    foreach (ContentControl control in Globals.ThisAddIn.Application.ActiveDocument.ContentControls) if (control.Tag[control.Tag.Length - 1] == '1')
+                    foreach (Bookmark control in Application.ActiveDocument.Bookmarks) if (control.Name.EndsWith("1"))
                     {
                         if (sent.Text == control.Range.Sentences.First.Text || sent.Text == control.Range.Sentences.Last.Text)
                         {
-                            string intTag = control.Tag;
+                            string intName = control.Name.ToString();
+                            string intTag = Regex.Replace(intName, "_[0-9]+_entity_", "");
+                            intTag = Regex.Replace(intTag, "_[0-9]+_intent_", "");
+                            intTag = Regex.Replace(intTag, "_[0-9]+_notspecified_", "");
+                            intTag = Regex.Replace(intTag, "_", "-");
+                            
                             GatherEntities(intTag, sent, examps);
                             IsNotFirstOrLast = false;
                             AddedSents.Add(sent.Text);
@@ -61,17 +111,23 @@ namespace WordAddIn1
                 }
             }
 
-            foreach (ContentControl control in Globals.ThisAddIn.Application.ActiveDocument.ContentControls) if (control.Tag[control.Tag.Length - 1] == '1')
+            foreach (Bookmark control in Application.ActiveDocument.Bookmarks) if (control.Name.EndsWith("1"))
             {
+                string intName = control.Name.ToString();
+                string intTag = Regex.Replace(intName, "_[0-9]+_entity_", "");
+                intTag = Regex.Replace(intTag, "_[0-9]+_intent_", "");
+                intTag = Regex.Replace(intTag, "_[0-9]+_notspecified_", "");
+                intTag = Regex.Replace(intTag, "_", "-");
+
                 if (AddedSents.Contains(control.Range.Sentences.First.Text) == false)
                 {
-                    string intTag = control.Tag;
+                    //string intTag = control.Tag;
                     GatherEntities(intTag, control.Range.Sentences.First, examps);
                 }
 
                 if (AddedSents.Contains(control.Range.Sentences.Last.Text) == false)
                 {
-                    string intTag = control.Tag;
+                    //string intTag = control.Tag;
                     GatherEntities(intTag, control.Range.Sentences.Last, examps);
                 }
             }
@@ -108,23 +164,30 @@ namespace WordAddIn1
             if (sentText != " " & sentText != "\r")
             {
                 var entities = new List<Ent> { };
-                int EntNumber = 0;
-                foreach (ContentControl ent in sent.ContentControls)
+                //int EntNumber = 0;
+                foreach (Bookmark ent in sent.Bookmarks)
                 {
-                    string entTag = ent.Tag;
+                    string entName = ent.Name.ToString();
+                    string entTag = Regex.Replace(entName, "_[0-9]+_entity_", "");
+                    entTag = Regex.Replace(entTag, "_[0-9]+_intent_", "");
+                    entTag = Regex.Replace(entTag, "_[0-9]+_notspecified_", "");
+                    entTag = Regex.Replace(entTag, "_", "-");
+
                     char entLevelIndicator = entTag[entTag.Length - 1];
 
                     if (entLevelIndicator is '2')
                     {
-                        int st = ent.Range.Start - intentStart - 1 - EntNumber;
-                        int en = ent.Range.End - intentStart - 1 - EntNumber;
+                        //int st = ent.Range.Start - intentStart - 1 - EntNumber;
+                        //int en = ent.Range.End - intentStart - 1 - EntNumber;
+                        int st = ent.Range.Start - intentStart;
+                        int en = ent.Range.End - intentStart;
                         string val = ent.Range.Text;
                         string tag = entTag;
 
                         Ent entity = new Ent(st, en, val, tag);
                         entities.Add(entity);
 
-                        EntNumber += 2;
+                        //EntNumber += 2;
                     }
                 }
                 Examp examp = new Examp(sentText, sentInt, entities);
