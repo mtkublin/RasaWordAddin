@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
 using XL.Office.Helpers;
+using System.Text.RegularExpressions;
 using Word = Microsoft.Office.Interop.Word;
 
 namespace WordAddIn1
@@ -38,6 +39,13 @@ namespace WordAddIn1
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
+            this.Application.DocumentOpen += new ApplicationEvents4_DocumentOpenEventHandler(DocOpen);
+            ((ApplicationEvents4_Event)this.Application).NewDocument += new ApplicationEvents4_NewDocumentEventHandler(NewDoc);
+
+            string AppDir = System.AppDomain.CurrentDomain.BaseDirectory.ToString();
+            string TestDocDir = AppDir.Substring(0, AppDir.Length - 21) + @"Docs\Test_data_1.docx";
+            Document TestDoc = Application.Documents.Open(TestDocDir);
+
             WindowTaskPanes = new Dictionary<Word.Window, CustomTaskPane>();
             XmlDocument = XElement.Load(new XmlNodeReader(Properties.Settings.Default.Projects));
             CurrentProject = Properties.Settings.Default.RecentProject;
@@ -49,9 +57,6 @@ namespace WordAddIn1
             KeyboardShortcuts();
             Application.WindowActivate += ActivateDocumentWindow;
             Application.WindowDeactivate += DeactivateDocumentWindow;
-
-            this.Application.DocumentOpen += new ApplicationEvents4_DocumentOpenEventHandler(DocOpen);
-            ((ApplicationEvents4_Event)this.Application).NewDocument += new ApplicationEvents4_NewDocumentEventHandler(NewDoc);
         }
 
         private void DocOpen(Document OpenedDoc)

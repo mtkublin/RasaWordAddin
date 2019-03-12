@@ -14,17 +14,12 @@ namespace WordAddIn1
 {
     public partial class ThisAddIn
     {
-        //public List<Range> bmRangesPriorToTest;
-        //public List<string> bmNamesPriorToTest;
-
         public Dictionary<string, Range> bmRangesPriorToTestDict;
 
         public void TestDoc()
         {
             Document activeDocument = Application.ActiveDocument;
             var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
-            //bmRangesPriorToTest = new List<Range>();
-            //bmNamesPriorToTest = new List<string>();
 
             bmRangesPriorToTestDict = new Dictionary<string, Range>();
 
@@ -36,27 +31,34 @@ namespace WordAddIn1
             foreach (Bookmark existingBM in Application.ActiveDocument.Bookmarks)
             {
                 Microsoft.Office.Tools.Word.Bookmark VSTOexistingBM = extendedDocument.Controls[existingBM.Name] as Microsoft.Office.Tools.Word.Bookmark;
-                //bmRangesPriorToTest.Add(existingBM.Range);
-                //bmNamesPriorToTest.Add(existingBM.Name);
                 bmRangesPriorToTestDict[existingBM.Name] = existingBM.Range;
                 VSTOexistingBM.Delete();
             }
 
-            List<String> SentsToExport = new List<String>();
-            foreach (Range sent in Globals.ThisAddIn.Application.ActiveDocument.Sentences)
-            {
-                SentsToExport.Add(sent.Text);
-            }
-            TextToExportObject textToExportObject = new TextToExportObject(SentsToExport);
-            FinalTestDataExportObject finalExportData = new FinalTestDataExportObject(textToExportObject);
-            var jsonTestObject = JsonConvert.SerializeObject(finalExportData);
+            //List<String> SentsToExport = new List<String>();
+            //foreach (Range sent in Globals.ThisAddIn.Application.ActiveDocument.Sentences)
+            //{
+            //    SentsToExport.Add(sent.Text);
+            //}
+            //TextToExportObject textToExportObject = new TextToExportObject(SentsToExport);
+            //FinalTestDataExportObject finalExportData = new FinalTestDataExportObject(textToExportObject);
+            //var jsonTestObject = JsonConvert.SerializeObject(finalExportData);
 
-            var client = new RestClient("http://127.0.0.1:6000");
-            var request = new RestRequest("api/testdata", Method.POST);
-            request.AddParameter("application/json; charset=utf-8", jsonTestObject, ParameterType.RequestBody);
-            request.RequestFormat = DataFormat.Json;
-            IRestResponse response = client.Execute(request);
-            string JSONresultDoc = response.Content.ToString();
+            //var client = new RestClient("http://127.0.0.1:6000");
+            //var request = new RestRequest("api/testdata", Method.POST);
+            //request.AddParameter("application/json; charset=utf-8", jsonTestObject, ParameterType.RequestBody);
+            //request.RequestFormat = DataFormat.Json;
+            //IRestResponse response = client.Execute(request);
+            //string JSONresultDoc = response.Content.ToString();
+
+            string AppDir = System.AppDomain.CurrentDomain.BaseDirectory.ToString();
+            string TestResDir = AppDir.Substring(0, AppDir.Length - 21) + @"Docs\test_result.json";
+            string JSONresultDoc;
+
+            using (StreamReader r = new StreamReader(TestResDir))
+            {
+                JSONresultDoc = r.ReadToEnd();
+            }
 
             WrapFromJSON(JSONresultDoc);
 
@@ -94,8 +96,6 @@ namespace WordAddIn1
             Document activeDocument = Application.ActiveDocument;
             var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
 
-            //Application.UndoRecord.StartCustomRecord($"Tag Selection ({CurrentTag})");
-
             int sentEnd = 0;
             foreach (Range sentence in Application.ActiveDocument.Sentences)
             {
@@ -131,7 +131,6 @@ namespace WordAddIn1
                 }
                 sentEnd = sentStart - 1;
             }
-            //Application.UndoRecord.EndCustomRecord();
 
             HighlightBookmarksInVisibleRange();
 

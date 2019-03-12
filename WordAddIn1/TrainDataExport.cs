@@ -11,24 +11,6 @@ namespace WordAddIn1
     {
         private RasaNLUdata rasaData { get; set; }
 
-        private void checkIfParentsAreBookmarks(Range objToCheck, Bookmark parentBookmark)
-        {
-            if (objToCheck.Parent != null)
-            {
-                if (objToCheck.Parent is Bookmark)
-                {
-                    parentBookmark = objToCheck.Parent;
-                }
-                else
-                {
-                    if (objToCheck.Parent.Range != null)
-                    {
-                        checkIfParentsAreBookmarks(objToCheck.Parent.Range, parentBookmark);
-                    }
-                }
-            }
-        }
-
         public void InitiateTraining(RestClient client, string TrainProjectName, string TrainModelName, string ModelPath = null)
         {
             Globals.Ribbons.Ribbon1.ProjectDropDown.Enabled = false;
@@ -49,15 +31,7 @@ namespace WordAddIn1
             List<string> AddedSents = new List<string>();
             foreach (Range sent in Application.ActiveDocument.Sentences)
             {
-                //if (sent.Parent is Bookmark)
-                //{
-                //    string intTag = sent.ParentContentControl.Tag;
-                //    GatherEntities(intTag, sent, examps);
-                //    AddedSents.Add(sent.Text);
-                //}
-
                 Bookmark parentBookmark = null;
-                //checkIfParentsAreBookmarks(sent, parentBookmark);
 
                 foreach (Bookmark bm in sent.Bookmarks)
                 {
@@ -121,13 +95,11 @@ namespace WordAddIn1
 
                 if (AddedSents.Contains(control.Range.Sentences.First.Text) == false)
                 {
-                    //string intTag = control.Tag;
                     GatherEntities(intTag, control.Range.Sentences.First, examps);
                 }
 
                 if (AddedSents.Contains(control.Range.Sentences.Last.Text) == false)
                 {
-                    //string intTag = control.Tag;
                     GatherEntities(intTag, control.Range.Sentences.Last, examps);
                 }
             }
@@ -164,7 +136,6 @@ namespace WordAddIn1
             if (sentText != " " & sentText != "\r")
             {
                 var entities = new List<Ent> { };
-                //int EntNumber = 0;
                 foreach (Bookmark ent in sent.Bookmarks)
                 {
                     string entName = ent.Name.ToString();
@@ -177,8 +148,6 @@ namespace WordAddIn1
 
                     if (entLevelIndicator is '2')
                     {
-                        //int st = ent.Range.Start - intentStart - 1 - EntNumber;
-                        //int en = ent.Range.End - intentStart - 1 - EntNumber;
                         int st = ent.Range.Start - intentStart;
                         int en = ent.Range.End - intentStart;
                         string val = ent.Range.Text;
@@ -186,8 +155,6 @@ namespace WordAddIn1
 
                         Ent entity = new Ent(st, en, val, tag);
                         entities.Add(entity);
-
-                        //EntNumber += 2;
                     }
                 }
                 Examp examp = new Examp(sentText, sentInt, entities);
