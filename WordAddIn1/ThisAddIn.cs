@@ -2,6 +2,7 @@
 using Microsoft.Office.Tools;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Xml;
@@ -39,13 +40,6 @@ namespace WordAddIn1
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
-            this.Application.DocumentOpen += new ApplicationEvents4_DocumentOpenEventHandler(DocOpen);
-            ((ApplicationEvents4_Event)this.Application).NewDocument += new ApplicationEvents4_NewDocumentEventHandler(NewDoc);
-
-            string AppDir = System.AppDomain.CurrentDomain.BaseDirectory.ToString();
-            string TestDocDir = AppDir.Substring(0, AppDir.Length - 21) + @"Docs\Test_data_1.docx";
-            Document TestDoc = Application.Documents.Open(TestDocDir);
-
             WindowTaskPanes = new Dictionary<Word.Window, CustomTaskPane>();
             XmlDocument = XElement.Load(new XmlNodeReader(Properties.Settings.Default.Projects));
             CurrentProject = Properties.Settings.Default.RecentProject;
@@ -57,6 +51,23 @@ namespace WordAddIn1
             KeyboardShortcuts();
             Application.WindowActivate += ActivateDocumentWindow;
             Application.WindowDeactivate += DeactivateDocumentWindow;
+
+            Microsoft.Office.Tools.Word.Document vstoDoc = Globals.Factory.GetVstoObject(Application.ActiveDocument);
+            var handler = new Microsoft.Office.Tools.Word.SelectionEventHandler((sender2, e2) => ThisDocument_SelectionChange(sender2, e2, currentBookmark, vstoDoc));
+            vstoDoc.SelectionChange -= handler;
+            vstoDoc.SelectionChange += handler;
+
+            this.Application.DocumentOpen += new ApplicationEvents4_DocumentOpenEventHandler(DocOpen); 
+            ((ApplicationEvents4_Event)this.Application).NewDocument += new ApplicationEvents4_NewDocumentEventHandler(NewDoc);
+
+            string AppDir = System.AppDomain.CurrentDomain.BaseDirectory.ToString();
+            string TestDocDir = AppDir.Substring(0, AppDir.Length - 21) + @"Docs\test_data.txt";
+            string TestText;
+            using (StreamReader r = new StreamReader(TestDocDir))
+            {
+                TestText = r.ReadToEnd();
+            }
+            Application.ActiveDocument.Content.Text = TestText;
         }
 
         private void DocOpen(Document OpenedDoc)

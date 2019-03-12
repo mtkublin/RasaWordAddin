@@ -13,12 +13,14 @@ namespace WordAddIn1
         {
             this.AzureStorageButton.Checked = false;
             this.LocalStorageButton.Checked = true;
-            this.SetDirButton.Enabled = true;
+            //this.SetDirButton.Enabled = true;
+            this.SetDirButton.Enabled = false;
             this.ModelDirBox.Enabled = false;
             this.ProjectDropDown.Enabled = false;
             this.ProjectAddButton.Enabled = false;
             this.TestModelDropDown.Enabled = false;
-            this.TestButton.Enabled = false;
+            //this.TestButton.Enabled = false;
+            this.TestButton.Enabled = true;
             this.TrainingButton.Enabled = false;
             this.reverseTestBTN.Enabled = false;
             this.CurBMtextLabel.Label = "";
@@ -193,28 +195,31 @@ namespace WordAddIn1
 
         private void reverseTestBTN_Click(object sender, RibbonControlEventArgs e)
         {
-            Microsoft.Office.Interop.Word.Document activeDocument = Globals.ThisAddIn.Application.ActiveDocument;
-            var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
+            Globals.ThisAddIn.ReverseTest();
 
-            foreach (Microsoft.Office.Interop.Word.Range range in activeDocument.StoryRanges)
-            {
-                Globals.ThisAddIn.UnhighlightControl(range);
-            }
+            //Microsoft.Office.Interop.Word.Document activeDocument = Globals.ThisAddIn.Application.ActiveDocument;
+            //var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
 
-            foreach (Microsoft.Office.Interop.Word.Bookmark existingBM in activeDocument.Bookmarks)
-            {
-                Microsoft.Office.Tools.Word.Bookmark VSTOexistingBM = extendedDocument.Controls[existingBM.Name] as Microsoft.Office.Tools.Word.Bookmark;
-                VSTOexistingBM.Delete();
-            }
+            //foreach (Microsoft.Office.Interop.Word.Range range in activeDocument.StoryRanges)
+            //{
+            //    Globals.ThisAddIn.UnhighlightControl(range);
+            //}
 
-            Dictionary<string, Microsoft.Office.Interop.Word.Range> bmsDict = Globals.ThisAddIn.bmRangesPriorToTestDict;
-            foreach (string bmName in bmsDict.Keys)
-            {
-                extendedDocument.Controls.AddBookmark(bmsDict[bmName], bmName);
-            }
+            //foreach (Microsoft.Office.Interop.Word.Bookmark existingBM in activeDocument.Bookmarks)
+            //{
+            //    Microsoft.Office.Tools.Word.Bookmark VSTOexistingBM = extendedDocument.Controls[existingBM.Name] as Microsoft.Office.Tools.Word.Bookmark;
+            //    VSTOexistingBM.Delete();
+            //}
 
-            Globals.ThisAddIn.HighlightBookmarksInVisibleRange();
-            this.reverseTestBTN.Enabled = false;
+            //Dictionary<string, Microsoft.Office.Interop.Word.Range> bmsDict = Globals.ThisAddIn.bmRangesPriorToTestDict;
+            //foreach (string bmName in bmsDict.Keys)
+            //{
+            //    extendedDocument.Controls.AddBookmark(bmsDict[bmName], bmName);
+            //}
+
+            //Globals.ThisAddIn.HighlightBookmarksInVisibleRange();
+            //this.reverseTestBTN.Enabled = false;
+            //Globals.ThisAddIn.currentBookmark = null;
         }
     }
 }

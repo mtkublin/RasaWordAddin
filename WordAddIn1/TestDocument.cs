@@ -54,7 +54,6 @@ namespace WordAddIn1
             string AppDir = System.AppDomain.CurrentDomain.BaseDirectory.ToString();
             string TestResDir = AppDir.Substring(0, AppDir.Length - 21) + @"Docs\test_result.json";
             string JSONresultDoc;
-
             using (StreamReader r = new StreamReader(TestResDir))
             {
                 JSONresultDoc = r.ReadToEnd();
@@ -182,6 +181,36 @@ namespace WordAddIn1
             {
                 Utilities.Notification(ex.Message);
             }
+        }
+
+        public void ReverseTest()
+        {
+            Microsoft.Office.Interop.Word.Document activeDocument = Globals.ThisAddIn.Application.ActiveDocument;
+            var extendedDocument = Globals.Factory.GetVstoObject(activeDocument);
+
+            foreach (Microsoft.Office.Interop.Word.Range range in activeDocument.StoryRanges)
+            {
+                Globals.ThisAddIn.UnhighlightControl(range);
+            }
+
+            foreach (Microsoft.Office.Interop.Word.Bookmark existingBM in activeDocument.Bookmarks)
+            {
+                Microsoft.Office.Tools.Word.Bookmark VSTOexistingBM = extendedDocument.Controls[existingBM.Name] as Microsoft.Office.Tools.Word.Bookmark;
+                VSTOexistingBM.Delete();
+            }
+
+            Dictionary<string, Microsoft.Office.Interop.Word.Range> bmsDict = Globals.ThisAddIn.bmRangesPriorToTestDict;
+            foreach (string bmName in bmsDict.Keys)
+            {
+                extendedDocument.Controls.AddBookmark(bmsDict[bmName], bmName);
+            }
+
+            Globals.ThisAddIn.HighlightBookmarksInVisibleRange();
+            Globals.Ribbons.Ribbon1.reverseTestBTN.Enabled = false;
+            Globals.ThisAddIn.currentBookmark = null;
+            Globals.Ribbons.Ribbon1.CurBMtextLabel.Label = "";
+            Globals.Ribbons.Ribbon1.CurBMentLabel.Label = "";
+            Globals.Ribbons.Ribbon1.IntOrEntLabel.Label = "";
         }
     }
 }
